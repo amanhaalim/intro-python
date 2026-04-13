@@ -1,0 +1,31 @@
+StudentID,Name,Age,Gender,City,MathScore,ScienceScore,EnglishScore,Attendance(%),Grade,FeesPaid
+1,Aiden Smith,20,Male,New York,85,90,78,92,A,Yes
+2,Priya Nair,21,Female,Mumbai,92,88,95,98,A,Yes
+3,Carlos Rivera,19,Male,Mexico City,73,65,80,85,B,No
+4,Emma Johnson,22,Female,London,60,55,70,76,C,Yes
+5,Ravi Kumar,20,Male,Bangalore,88,92,85,95,A,Yes
+6,Fatima Al-Hassan,23,Female,Dubai,79,84,91,89,B,Yes
+7,Lucas Martin,21,Male,Paris,55,60,65,70,C,No
+8,Yuna Park,20,Female,Seoul,95,97,93,99,A,Yes
+9,James Okafor,22,Male,Lagos,68,72,60,80,B,No
+10,Sofia Rossi,19,Female,Rome,82,78,88,91,B,Yes
+11,Arjun Mehta,21,Male,Delhi,91,89,84,96,A,Yes
+12,Mei Lin,20,Female,Beijing,76,80,74,88,B,Yes
+13,Tom Baker,23,Male,Sydney,62,58,69,73,C,No
+14,Amara Diallo,21,Female,Dakar,87,85,90,94,A,Yes
+15,Daniel Lee,22,Male,Seoul,70,75,68,82,B,Yes
+16,Ingrid Hansen,20,Female,Oslo,93,91,96,97,A,Yes
+17,Omar Khalid,19,Male,Cairo,,78,72,84,B,No
+18,Laura Perez,22,Female,Buenos Aires,80,82,85,90,A,Yes
+19,Kevin Tran,21,Male,Ho Chi Minh City,66,70,63,77,C,No
+20,Zara Ahmed,20,Female,Karachi,89,86,92,95,A,Yes
+21,Nathan Brooks,23,Male,Chicago,74,68,76,85,B,Yes
+22,Hana Yamamoto,21,Female,Tokyo,97,95,94,99,A,Yes
+23,Samuel Osei,20,Male,Accra,58,62,55,72,C,No
+24,Elena Popov,22,Female,Moscow,83,87,89,93,A,Yes
+25,Luis Fernandez,19,Male,Madrid,77,73,80,88,B,Yes
+26,Nia Thompson,21,Female,Atlanta,90,92,88,96,A,Yes
+27,Hiroshi Tanaka,22,Male,Osaka,84,88,82,91,B,Yes
+28,Amira Ben Ali,20,Female,Tunis,71,75,78,86,B,No
+29,Patrick Murphy,23,Male,Dublin,65,60,70,79,C,Yes
+30,Chen Wei,21,Male,Shanghai,94,96,91,98,A,Yes
