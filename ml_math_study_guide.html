@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math & ML — Beginner Study Guide</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #1c2230;
+    --border: rgba(255,255,255,0.08);
+    --gold: #f0c060;
+    --teal: #5cceb0;
+    --coral: #f07080;
+    --purple: #a78bfa;
+    --blue: #60a5fa;
+    --text: #e2e8f0;
+    --muted: #8b95a5;
+    --code-bg: #0a0f16;
+    --nav-w: 240px;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Libre Baskerville', Georgia, serif; font-size: 16px; line-height: 1.75; min-height: 100vh; }
+
+  nav { position: fixed; top: 0; left: 0; width: var(--nav-w); height: 100vh; background: var(--bg2); border-right: 1px solid var(--border); padding: 32px 0; overflow-y: auto; z-index: 100; }
+  nav .logo { padding: 0 24px 28px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  nav .logo h1 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800; color: var(--gold); letter-spacing: 0.05em; text-transform: uppercase; }
+  nav .logo p { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; }
+  nav a { display: flex; align-items: center; gap: 10px; padding: 9px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); text-decoration: none; transition: all .2s; border-left: 2px solid transparent; }
+  nav a:hover, nav a.active { color: var(--text); background: rgba(255,255,255,0.04); }
+  nav a.active { border-left-color: var(--gold); color: var(--gold); }
+  nav .section-label { padding: 16px 24px 6px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; }
+  nav .num { font-size: 10px; color: rgba(255,255,255,0.25); min-width: 16px; }
+
+  main { margin-left: var(--nav-w); padding: 60px 64px 100px; max-width: 900px; }
+
+  .hero { margin-bottom: 72px; padding-bottom: 48px; border-bottom: 1px solid var(--border); }
+  .hero .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 16px; }
+  .hero h2 { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 20px; }
+  .hero h2 span { color: var(--gold); }
+  .hero p { font-size: 17px; color: var(--muted); max-width: 600px; line-height: 1.8; }
+  .tag-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 1px solid; }
+  .tag.gold { color: var(--gold); border-color: rgba(240,192,96,0.3); background: rgba(240,192,96,0.06); }
+  .tag.teal { color: var(--teal); border-color: rgba(92,206,176,0.3); background: rgba(92,206,176,0.06); }
+  .tag.coral { color: var(--coral); border-color: rgba(240,112,128,0.3); background: rgba(240,112,128,0.06); }
+  .tag.purple { color: var(--purple); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+
+  .section { margin-bottom: 88px; scroll-margin-top: 40px; }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .section-num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); }
+  .section-header h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; color: #fff; }
+  .section-header .accent { color: var(--gold); }
+  .section-header .accent-teal { color: var(--teal); }
+  .section-header .accent-coral { color: var(--coral); }
+  .section-header .accent-purple { color: var(--purple); }
+
+  h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); margin: 36px 0 14px; }
+  p { margin-bottom: 16px; color: var(--text); }
+
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 24px 0; }
+  .card.gold { border-color: rgba(240,192,96,0.2); background: rgba(240,192,96,0.04); }
+  .card.teal { border-color: rgba(92,206,176,0.2); background: rgba(92,206,176,0.04); }
+  .card.coral { border-color: rgba(240,112,128,0.2); background: rgba(240,112,128,0.04); }
+  .card.purple { border-color: rgba(167,139,250,0.2); background: rgba(167,139,250,0.04); }
+  .card-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 10px; }
+  .card.gold .card-label { color: var(--gold); }
+  .card.teal .card-label { color: var(--teal); }
+  .card.coral .card-label { color: var(--coral); }
+  .card.purple .card-label { color: var(--purple); }
+
+  .code-block { background: var(--code-bg); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius); overflow: hidden; margin: 20px 0; }
+  .code-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .code-header span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.35); }
+  .code-header .copy-btn { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--teal); background: none; border: 1px solid rgba(92,206,176,0.3); border-radius: 4px; padding: 3px 8px; cursor: pointer; transition: all .2s; }
+  .code-header .copy-btn:hover { background: rgba(92,206,176,0.1); }
+  pre { padding: 20px; overflow-x: auto; }
+  code { font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.7; }
+  .kw { color: #ff79c6; }
+  .fn { color: #50fa7b; }
+  .st { color: #f1fa8c; }
+  .cm { color: #6272a4; font-style: italic; }
+  .nm { color: #bd93f9; }
+  .va { color: #8be9fd; }
+
+  .formula { background: var(--bg3); border-left: 3px solid var(--gold); padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 20px 0; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--gold); }
+  .formula span { color: var(--muted); font-size: 12px; display: block; margin-top: 6px; }
+
+  .interactive-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin: 24px 0; }
+  .interactive-box h4 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+  .slider-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .slider-row label { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); width: 130px; flex-shrink: 0; }
+  .slider-row input[type=range] { flex: 1; accent-color: var(--teal); height: 4px; }
+  .slider-row .val { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--teal); min-width: 50px; text-align: right; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+  .info-grid .cell { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
+  .info-grid .cell .label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .info-grid .cell .val { font-size: 20px; font-weight: 700; font-family: 'Syne', sans-serif; }
+
+  .real-world { border-left: 3px solid var(--teal); padding: 16px 20px; background: rgba(92,206,176,0.04); border-radius: 0 8px 8px 0; margin: 20px 0; }
+  .real-world .rw-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { background: var(--bg3); color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  .yes { color: var(--teal); font-weight: 700; }
+  .no { color: var(--coral); font-weight: 700; }
+
+  .matrix-display { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+  .matrix { font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; }
+  .matrix table { border-collapse: separate; border-spacing: 8px 4px; }
+  .matrix td { padding: 0; border: none; color: var(--blue); text-align: right; min-width: 28px; }
+  .matrix-label { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; text-align: center; margin-top: 6px; }
+  .op-sign { font-family: 'Syne', sans-serif; font-size: 24px; color: var(--muted); }
+
+  .bayes-visual { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .bayes-box { background: var(--bg3); border-radius: 8px; padding: 16px; text-align: center; border: 1px solid var(--border); }
+  .bayes-box .bv-num { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+  .bayes-box .bv-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  .spurious-card { display: flex; align-items: center; gap: 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin: 12px 0; }
+  .sc-emoji { font-size: 28px; min-width: 40px; text-align: center; }
+  .sc-text p { font-size: 14px; color: var(--muted); margin: 0; }
+
+  .back-top { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-top: 40px; border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; transition: all .2s; }
+  .back-top:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 900px) { nav { width: 200px; } main { margin-left: 200px; padding: 40px 32px 80px; } .info-grid { grid-template-columns: 1fr; } .bayes-visual { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 680px) { nav { display: none; } main { margin-left: 0; padding: 32px 20px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <h1>Math &times; ML</h1>
+    <p>// beginner study guide</p>
+  </div>
+  <div class="section-label">Contents</div>
+  <a href="#linear-algebra" class="active"><span class="num">01</span>Linear Algebra</a>
+  <a href="#gradient-descent"><span class="num">02</span>Gradient Descent</a>
+  <a href="#probability"><span class="num">03</span>Probability</a>
+  <a href="#correlation"><span class="num">04</span>Correlation vs Causation</a>
+  <div class="section-label" style="margin-top:16px">Subsections</div>
+  <a href="#vectors" style="padding-left:36px"><span class="num">&#8627;</span>Vectors</a>
+  <a href="#matrices" style="padding-left:36px"><span class="num">&#8627;</span>Matrices</a>
+  <a href="#dot-product" style="padding-left:36px"><span class="num">&#8627;</span>Dot Product</a>
+  <a href="#loss-landscape" style="padding-left:36px"><span class="num">&#8627;</span>Loss Landscape</a>
+  <a href="#bayes" style="padding-left:36px"><span class="num">&#8627;</span>Bayes Theorem</a>
+</nav>
+
+<main>
+
+  <div class="hero">
+    <div class="eyebrow">// Beginner Level &middot; Math + ML</div>
+    <h2>From Numbers<br>to <span>Neural Networks</span></h2>
+    <p>Four foundational ideas every ML practitioner needs &mdash; explained with plain language, real-world examples, and runnable Python.</p>
+    <div class="tag-row">
+      <span class="tag gold">Linear Algebra</span>
+      <span class="tag teal">Gradient Descent</span>
+      <span class="tag coral">Probability</span>
+      <span class="tag purple">Correlation &ne; Causation</span>
+    </div>
+  </div>
+
+  <!-- 1. LINEAR ALGEBRA -->
+  <section class="section" id="linear-algebra">
+    <div class="section-header">
+      <span class="section-num">01 &mdash;</span>
+      <h2><span class="accent">Linear Algebra</span></h2>
+    </div>
+
+    <p>Linear algebra is the language ML models speak. Your data is vectors. Your model parameters are matrices. Every prediction is a chain of matrix multiplications. Once you see this, ML architecture diagrams stop being mysterious.</p>
+
+    <h3 id="vectors">Vectors &mdash; Ordered Lists with Direction</h3>
+    <p>A <strong>vector</strong> is an ordered list of numbers. It represents a point in space, or a direction and magnitude. In ML, almost everything gets encoded as a vector.</p>
+
+    <div class="real-world">
+      <div class="rw-label">&#127916; Real-World Example &mdash; Netflix Ratings</div>
+      <p>You rated 5 genres: <em>Action: 5, Romance: 1, Comedy: 4, Horror: 2, SciFi: 5</em>. That&apos;s your <strong>preference vector</strong> <code>[5, 1, 4, 2, 5]</code>. Netflix compares your vector to every other user&apos;s to find your &ldquo;neighbours&rdquo; &mdash; people with similar taste. Two vectors pointing in the same direction in this 5D space = similar taste.</p>
+    </div>
+
+    <div class="matrix-display">
+      <div>
+        <div class="matrix"><table><tr><td>5</td></tr><tr><td>1</td></tr><tr><td>4</td></tr><tr><td>2</td></tr><tr><td>5</td></tr></table></div>
+        <div class="matrix-label">Your ratings (u)</div>
+      </div>
+      <div class="op-sign">similarity?</div>
+      <div>
+        <div class="matrix"><table><tr><td>4</td></tr><tr><td>2</td></tr><tr><td>5</td></tr><tr><td>1</td></tr><tr><td>5</td></tr></table></div>
+        <div class="matrix-label">Friend&apos;s ratings (v)</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; vectors_basics.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Your movie preference vector</span>
+u = np.array([<span class="nm">5</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">2</span>, <span class="nm">5</span>])  <span class="cm"># action, romance, comedy, horror, scifi</span>
+v = np.array([<span class="nm">4</span>, <span class="nm">2</span>, <span class="nm">5</span>, <span class="nm">1</span>, <span class="nm">5</span>])  <span class="cm"># friend&apos;s ratings</span>
+
+<span class="cm"># Vector magnitude (length)</span>
+print(<span class="fn">f"Your vector length: {np.linalg.norm(u):.2f}"</span>)
+
+<span class="cm"># Add vectors (combine preferences)</span>
+combined = u + v
+print(<span class="fn">f"Combined: {combined}"</span>)
+
+<span class="cm"># Scale a vector</span>
+doubled = <span class="nm">2</span> * u
+print(<span class="fn">f"Doubled: {doubled}"</span>)</code></pre>
+    </div>
+
+    <h3 id="matrices">Matrices &mdash; Tables of Transformations</h3>
+    <p>A <strong>matrix</strong> is a 2D grid of numbers. Multiplying a vector by a matrix <em>transforms</em> it &mdash; rotating, scaling, or projecting it. This is literally what every neural network layer does to your data.</p>
+
+    <div class="real-world">
+      <div class="rw-label">&#128444; Real-World Example &mdash; Image Pixels</div>
+      <p>A 28&times;28 greyscale image (like an MNIST digit) is a 28&times;28 matrix where each cell is a brightness value 0&ndash;255. A neural network flattens it into a vector of 784 numbers and multiplies it through weight matrices to produce &ldquo;this is digit 7 with 96% confidence.&rdquo;</p>
+    </div>
+
+    <div class="matrix-display">
+      <div><div class="matrix"><table><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr></table></div><div class="matrix-label">A (2&times;3)</div></div>
+      <div class="op-sign">&times;</div>
+      <div><div class="matrix"><table><tr><td>7</td><td>8</td></tr><tr><td>9</td><td>10</td></tr><tr><td>11</td><td>12</td></tr></table></div><div class="matrix-label">B (3&times;2)</div></div>
+      <div class="op-sign">=</div>
+      <div><div class="matrix" style="border-color:rgba(92,206,176,0.3)"><table><tr><td style="color:var(--teal)">58</td><td style="color:var(--teal)">64</td></tr><tr><td style="color:var(--teal)">139</td><td style="color:var(--teal)">154</td></tr></table></div><div class="matrix-label">Result (2&times;2)</div></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; matrix_ops.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+A = np.array([[<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>],[<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>]])         <span class="cm"># shape: (2, 3)</span>
+B = np.array([[<span class="nm">7</span>,<span class="nm">8</span>],[<span class="nm">9</span>,<span class="nm">10</span>],[<span class="nm">11</span>,<span class="nm">12</span>]])   <span class="cm"># shape: (3, 2)</span>
+
+<span class="cm"># Matrix multiplication</span>
+C = A @ B
+print(<span class="fn">"A @ B ="</span>, C)  <span class="cm"># [[58,64],[139,154]]</span>
+
+<span class="cm"># Simulating a neural network layer:</span>
+x = np.array([<span class="nm">0.5</span>, <span class="nm">0.8</span>, <span class="nm">0.2</span>])     <span class="cm"># input vector (3 features)</span>
+W = np.random.randn(<span class="nm">4</span>, <span class="nm">3</span>)         <span class="cm"># weight matrix (4 neurons, 3 inputs)</span>
+b = np.zeros(<span class="nm">4</span>)                   <span class="cm"># bias vector</span>
+
+output = W @ x + b                 <span class="cm"># linear layer forward pass</span>
+print(<span class="fn">"Layer output:"</span>, output)     <span class="cm"># 4 activations</span></code></pre>
+    </div>
+
+    <h3 id="dot-product">Dot Product &mdash; Measuring Similarity</h3>
+    <p>The <strong>dot product</strong> of two vectors is a single number telling you how <em>similar</em> their directions are. Large positive = aligned (similar). Near zero = unrelated. Negative = opposite.</p>
+
+    <div class="formula">
+      u &middot; v = u&#8321;v&#8321; + u&#8322;v&#8322; + &hellip; + u&#8345;v&#8345; = &Vert;u&Vert; &Vert;v&Vert; cos(&theta;)
+      <span>cos(&theta;) = 1 means identical direction &middot; cos(&theta;) = 0 means perpendicular &middot; cos(&theta;) = &minus;1 means opposite</span>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">&#128269; Real-World Example &mdash; Search Engines</div>
+      <p>Google encodes both your search query and every web page as high-dimensional vectors. The ranking algorithm computes cosine similarity between your query vector and each page&apos;s vector. Pages closest in vector space rank higher. The same math powers Spotify recommendations and Amazon&apos;s &ldquo;you might also like.&rdquo;</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; dot_product.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+u = np.array([<span class="nm">5</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">2</span>, <span class="nm">5</span>])  <span class="cm"># your ratings</span>
+v = np.array([<span class="nm">4</span>, <span class="nm">2</span>, <span class="nm">5</span>, <span class="nm">1</span>, <span class="nm">5</span>])  <span class="cm"># friend A (similar)</span>
+w = np.array([<span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">1</span>, <span class="nm">5</span>, <span class="nm">1</span>])  <span class="cm"># friend B (opposite tastes)</span>
+
+<span class="kw">def</span> <span class="fn">cosine_similarity</span>(a, b):
+    <span class="kw">return</span> np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+print(<span class="fn">f"You vs Friend A: {cosine_similarity(u,v):.3f}"</span>)
+<span class="cm"># 0.961 &mdash; very similar taste!</span>
+print(<span class="fn">f"You vs Friend B: {cosine_similarity(u,w):.3f}"</span>)
+<span class="cm"># 0.461 &mdash; quite different taste</span></code></pre>
+    </div>
+
+    <div class="interactive-box">
+      <h4>&#9889; Interactive &mdash; Cosine Similarity</h4>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Adjust each genre rating (1&ndash;5). Watch the cosine similarity update in real time.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em">User A</div>
+          <div class="slider-row"><label>Action</label><input type="range" min="1" max="5" value="5" oninput="updateSim()" id="a1"><span class="val" id="a1v">5</span></div>
+          <div class="slider-row"><label>Romance</label><input type="range" min="1" max="5" value="1" oninput="updateSim()" id="a2"><span class="val" id="a2v">1</span></div>
+          <div class="slider-row"><label>Comedy</label><input type="range" min="1" max="5" value="4" oninput="updateSim()" id="a3"><span class="val" id="a3v">4</span></div>
+          <div class="slider-row"><label>Horror</label><input type="range" min="1" max="5" value="2" oninput="updateSim()" id="a4"><span class="val" id="a4v">2</span></div>
+          <div class="slider-row"><label>SciFi</label><input type="range" min="1" max="5" value="5" oninput="updateSim()" id="a5"><span class="val" id="a5v">5</span></div>
+        </div>
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--coral);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em">User B</div>
+          <div class="slider-row"><label>Action</label><input type="range" min="1" max="5" value="4" oninput="updateSim()" id="b1"><span class="val" id="b1v">4</span></div>
+          <div class="slider-row"><label>Romance</label><input type="range" min="1" max="5" value="2" oninput="updateSim()" id="b2"><span class="val" id="b2v">2</span></div>
+          <div class="slider-row"><label>Comedy</label><input type="range" min="1" max="5" value="5" oninput="updateSim()" id="b3"><span class="val" id="b3v">5</span></div>
+          <div class="slider-row"><label>Horror</label><input type="range" min="1" max="5" value="1" oninput="updateSim()" id="b4"><span class="val" id="b4v">1</span></div>
+          <div class="slider-row"><label>SciFi</label><input type="range" min="1" max="5" value="5" oninput="updateSim()" id="b5"><span class="val" id="b5v">5</span></div>
+        </div>
+      </div>
+      <div style="margin-top:24px;padding:20px;background:var(--bg3);border-radius:8px;text-align:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px">COSINE SIMILARITY</div>
+        <div id="sim-value" style="font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--teal)">0.961</div>
+        <div id="sim-label" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-top:8px">Very similar taste &mdash; great recommendation candidate!</div>
+        <div style="height:8px;background:var(--bg);border-radius:4px;margin-top:16px;overflow:hidden">
+          <div id="sim-bar" style="height:100%;background:linear-gradient(90deg,var(--coral),var(--gold),var(--teal));border-radius:4px;transition:width .3s;width:96%"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. GRADIENT DESCENT -->
+  <section class="section" id="gradient-descent">
+    <div class="section-header">
+      <span class="section-num">02 &mdash;</span>
+      <h2><span class="accent-teal">Gradient Descent</span></h2>
+    </div>
+
+    <p>Gradient descent is how ML models <em>learn</em>. It&apos;s the optimization algorithm that adjusts a model&apos;s parameters to minimize mistakes. Every major model &mdash; from linear regression to GPT &mdash; trains using some variant of this idea.</p>
+
+    <h3>The Blind Hiker Analogy</h3>
+    <p>Imagine you&apos;re blindfolded in a hilly landscape and want to reach the valley. You can&apos;t see &mdash; but you can feel which way the ground slopes. Your strategy: <strong>always step in the direction that goes downhill</strong>.</p>
+
+    <div class="info-grid">
+      <div class="cell">
+        <div class="label">The landscape</div>
+        <div class="val" style="color:var(--gold)">Loss Surface</div>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px">A mathematical surface where height = how bad the model is (its &ldquo;loss&rdquo; or error on training data).</p>
+      </div>
+      <div class="cell">
+        <div class="label">The valley</div>
+        <div class="val" style="color:var(--teal)">Minimum Loss</div>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px">Where the model makes the fewest errors. Where we want our parameters to end up.</p>
+      </div>
+      <div class="cell">
+        <div class="label">Your step size</div>
+        <div class="val" style="color:var(--coral)">Learning Rate &eta;</div>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px">Too big &rarr; overshoot the valley. Too small &rarr; takes forever. Getting this right matters enormously.</p>
+      </div>
+      <div class="cell">
+        <div class="label">Slope direction</div>
+        <div class="val" style="color:var(--purple)">Gradient &nabla;L</div>
+        <p style="font-size:13px;color:var(--muted);margin-top:8px">The derivative of the loss. Points uphill &mdash; so we go the <em>opposite</em> direction to descend.</p>
+      </div>
+    </div>
+
+    <div class="formula">
+      &theta;<sub>new</sub> = &theta;<sub>old</sub> &minus; &eta; &middot; &nabla;L(&theta;)
+      <span>&theta; = parameters &middot; &eta; = learning rate &middot; &nabla;L = gradient of the loss function</span>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">&#127968; Real-World Example &mdash; House Price Prediction</div>
+      <p>You&apos;re building a model: <code>price = m &times; sqft + b</code>. Gradient descent measures how wrong your current m and b are, then nudges them a tiny bit in the direction that reduces the error. Repeat thousands of times &rarr; your model converges on the best-fit line through your training data.</p>
+    </div>
+
+    <h3 id="loss-landscape">Interactive &mdash; Watch Gradient Descent</h3>
+
+    <div class="interactive-box">
+      <h4>&#127918; Interactive &mdash; Gradient Descent on Loss Curve f(&theta;) = &theta;&sup2;</h4>
+      <div class="slider-row">
+        <label>Learning rate &eta;</label>
+        <input type="range" min="0.01" max="1.1" step="0.01" value="0.1" id="lr-slider" oninput="updateLR()">
+        <span class="val" id="lr-val">0.10</span>
+      </div>
+      <div class="slider-row">
+        <label>Start position &theta;<sub>0</sub></label>
+        <input type="range" min="-3.5" max="3.5" step="0.1" value="3.0" id="start-slider" oninput="updateLR()">
+        <span class="val" id="start-val">3.0</span>
+      </div>
+      <div style="position:relative;height:300px;margin-top:16px">
+        <canvas id="gd-chart" aria-label="Gradient descent visualization showing loss curve and optimization steps"></canvas>
+      </div>
+      <div style="display:flex;gap:24px;margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:12px">
+        <div>Steps: <span id="gd-steps" style="color:var(--teal)">-</span></div>
+        <div>Final loss: <span id="gd-loss" style="color:var(--gold)">-</span></div>
+        <div id="gd-warn" style="color:var(--coral)"></div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; gradient_descent.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># House price regression from scratch with gradient descent</span>
+X = np.array([<span class="nm">600</span>, <span class="nm">800</span>, <span class="nm">1000</span>, <span class="nm">1200</span>, <span class="nm">1500</span>, <span class="nm">2000</span>], dtype=<span class="va">float</span>)
+y = np.array([<span class="nm">150</span>,  <span class="nm">200</span>,  <span class="nm">240</span>,  <span class="nm">280</span>,  <span class="nm">350</span>,  <span class="nm">480</span>], dtype=<span class="va">float</span>)
+
+<span class="cm"># Normalize inputs (crucial for gradient descent stability)</span>
+X_norm = (X - X.mean()) / X.std()
+
+w, b = <span class="nm">0.0</span>, <span class="nm">0.0</span>    <span class="cm"># start with zero weights</span>
+lr    = <span class="nm">0.01</span>        <span class="cm"># learning rate</span>
+n     = <span class="va">len</span>(X)
+
+<span class="kw">for</span> epoch <span class="kw">in</span> <span class="va">range</span>(<span class="nm">1000</span>):
+    y_pred = w * X_norm + b          <span class="cm"># forward pass</span>
+    loss   = ((y_pred - y)**<span class="nm">2</span>).mean() <span class="cm"># MSE loss</span>
+
+    <span class="cm"># Compute gradients via calculus</span>
+    dw = (<span class="nm">2</span>/n) * (X_norm * (y_pred - y)).sum()
+    db = (<span class="nm">2</span>/n) * (y_pred - y).sum()
+
+    <span class="cm"># Step downhill</span>
+    w -= lr * dw
+    b -= lr * db
+
+    <span class="kw">if</span> epoch % <span class="nm">200</span> == <span class="nm">0</span>:
+        print(<span class="fn">f"Epoch {epoch:4d} | Loss: {loss:.2f}"</span>)
+
+print(<span class="fn">f"Learned: price = {w:.1f} * sqft_norm + {b:.1f}"</span>)</code></pre>
+    </div>
+
+    <div class="card coral">
+      <div class="card-label">&#9888; Common Pitfall &mdash; Learning Rate</div>
+      <p style="margin:0">If &eta; is too high (e.g. &gt;1), the model overshoots and diverges. If too small (e.g. 0.0001), training takes forever. Common starting point: try <code>0.001</code>, or use Adam which auto-adjusts the rate. Use the interactive above to see both failure modes!</p>
+    </div>
+  </section>
+
+  <!-- 3. PROBABILITY -->
+  <section class="section" id="probability">
+    <div class="section-header">
+      <span class="section-num">03 &mdash;</span>
+      <h2><span class="accent-coral">Probability Intuition</span></h2>
+    </div>
+
+    <p>Probability is the math of uncertainty. ML models rarely give hard yes/no outputs &mdash; they output <em>probabilities</em>. Understanding probability lets you interpret model outputs correctly and avoid dangerous misreadings.</p>
+
+    <h3>Core Vocabulary</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Term</th><th>What it means</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P(A)</strong></td><td>Probability of event A. Always 0&ndash;1.</td><td>P(click) = 0.03</td></tr>
+          <tr><td><strong>P(A|B)</strong></td><td>Probability of A <em>given</em> B happened</td><td>P(click | saw video) = 0.08</td></tr>
+          <tr><td><strong>P(A &cap; B)</strong></td><td>Both A and B happen</td><td>P(clicked AND bought)</td></tr>
+          <tr><td><strong>Independent</strong></td><td>Knowing A tells you nothing about B</td><td>Two separate coin flips</td></tr>
+          <tr><td><strong>Confounder</strong></td><td>Hidden variable affecting both A and B</td><td>Season affects ice cream sales AND outdoor injuries</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="bayes">Bayes&apos; Theorem &mdash; Updating Your Beliefs</h3>
+    <p>The most important formula in ML. It tells you how to <em>update a probability</em> when you get new evidence. Every spam filter, medical diagnosis model, and language model prior uses this.</p>
+
+    <div class="formula">
+      P(A|B) = P(B|A) &times; P(A) / P(B)
+      <span>Posterior = Likelihood &times; Prior / Evidence</span>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">&#127973; Real-World Example &mdash; Medical Test</div>
+      <p>A disease affects <strong>1%</strong> of the population. A test has <strong>90% sensitivity</strong> (true positive rate) and a <strong>5% false positive rate</strong>. You test positive. What&apos;s the probability you actually have the disease?</p>
+    </div>
+
+    <div class="bayes-visual">
+      <div class="bayes-box"><div class="bv-num" style="color:var(--coral)">1%</div><div class="bv-label">Prior P(Disease)</div></div>
+      <div class="bayes-box"><div class="bv-num" style="color:var(--gold)">90%</div><div class="bv-label">Sensitivity P(+|Disease)</div></div>
+      <div class="bayes-box"><div class="bv-num" style="color:var(--purple)">5%</div><div class="bv-label">False Positive Rate</div></div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-label">&#128270; Calculation</div>
+      <p><code>P(+) = 0.90&times;0.01 + 0.05&times;0.99 = 0.009 + 0.0495 = 0.0585</code></p>
+      <p><code>P(Disease|+) = 0.009 / 0.0585 &asymp; <strong style="color:var(--gold)">15.4%</strong></code></p>
+      <p style="margin-top:10px;font-size:15px">Even with a positive test, there&apos;s only a ~15% chance. Why? Because the disease is rare (1%), so most positives come from false alarms in the large healthy population. This is why doctors order <em>confirmatory tests</em> &mdash; and why you shouldn&apos;t panic at a single positive result.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; bayes_theorem.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">def</span> <span class="fn">bayes_update</span>(prior, sensitivity, false_positive_rate):
+    <span class="st">"""
+    prior               : P(disease) before the test
+    sensitivity         : P(positive | disease) = true positive rate
+    false_positive_rate : P(positive | no disease)
+    Returns             : P(disease | positive test)
+    """</span>
+    p_positive = sensitivity * prior + false_positive_rate * (<span class="nm">1</span> - prior)
+    posterior  = (sensitivity * prior) / p_positive
+    <span class="kw">return</span> posterior
+
+<span class="cm"># Standard scenario (rare disease)</span>
+result = <span class="fn">bayes_update</span>(prior=<span class="nm">0.01</span>, sensitivity=<span class="nm">0.90</span>, false_positive_rate=<span class="nm">0.05</span>)
+print(<span class="fn">f"Standard: {result:.1%}"</span>)          <span class="cm"># 15.4%</span>
+
+<span class="cm"># Same test during an outbreak (10% prevalence)</span>
+result_outbreak = <span class="fn">bayes_update</span>(prior=<span class="nm">0.10</span>, sensitivity=<span class="nm">0.90</span>, false_positive_rate=<span class="nm">0.05</span>)
+print(<span class="fn">f"During outbreak: {result_outbreak:.1%}"</span>)  <span class="cm"># 66.7%!</span>
+<span class="cm"># Lesson: the prior (base rate) changes everything.</span></code></pre>
+    </div>
+
+    <h3>Normal Distribution &mdash; The Bell Curve</h3>
+    <p>The normal distribution is the most important probability distribution in ML &mdash; it describes model weight initialization, measurement noise, and the distribution of many natural phenomena.</p>
+
+    <div class="interactive-box">
+      <h4>&#128202; Interactive &mdash; Normal Distribution</h4>
+      <div class="slider-row">
+        <label>Mean &mu;</label>
+        <input type="range" min="-3" max="3" step="0.1" value="0" id="mu-slider" oninput="updateNormal()">
+        <span class="val" id="mu-val">0.0</span>
+      </div>
+      <div class="slider-row">
+        <label>Std Dev &sigma;</label>
+        <input type="range" min="0.3" max="2.5" step="0.1" value="1.0" id="sigma-slider" oninput="updateNormal()">
+        <span class="val" id="sigma-val">1.0</span>
+      </div>
+      <div style="position:relative;height:240px;margin-top:12px">
+        <canvas id="normal-chart" aria-label="Normal distribution probability density curve"></canvas>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;text-align:center">68% within 1&sigma; &middot; 95% within 2&sigma; &middot; 99.7% within 3&sigma; (the empirical rule)</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; probability_sim.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+np.random.seed(<span class="nm">42</span>)
+
+<span class="cm"># Normal distribution: adult heights</span>
+heights = np.random.normal(loc=<span class="nm">170</span>, scale=<span class="nm">10</span>, size=<span class="nm">10_000</span>)
+print(<span class="fn">f"Mean: {heights.mean():.1f} cm"</span>)
+print(<span class="fn">f"Std:  {heights.std():.1f} cm"</span>)
+
+above_190 = (heights > <span class="nm">190</span>).mean()
+print(<span class="fn">f"Taller than 190 cm: {above_190:.1%}"</span>)  <span class="cm"># ~2.3% (2 stds above mean)</span>
+
+<span class="cm"># Simulating conditional probability (spam filter)</span>
+n = <span class="nm">10_000</span>
+is_spam = np.random.random(n) < <span class="nm">0.3</span>   <span class="cm"># 30% of emails are spam</span>
+
+<span class="cm"># "free money" in 80% of spam, only 5% of ham</span>
+has_keyword = np.where(is_spam,
+    np.random.random(n) < <span class="nm">0.8</span>,
+    np.random.random(n) < <span class="nm">0.05</span>)
+
+p_spam_given_keyword = is_spam[has_keyword].mean()
+print(<span class="fn">f"P(spam|'free money'): {p_spam_given_keyword:.1%}"</span>)  <span class="cm"># ~83%</span></code></pre>
+    </div>
+  </section>
+
+  <!-- 4. CORRELATION VS CAUSATION -->
+  <section class="section" id="correlation">
+    <div class="section-header">
+      <span class="section-num">04 &mdash;</span>
+      <h2><span class="accent-purple">Correlation &ne; Causation</span></h2>
+    </div>
+
+    <p>The most important lesson in data science. <strong>Correlation</strong> means two variables move together. <strong>Causation</strong> means one actually causes the other. Confusing them has derailed drug trials, produced biased hiring tools, and led to wasteful policy decisions.</p>
+
+    <h3>What Is Correlation?</h3>
+    <p>Pearson&apos;s r ranges from <strong>&minus;1 to +1</strong> and measures the linear relationship between two variables.</p>
+
+    <div class="formula">
+      r = &Sigma;[(x<sub>i</sub> &minus; x&#773;)(y<sub>i</sub> &minus; y&#773;)] / (n &sdot; &sigma;<sub>x</sub> &sdot; &sigma;<sub>y</sub>)
+      <span>r = +1: perfect positive &middot; r = 0: no linear relationship &middot; r = &minus;1: perfect negative</span>
+    </div>
+
+    <div class="interactive-box">
+      <h4>&#128202; Interactive &mdash; Visualizing Correlation</h4>
+      <div class="slider-row">
+        <label>Correlation r</label>
+        <input type="range" min="-1" max="1" step="0.05" value="0.8" id="corr-slider" oninput="updateCorr()">
+        <span class="val" id="corr-val">0.80</span>
+      </div>
+      <div style="position:relative;height:240px;margin-top:8px">
+        <canvas id="corr-chart" aria-label="Scatter plot showing varying degrees of correlation"></canvas>
+      </div>
+    </div>
+
+    <h3>Famous Spurious Correlations</h3>
+    <p>These are real correlations found in data &mdash; but absurd as causal claims. They exist by coincidence or because of a hidden third variable (a <em>confounder</em>).</p>
+
+    <div class="spurious-card">
+      <div class="sc-emoji">&#127846;</div>
+      <div class="sc-text"><p><strong>Ice cream sales correlate with drowning rates</strong> (r &asymp; 0.85). Confounder: <strong style="color:var(--teal)">summer heat</strong> causes both more swimming and more ice cream buying. Ban ice cream and drownings will not fall.</p></div>
+    </div>
+    <div class="spurious-card">
+      <div class="sc-emoji">&#127988;&#8205;&#9760;&#65039;</div>
+      <div class="sc-text"><p><strong>Global average temperature correlates negatively with pirate count</strong>. As pirates declined 1700s&rarr;now, temperatures rose. <strong style="color:var(--teal)">Pure coincidence</strong> over a long shared time span.</p></div>
+    </div>
+    <div class="spurious-card">
+      <div class="sc-emoji">&#127916;</div>
+      <div class="sc-text"><p><strong>Nicolas Cage films per year correlates with pool drownings</strong> (r &asymp; 0.67). Both trended similarly over a few years by chance. One of the most viral spurious correlations on the internet.</p></div>
+    </div>
+    <div class="spurious-card">
+      <div class="sc-emoji">&#129504;</div>
+      <div class="sc-text"><p><strong>Shoe size correlates with reading ability in children</strong>. Confounder: <strong style="color:var(--teal)">age</strong>. Older children have bigger feet and better reading skills. Neither causes the other.</p></div>
+    </div>
+
+    <h3>The 4 Relationships to Know</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Scenario</th><th>Correlated?</th><th>Causal?</th><th>Why?</th></tr></thead>
+        <tbody>
+          <tr><td>Exercise &rarr; better mood</td><td class="yes">Yes</td><td class="yes">Yes</td><td>Endorphins &mdash; mechanism established</td></tr>
+          <tr><td>Ice cream &rarr; drowning</td><td class="yes">Yes</td><td class="no">No</td><td>Summer (confounder) causes both</td></tr>
+          <tr><td>Wealth &rarr; longevity</td><td class="yes">Yes</td><td>Partial</td><td>Mechanism exists but genetics confound</td></tr>
+          <tr><td>Rooster crow &rarr; sunrise</td><td class="yes">Yes</td><td class="no">Reversed</td><td>Light triggers crowing, not vice versa</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="real-world">
+      <div class="rw-label">&#129302; Real-World ML Impact &mdash; Amazon&apos;s Biased Hiring Tool</div>
+      <p>Amazon built an ML model to screen CVs, trained on 10 years of hiring data &mdash; historically male-dominated. The model learned that certain words correlated negatively with hiring outcomes. It penalised women&apos;s groups and female pronouns. The correlation existed in the data, but the cause was <em>bias in past hiring</em>, not candidate quality. Amazon scrapped the tool in 2018. <strong>Correlation in training data &ne; fair or causal relationship.</strong></p>
+    </div>
+
+    <div class="card purple">
+      <div class="card-label">&#128300; Establishing Causation</div>
+      <p>The gold standard is a <strong>Randomized Controlled Trial (RCT)</strong>: randomly assign subjects to treatment/control. If only the treatment differs and outcomes differ &rarr; causation established.</p>
+      <p style="margin:0">When experiments aren&apos;t possible, use <strong>instrumental variables</strong>, <strong>difference-in-differences</strong>, or <strong>causal graphs (DAGs)</strong>. This is the field of <em>causal inference</em> &mdash; an active ML research area.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span>python &middot; correlation_analysis.py</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+np.random.seed(<span class="nm">42</span>)
+n = <span class="nm">200</span>
+
+<span class="cm"># Ice cream vs drowning &mdash; confounded by temperature</span>
+temperature = np.random.normal(<span class="nm">25</span>, <span class="nm">8</span>, n)         <span class="cm"># the confounder</span>
+ice_cream   = <span class="nm">2</span> * temperature + np.random.randn(n) * <span class="nm">5</span>
+drownings   = <span class="nm">1.5</span> * temperature + np.random.randn(n) * <span class="nm">4</span>
+
+r_raw = np.corrcoef(ice_cream, drownings)[<span class="nm">0</span>, <span class="nm">1</span>]
+print(<span class="fn">f"Ice cream vs Drownings r = {r_raw:.3f}"</span>)
+<span class="cm"># r &asymp; 0.87 &mdash; strong apparent correlation!</span>
+
+<span class="cm"># Control for temperature (partial correlation)</span>
+<span class="cm"># Residualise both on temperature to remove its effect</span>
+ice_resid  = ice_cream - np.polyval(np.polyfit(temperature, ice_cream, <span class="nm">1</span>), temperature)
+drow_resid = drownings - np.polyval(np.polyfit(temperature, drownings, <span class="nm">1</span>), temperature)
+
+r_partial = np.corrcoef(ice_resid, drow_resid)[<span class="nm">0</span>, <span class="nm">1</span>]
+print(<span class="fn">f"After controlling for temp: r = {r_partial:.3f}"</span>)
+<span class="cm"># r &asymp; 0.01 &mdash; correlation disappears! Always look for confounders.</span>
+
+<span class="cm"># Pearson r from scratch</span>
+<span class="kw">def</span> <span class="fn">pearson_r</span>(x, y):
+    xc = x - x.mean(); yc = y - y.mean()
+    <span class="kw">return</span> (xc * yc).sum() / (np.sqrt((xc**<span class="nm">2</span>).sum()) * np.sqrt((yc**<span class="nm">2</span>).sum()))
+
+print(<span class="fn">f"Manual r = {pearson_r(ice_cream, drownings):.3f}"</span>)</code></pre>
+    </div>
+
+    <div class="card teal">
+      <div class="card-label">&#9989; Key Takeaways</div>
+      <p><strong>1. Always ask &ldquo;what causes what?&rdquo;</strong> before acting on any correlation in data.</p>
+      <p><strong>2. Look for confounders</strong> &mdash; hidden variables that explain the correlation without any causal link between the two observed variables.</p>
+      <p><strong>3. ML models find correlations, not causes.</strong> A model predicting loan defaults might learn that zip code correlates with defaults &mdash; but that&apos;s driven by socioeconomic confounders, not the zip code itself.</p>
+      <p style="margin:0"><strong>4. Use correlation to generate hypotheses,</strong> then design experiments (RCTs) to confirm or deny causation.</p>
+    </div>
+  </section>
+
+  <a href="#" class="back-top">&#8593; Back to top</a>
+</main>
+
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  });
+}
+
+const navLinks = document.querySelectorAll('nav a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+document.querySelectorAll('section.section[id]').forEach(s => obs.observe(s));
+
+function getVec(p) {
+  return [1,2,3,4,5].map(i => {
+    const el = document.getElementById(p+i);
+    document.getElementById(p+i+'v').textContent = el.value;
+    return +el.value;
+  });
+}
+function dot(a,b){return a.reduce((s,v,i)=>s+v*b[i],0);}
+function norm(a){return Math.sqrt(a.reduce((s,v)=>s+v*v,0));}
+function updateSim() {
+  const a=getVec('a'), b=getVec('b');
+  const sim = dot(a,b)/(norm(a)*norm(b));
+  document.getElementById('sim-value').textContent = sim.toFixed(3);
+  document.getElementById('sim-bar').style.width = Math.round(((sim+1)/2)*100)+'%';
+  const msgs = [[0.9,'Very similar taste — great recommendation candidate!'],[0.7,'Similar taste — good recommendations likely.'],[0.5,'Somewhat similar — mixed results.'],[0.3,'Different tastes — few common interests.'],[-2,'Opposite tastes — probably won\'t share preferences.']];
+  document.getElementById('sim-label').textContent = (msgs.find(([t])=>sim>=t)||msgs[msgs.length-1])[1];
+}
+updateSim();
+
+let gdChart;
+function runGD(lr, startX) {
+  const steps = []; let x = startX;
+  for (let i=0;i<80;i++) {
+    steps.push(x);
+    const grad = 2*x;
+    x = x - lr*grad;
+    if (Math.abs(x)<0.0005) { steps.push(x); break; }
+    if (Math.abs(x)>100) { steps.push(x); break; }
+  }
+  return steps;
+}
+function buildGDChart() {
+  const ctx = document.getElementById('gd-chart').getContext('2d');
+  const cx=[], cy=[]; for(let x=-4;x<=4;x+=0.05){cx.push(x);cy.push(x*x);}
+  gdChart = new Chart(ctx, {
+    type:'scatter',
+    data:{ datasets:[
+      { label:'Loss curve', data:cx.map((x,i)=>({x,y:cy[i]})), type:'line', borderColor:'rgba(255,255,255,0.12)', borderWidth:2, pointRadius:0, fill:false },
+      { label:'Steps', data:[], borderColor:'#5cceb0', backgroundColor:'rgba(92,206,176,0.8)', pointRadius:5, type:'scatter', showLine:true, borderWidth:1.5, borderDash:[] }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{title:{display:true,text:'Parameter θ',color:'#8b95a5',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#8b95a5',font:{size:10}},min:-4,max:4},
+        y:{title:{display:true,text:'Loss L(θ)',color:'#8b95a5',font:{size:11}},grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#8b95a5',font:{size:10}},min:0,max:16}
+      }
+    }
+  });
+}
+function updateLR() {
+  const lr=+document.getElementById('lr-slider').value;
+  const start=+document.getElementById('start-slider').value;
+  document.getElementById('lr-val').textContent = lr.toFixed(2);
+  document.getElementById('start-val').textContent = start.toFixed(1);
+  const steps = runGD(lr,start);
+  const pts = steps.map(x=>({x,y:x*x}));
+  const diverging = Math.abs(steps[steps.length-1]) > 10;
+  gdChart.data.datasets[1].data = pts;
+  gdChart.data.datasets[1].borderColor = diverging ? '#f07080' : '#5cceb0';
+  gdChart.data.datasets[1].backgroundColor = diverging ? 'rgba(240,112,128,0.8)' : 'rgba(92,206,176,0.8)';
+  gdChart.update();
+  document.getElementById('gd-steps').textContent = steps.length;
+  document.getElementById('gd-loss').textContent = (steps[steps.length-1]**2).toFixed(4);
+  document.getElementById('gd-warn').textContent = diverging ? '⚠ Diverging! Learning rate too high.' : '';
+}
+
+let normalChart;
+function normalPDF(x,mu,sigma){ return (1/(sigma*Math.sqrt(2*Math.PI)))*Math.exp(-0.5*((x-mu)/sigma)**2); }
+function buildNormalChart() {
+  const ctx = document.getElementById('normal-chart').getContext('2d');
+  const xs=[]; for(let x=-6;x<=6;x+=0.08)xs.push(x);
+  normalChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: xs.map(x=>x.toFixed(1)),
+      datasets:[{ label:'P(x)', data:xs.map(x=>normalPDF(x,0,1)), borderColor:'#f07080', backgroundColor:'rgba(240,112,128,0.12)', fill:true, pointRadius:0, borderWidth:2 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#8b95a5',font:{size:10},maxTicksLimit:13},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{ticks:{color:'#8b95a5',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+function updateNormal() {
+  const mu=+document.getElementById('mu-slider').value;
+  const sigma=+document.getElementById('sigma-slider').value;
+  document.getElementById('mu-val').textContent=mu.toFixed(1);
+  document.getElementById('sigma-val').textContent=sigma.toFixed(1);
+  const xs=[]; for(let x=-6;x<=6;x+=0.08)xs.push(x);
+  normalChart.data.datasets[0].data=xs.map(x=>normalPDF(x,mu,sigma));
+  normalChart.update();
+}
+
+let corrChart;
+function genCorr(r,n=100){
+  const pts=[];
+  for(let i=0;i<n;i++){
+    const x=(Math.random()-0.5)*6;
+    const z=(Math.random()-0.5)*2;
+    const y=r*x+Math.sqrt(1-r*r)*z;
+    pts.push({x,y});
+  }
+  return pts;
+}
+function buildCorrChart() {
+  const ctx = document.getElementById('corr-chart').getContext('2d');
+  corrChart = new Chart(ctx,{
+    type:'scatter',
+    data:{datasets:[{label:'Data',data:genCorr(0.8),backgroundColor:'rgba(167,139,250,0.6)',pointRadius:5}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{min:-4,max:4,ticks:{color:'#8b95a5',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}},
+        y:{min:-4,max:4,ticks:{color:'#8b95a5',font:{size:10}},grid:{color:'rgba(255,255,255,0.05)'}}
+      }
+    }
+  });
+}
+function updateCorr() {
+  const r=+document.getElementById('corr-slider').value;
+  document.getElementById('corr-val').textContent=r.toFixed(2);
+  const color=r>0.2?'rgba(92,206,176,0.65)':r<-0.2?'rgba(240,112,128,0.65)':'rgba(167,139,250,0.65)';
+  corrChart.data.datasets[0].data=genCorr(r);
+  corrChart.data.datasets[0].backgroundColor=color;
+  corrChart.update();
+}
+
+window.addEventListener('load',()=>{
+  buildGDChart(); updateLR();
+  buildNormalChart();
+  buildCorrChart();
+});
+</script>
+</body>
+</html>
