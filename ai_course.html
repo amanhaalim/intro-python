@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Fundamentals — Interactive Course</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/syne@5/400.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/syne@5/700.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/ibm-plex-mono@6/400.min.css">
+<style>
+:root {
+  --bg: #05070f;
+  --surf: #0b0f24;
+  --surf2: #111630;
+  --border: #1c2340;
+  --border2: #2a3060;
+  --cyan: #00d4ff;
+  --cyan2: #00a8cc;
+  --purple: #8b5cf6;
+  --green: #10d988;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --text: #dde4f0;
+  --muted: #5a6a8a;
+  --muted2: #8899bb;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: system-ui, -apple-system, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-body); }
+
+/* Layout */
+.app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
+canvas#bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* Sidebar */
+.sidebar {
+  width: 260px; flex-shrink: 0; background: var(--surf); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; z-index: 10; position: relative;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-tag { font-size: 10px; font-family: var(--font-mono); color: var(--cyan); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 4px; }
+.logo-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
+.logo-title span { color: var(--cyan); }
+
+.xp-bar-wrap { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.xp-label { display: flex; justify-content: space-between; font-size: 11px; font-family: var(--font-mono); color: var(--muted2); margin-bottom: 6px; }
+.xp-track { height: 4px; background: var(--border2); border-radius: 2px; }
+.xp-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--purple)); border-radius: 2px; transition: width .6s cubic-bezier(.4,0,.2,1); width: 5%; }
+
+.mod-list { flex: 1; overflow-y: auto; padding: 10px 0; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.mod-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 20px;
+  cursor: pointer; transition: all .15s; border-left: 2px solid transparent; position: relative;
+}
+.mod-item:hover { background: var(--surf2); }
+.mod-item.active { background: var(--surf2); border-left-color: var(--cyan); }
+.mod-item.done .mod-num { background: var(--green); color: #000; }
+.mod-num {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--surf2);
+  border: 1px solid var(--border2); font-size: 10px; font-family: var(--font-mono);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  color: var(--muted2); transition: all .2s;
+}
+.mod-item.active .mod-num { background: var(--cyan); color: #000; border-color: var(--cyan); font-weight: 700; }
+.mod-name { font-size: 12.5px; color: var(--muted2); transition: color .15s; line-height: 1.3; }
+.mod-item.active .mod-name, .mod-item:hover .mod-name { color: var(--text); }
+.mod-item.active .mod-name { font-weight: 600; }
+
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 11px; font-family: var(--font-mono); color: var(--muted); }
+
+/* Main */
+.main { flex: 1; overflow-y: auto; position: relative; z-index: 5; scrollbar-width: thin; scrollbar-color: var(--border2) transparent; }
+.module-page { display: none; min-height: 100vh; }
+.module-page.active { display: block; animation: fadeSlide .35s ease; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Module Hero */
+.mod-hero {
+  padding: 48px 52px 36px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.mod-hero::before {
+  content: attr(data-num);
+  position: absolute; right: 40px; top: 20px;
+  font-family: var(--font-head); font-size: 96px; font-weight: 700;
+  color: var(--border2); opacity: .6; line-height: 1;
+}
+.hero-tag { font-family: var(--font-mono); font-size: 11px; color: var(--cyan); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 10px; }
+.hero-title { font-family: var(--font-head); font-size: 34px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.2; }
+.hero-desc { font-size: 14px; color: var(--muted2); max-width: 520px; line-height: 1.7; }
+.hero-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+.pill { font-size: 11px; font-family: var(--font-mono); padding: 3px 10px; border-radius: 20px; background: var(--surf2); border: 1px solid var(--border2); color: var(--muted2); }
+
+/* Content */
+.mod-body { padding: 40px 52px; max-width: 860px; }
+.section { margin-bottom: 36px; }
+.sec-title { font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--cyan); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.sec-title::before { content: ''; width: 3px; height: 18px; background: var(--cyan); border-radius: 2px; flex-shrink: 0; }
+p { font-size: 13.5px; color: var(--muted2); line-height: 1.8; margin-bottom: 10px; }
+p strong { color: var(--text); font-weight: 600; }
+code { font-family: var(--font-mono); font-size: 12px; background: var(--surf2); border: 1px solid var(--border2); padding: 2px 6px; border-radius: 4px; color: var(--cyan); }
+
+/* Info cards */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 14px 0; }
+.info-card {
+  background: var(--surf); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 16px; transition: border-color .2s, transform .2s;
+}
+.info-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+.ic-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+.ic-body { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 12px 0; }
+.data-table th { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border2); font-family: var(--font-mono); font-size: 11px; color: var(--cyan); letter-spacing: .06em; text-transform: uppercase; }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--muted2); }
+.data-table td:first-child { color: var(--text); font-weight: 500; font-family: var(--font-mono); font-size: 12px; }
+.data-table tr:last-child td { border-bottom: none; }
+
+/* Callout */
+.callout { background: var(--surf); border-left: 3px solid var(--cyan); border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: var(--muted2); line-height: 1.7; }
+.callout.warn { border-left-color: var(--amber); }
+.callout.success { border-left-color: var(--green); }
+.callout strong { color: var(--text); }
+
+/* Formula */
+.formula { font-family: var(--font-mono); font-size: 14px; color: var(--cyan); background: var(--surf); border: 1px solid var(--border2); padding: 12px 18px; border-radius: 8px; display: block; margin: 12px 0; letter-spacing: .04em; }
+
+/* Code block */
+.code-wrap { margin: 14px 0; }
+.code-header { display: flex; justify-content: space-between; align-items: center; background: var(--surf2); border: 1px solid var(--border2); border-bottom: none; border-radius: 8px 8px 0 0; padding: 8px 14px; }
+.code-lang { font-family: var(--font-mono); font-size: 11px; color: var(--cyan); }
+.code-copy { font-family: var(--font-mono); font-size: 10px; color: var(--muted); cursor: pointer; padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border2); background: transparent; transition: all .15s; }
+.code-copy:hover { color: var(--text); border-color: var(--muted2); }
+.code-block {
+  background: #03050d; border: 1px solid var(--border2); border-top: none;
+  border-radius: 0 0 8px 8px; padding: 16px 18px;
+  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.8;
+  color: #abb2bf; overflow-x: auto; white-space: pre;
+}
+.ck { color: #c678dd; } /* keyword */
+.cs { color: #98c379; } /* string */
+.cc { color: #5c6370; font-style: italic; } /* comment */
+.cn { color: #e5c07b; } /* name/class */
+.cf { color: #61afef; } /* function */
+.co { color: #56b6c2; } /* operator/special */
+
+/* Interactive Demo */
+.demo-box {
+  background: var(--surf); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 24px; margin: 16px 0; position: relative;
+}
+.demo-label { font-family: var(--font-mono); font-size: 10px; color: var(--purple); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.demo-label::before { content:''; width: 6px; height: 6px; border-radius: 50%; background: var(--purple); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+/* Quiz */
+.quiz-card {
+  background: var(--surf); border: 1px solid var(--border2); border-radius: 12px;
+  padding: 24px; margin: 16px 0;
+}
+.quiz-tag { font-family: var(--font-mono); font-size: 10px; color: var(--amber); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+.quiz-q { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 16px; line-height: 1.6; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border2);
+  background: var(--surf2); cursor: pointer; font-size: 13px; color: var(--muted2);
+  transition: all .15s; text-align: left;
+}
+.quiz-opt:hover:not(.disabled) { border-color: var(--cyan); color: var(--text); }
+.quiz-opt.correct { border-color: var(--green); background: rgba(16,217,136,.1); color: var(--green); }
+.quiz-opt.wrong { border-color: var(--red); background: rgba(239,68,68,.1); color: var(--red); }
+.quiz-opt.disabled { cursor: default; }
+.quiz-feedback { margin-top: 12px; font-size: 13px; padding: 10px 14px; border-radius: 8px; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: rgba(16,217,136,.1); color: var(--green); border: 1px solid rgba(16,217,136,.3); }
+.quiz-feedback.bad { background: rgba(239,68,68,.1); color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+
+/* Nav row */
+.mod-nav { display: flex; justify-content: space-between; align-items: center; padding: 32px 52px; border-top: 1px solid var(--border); margin-top: 20px; }
+.nav-btn {
+  padding: 10px 22px; border-radius: 8px; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--border2); background: transparent; color: var(--muted2);
+  font-family: var(--font-body); transition: all .15s;
+}
+.nav-btn:hover { border-color: var(--muted2); color: var(--text); }
+.nav-btn.primary { background: var(--cyan); border-color: var(--cyan); color: #000; font-weight: 600; }
+.nav-btn.primary:hover { background: var(--cyan2); border-color: var(--cyan2); }
+.nav-counter { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+/* Visual elements */
+.hierarchy-tree { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+.htier { display: flex; justify-content: center; gap: 0; }
+.hbox {
+  padding: 8px 18px; border-radius: 6px; border: 1px solid;
+  font-size: 12px; font-family: var(--font-mono); text-align: center;
+  position: relative; animation: floatIn .4s ease both;
+}
+.hbox.l1 { border-color: var(--cyan); color: var(--cyan); background: rgba(0,212,255,.07); width: 260px; }
+.hbox.l2 { border-color: var(--purple); color: var(--purple); background: rgba(139,92,246,.07); width: 200px; margin-top: 24px; }
+.hbox.l3 { border-color: var(--green); color: var(--green); background: rgba(16,217,136,.07); width: 160px; margin-top: 24px; }
+.hbox.l4 { border-color: var(--amber); color: var(--amber); background: rgba(245,158,11,.07); width: 140px; margin-top: 24px; }
+.hline { width: 1px; height: 24px; background: var(--border2); margin: 0 auto; }
+@keyframes floatIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+/* Canvas for mini demos */
+.mini-canvas { width: 100%; height: 180px; border-radius: 8px; border: 1px solid var(--border); background: #020409; display: block; }
+
+/* ML type cards */
+.ml-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0; }
+.ml-card {
+  background: var(--surf); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px; cursor: pointer; transition: all .25s; text-align: center;
+}
+.ml-card:hover { border-color: var(--cyan); transform: translateY(-3px); }
+.ml-card .mc-icon { font-size: 28px; margin-bottom: 10px; line-height: 1; }
+.ml-card .mc-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.ml-card .mc-body { font-size: 11.5px; color: var(--muted2); line-height: 1.6; }
+.ml-card .mc-eg { margin-top: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--cyan); }
+.ml-card.active { border-color: var(--cyan); background: rgba(0,212,255,.05); }
+
+/* Scatter for K-means */
+#kmeans-canvas { width: 100%; height: 260px; border-radius: 8px; border: 1px solid var(--border); background: #020409; cursor: crosshair; display: block; }
+.kmeans-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.km-btn { font-size: 11px; font-family: var(--font-mono); padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surf2); color: var(--muted2); cursor: pointer; transition: all .15s; }
+.km-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.km-btn.active-k { border-color: var(--cyan); color: var(--cyan); background: rgba(0,212,255,.08); }
+
+/* Neural net viz */
+#nn-canvas { width: 100%; height: 220px; border-radius: 8px; border: 1px solid var(--border); background: #020409; display: block; }
+.nn-controls { display: flex; gap: 10px; align-items: center; margin-top: 10px; font-size: 12px; color: var(--muted2); }
+.nn-slider { flex: 1; accent-color: var(--cyan); }
+
+/* Attention viz */
+#attn-canvas { width: 100%; height: 200px; border-radius: 8px; border: 1px solid var(--border); background: #020409; display: block; }
+
+/* Progress toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 100;
+  background: var(--surf); border: 1px solid var(--green); border-radius: 10px;
+  padding: 12px 18px; font-family: var(--font-mono); font-size: 12px; color: var(--green);
+  transform: translateY(80px); opacity: 0; transition: all .4s cubic-bezier(.4,0,.2,1);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="app">
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">// course v1.0</div>
+    <div class="logo-title">AI <span>Fundamentals</span></div>
+  </div>
+  <div class="xp-bar-wrap">
+    <div class="xp-label"><span>Progress</span><span id="xp-text">0 / 10 modules</span></div>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+  </div>
+  <div class="mod-list" id="mod-list">
+    <div class="mod-item active" onclick="gotoModule(1)" id="nav-1"><span class="mod-num" id="num-1">1</span><span class="mod-name">What is AI?</span></div>
+    <div class="mod-item" onclick="gotoModule(2)" id="nav-2"><span class="mod-num" id="num-2">2</span><span class="mod-name">Types of ML</span></div>
+    <div class="mod-item" onclick="gotoModule(3)" id="nav-3"><span class="mod-num" id="num-3">3</span><span class="mod-name">Data & Features</span></div>
+    <div class="mod-item" onclick="gotoModule(4)" id="nav-4"><span class="mod-num" id="num-4">4</span><span class="mod-name">Supervised Learning</span></div>
+    <div class="mod-item" onclick="gotoModule(5)" id="nav-5"><span class="mod-num" id="num-5">5</span><span class="mod-name">Model Evaluation</span></div>
+    <div class="mod-item" onclick="gotoModule(6)" id="nav-6"><span class="mod-num" id="num-6">6</span><span class="mod-name">Neural Networks</span></div>
+    <div class="mod-item" onclick="gotoModule(7)" id="nav-7"><span class="mod-num" id="num-7">7</span><span class="mod-name">Deep Learning</span></div>
+    <div class="mod-item" onclick="gotoModule(8)" id="nav-8"><span class="mod-num" id="num-8">8</span><span class="mod-name">NLP & Transformers</span></div>
+    <div class="mod-item" onclick="gotoModule(9)" id="nav-9"><span class="mod-num" id="num-9">9</span><span class="mod-name">Unsupervised Learning</span></div>
+    <div class="mod-item" onclick="gotoModule(10)" id="nav-10"><span class="mod-num" id="num-10">10</span><span class="mod-name">Practical AI & APIs</span></div>
+  </div>
+  <div class="sidebar-footer">Built for AI interns &nbsp;·&nbsp; 2025</div>
+</aside>
+
+<!-- Main -->
+<main class="main" id="main">
+
+<!-- ═══ MODULE 1 ═══ -->
+<div class="module-page active" id="mod-1">
+  <div class="mod-hero" data-num="01">
+    <div class="hero-tag">Module 01 · Introduction</div>
+    <div class="hero-title">What is Artificial Intelligence?</div>
+    <div class="hero-desc">The landscape of AI — what it is, what it isn't, where it came from, and why it matters right now.</div>
+    <div class="hero-pills"><span class="pill">AI</span><span class="pill">ML</span><span class="pill">Deep Learning</span><span class="pill">History</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">Defining AI</div>
+      <p><strong>Artificial Intelligence</strong> is the field of building systems that perform tasks normally requiring human intelligence — recognising objects, understanding language, making decisions, learning from experience.</p>
+      <p>The term was coined by John McCarthy at the 1956 Dartmouth Conference. The modern AI boom is driven by three things converging: <strong>massive datasets</strong>, <strong>cheap parallel compute (GPUs)</strong>, and <strong>better algorithms</strong>. Remove any one of those, and we're back to the AI winter.</p>
+
+      <div class="demo-box" style="margin-top:20px">
+        <div class="demo-label">Interactive · AI hierarchy</div>
+        <p style="font-size:12px;margin-bottom:14px">Each field is a subset of the one above. Click to expand details.</p>
+        <div class="hierarchy-tree">
+          <div class="htier"><div class="hbox l1" onclick="toggleInfo('h1')">🌐 Artificial Intelligence</div></div>
+          <div class="hline"></div>
+          <div class="htier"><div class="hbox l2" onclick="toggleInfo('h2')">🤖 Machine Learning</div></div>
+          <div class="hline"></div>
+          <div class="htier"><div class="hbox l3" onclick="toggleInfo('h3')">🧠 Deep Learning</div></div>
+          <div class="hline"></div>
+          <div class="htier"><div class="hbox l4" onclick="toggleInfo('h4')">✨ Generative AI</div></div>
+        </div>
+        <div id="h1" style="display:none" class="callout" style="margin-top:10px">Broad goal: machines that behave intelligently. Includes rule-based systems, search, logic, planning, and ML.</div>
+        <div id="h2" style="display:none" class="callout">Systems that learn patterns from data without being explicitly programmed. Algorithms improve with experience.</div>
+        <div id="h3" style="display:none" class="callout">ML using neural networks with many layers. Learns hierarchical representations automatically from raw data.</div>
+        <div id="h4" style="display:none" class="callout">Models that produce new content — text, images, code, audio. GPT-4, Claude, Stable Diffusion, Sora.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Narrow AI vs AGI</div>
+      <div class="info-grid">
+        <div class="info-card"><div class="ic-title">Narrow AI (ANI)</div><div class="ic-body">What exists today. Excellent at one specific task — chess, image recognition, language. Cannot generalise beyond its training domain. Every AI product you use is ANI.</div></div>
+        <div class="info-card"><div class="ic-title">General AI (AGI)</div><div class="ic-body">Hypothetical. Reasons across domains like a human. Timeline deeply contested — estimates range from 5 years to "never". Does not exist today.</div></div>
+        <div class="info-card"><div class="ic-title">Superintelligence (ASI)</div><div class="ic-body">Hypothetical. Beyond human-level intelligence across all domains. A theoretical long-term concern, not an engineering challenge of today.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">Which of the following best describes the relationship between AI, ML, and Deep Learning?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',1,'❌ They are different names for the same field.')">They are all different names for the same technology</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',1,'✓ Correct! Deep Learning ⊂ ML ⊂ AI. Each is a specialised subset of the broader field.')">AI is the broadest field; ML is a subset; Deep Learning is a subset of ML</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',1,'❌ Deep Learning is newer but still a subset of ML, which is a subset of AI.')">Deep Learning replaced ML, which replaced AI</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',1,'❌ They are related — ML and Deep Learning are both types of AI.')">They are completely unrelated fields</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-1"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><span></span><span class="nav-counter">1 / 10</span><button class="nav-btn primary" onclick="gotoModule(2)">Next: Types of ML →</button></div>
+</div>
+
+<!-- ═══ MODULE 2 ═══ -->
+<div class="module-page" id="mod-2">
+  <div class="mod-hero" data-num="02">
+    <div class="hero-tag">Module 02 · Core Concepts</div>
+    <div class="hero-title">Types of Machine Learning</div>
+    <div class="hero-desc">Three paradigms — supervised, unsupervised, and reinforcement learning. Each solves a fundamentally different kind of problem.</div>
+    <div class="hero-pills"><span class="pill">Supervised</span><span class="pill">Unsupervised</span><span class="pill">Reinforcement</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">The three paradigms</div>
+      <p>All of machine learning falls into one of three buckets, depending on what kind of signal the model learns from.</p>
+      <div class="ml-cards">
+        <div class="ml-card" onclick="this.classList.toggle('active')">
+          <div class="mc-icon">🏷️</div>
+          <div class="mc-title">Supervised</div>
+          <div class="mc-body">Learns from labelled examples — pairs of (input → correct answer). Finds the function mapping inputs to outputs.</div>
+          <div class="mc-eg">spam filter · house prices · image classification</div>
+        </div>
+        <div class="ml-card" onclick="this.classList.toggle('active')">
+          <div class="mc-icon">🔍</div>
+          <div class="mc-title">Unsupervised</div>
+          <div class="mc-body">No labels. Discovers hidden structure — clusters, patterns, compressed representations — in raw data.</div>
+          <div class="mc-eg">customer segments · anomaly detection · PCA</div>
+        </div>
+        <div class="ml-card" onclick="this.classList.toggle('active')">
+          <div class="mc-icon">🎮</div>
+          <div class="mc-title">Reinforcement</div>
+          <div class="mc-body">An agent learns by taking actions and receiving reward/penalty signals. No labelled data — just trial and error.</div>
+          <div class="mc-eg">AlphaGo · robotics · RLHF in LLMs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Supervised learning sub-types</div>
+      <table class="data-table">
+        <tr><th>Type</th><th>Output</th><th>Loss Function</th><th>Example</th></tr>
+        <tr><td>Classification</td><td>A category / class label</td><td>Cross-entropy</td><td>Email is spam or not</td></tr>
+        <tr><td>Regression</td><td>A continuous number</td><td>Mean Squared Error</td><td>Predict house price</td></tr>
+        <tr><td>Multi-label</td><td>Multiple classes at once</td><td>Binary cross-entropy</td><td>Tag a photo (beach + sunset + people)</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Reinforcement Learning anatomy</div>
+      <table class="data-table">
+        <tr><th>Term</th><th>What it means</th></tr>
+        <tr><td>Agent</td><td>The model that makes decisions</td></tr>
+        <tr><td>Environment</td><td>The world the agent interacts with</td></tr>
+        <tr><td>State</td><td>What the agent currently observes</td></tr>
+        <tr><td>Action</td><td>What the agent chooses to do</td></tr>
+        <tr><td>Reward</td><td>Feedback signal after an action (+/−)</td></tr>
+        <tr><td>Policy</td><td>The strategy the agent has learned</td></tr>
+      </table>
+      <div class="callout">Modern LLMs are fine-tuned using <strong>RLHF (Reinforcement Learning from Human Feedback)</strong> — human raters score responses, and the model is rewarded for higher-rated outputs. This is why ChatGPT and Claude feel "aligned."</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">You want to group a company's customers into segments based on purchase behaviour — no predefined categories exist. Which type of ML should you use?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',2,'❌ Supervised learning requires labelled examples. There are no labels here.')">Supervised learning (classification)</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',2,'✓ Correct! No labels, just patterns to discover — that is unsupervised learning. K-Means clustering is the classic approach.')">Unsupervised learning (clustering)</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',2,'❌ Reinforcement learning is for sequential decision-making with rewards, not segmentation.')">Reinforcement learning</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',2,'❌ Supervised regression predicts a continuous number from labelled data.')">Supervised learning (regression)</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(1)">← Back</button><span class="nav-counter">2 / 10</span><button class="nav-btn primary" onclick="gotoModule(3)">Next: Data & Features →</button></div>
+</div>
+
+<!-- ═══ MODULE 3 ═══ -->
+<div class="module-page" id="mod-3">
+  <div class="mod-hero" data-num="03">
+    <div class="hero-tag">Module 03 · Data Science</div>
+    <div class="hero-title">Data & Feature Engineering</div>
+    <div class="hero-desc">Data is the fuel of ML. 80% of real ML work is here. How you clean, encode, and transform data determines everything downstream.</div>
+    <div class="hero-pills"><span class="pill">Pandas</span><span class="pill">Preprocessing</span><span class="pill">Encoding</span><span class="pill">Scaling</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">The data pipeline</div>
+      <p>Every ML project follows the same journey: <strong>Collect → Clean → Explore (EDA) → Transform → Split → Feed model → Evaluate</strong>.</p>
+      <div class="callout warn"><strong>The 80/20 rule:</strong> In industry, data scientists spend ~80% of their time on data preparation and only ~20% on modelling. Good data beats a fancy model, every time.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Handling missing values</div>
+      <table class="data-table">
+        <tr><th>Strategy</th><th>When to use</th><th>Code</th></tr>
+        <tr><td>Drop rows</td><td>Random missing, &lt;5% of data</td><td><code>df.dropna()</code></td></tr>
+        <tr><td>Mean/Median fill</td><td>Numerical cols. Use median for skewed data</td><td><code>df.fillna(df.median())</code></td></tr>
+        <tr><td>Mode fill</td><td>Categorical columns</td><td><code>df.fillna(df.mode()[0])</code></td></tr>
+        <tr><td>KNN Imputer</td><td>When missing isn't random, use neighbour values</td><td><code>KNNImputer()</code></td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Feature scaling</div>
+      <p>Algorithms like SVM, KNN, and neural networks compute distances or dot products — they're sensitive to scale. Age (0–100) and salary (0–200,000) on the same model will let salary dominate completely.</p>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">from</span> sklearn.preprocessing <span class="ck">import</span> StandardScaler, MinMaxScaler
+
+X <span class="co">=</span> [[<span class="cn">25</span>, <span class="cn">50000</span>], [<span class="cn">30</span>, <span class="cn">80000</span>], [<span class="cn">22</span>, <span class="cn">35000</span>]]
+
+<span class="cc"># StandardScaler: mean=0, std=1 — best default</span>
+scaler <span class="co">=</span> StandardScaler()
+X_scaled <span class="co">=</span> scaler.fit_transform(X)
+
+<span class="cc"># MinMaxScaler: rescale to [0, 1]</span>
+mms <span class="co">=</span> MinMaxScaler()
+X_norm <span class="co">=</span> mms.fit_transform(X)</div>
+      </div>
+      <div class="callout"><strong>Decision trees and random forests</strong> do NOT need scaling — they split on thresholds, not distances or dot products.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Encoding categorical variables</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">import</span> pandas <span class="ck">as</span> pd
+
+df <span class="co">=</span> pd.DataFrame({<span class="cs">'City'</span>: [<span class="cs">'Delhi'</span>, <span class="cs">'Mumbai'</span>, <span class="cs">'Delhi'</span>, <span class="cs">'Chennai'</span>]})
+
+<span class="cc"># One-hot encoding — creates a binary column per category</span>
+df_encoded <span class="co">=</span> pd.get_dummies(df, columns<span class="co">=</span>[<span class="cs">'City'</span>], drop_first<span class="co">=</span><span class="ck">True</span>)
+<span class="cn">print</span>(df_encoded)
+
+<span class="cc"># Output:
+#    City_Mumbai  City_Chennai
+# 0            0             0   ← Delhi (baseline)
+# 1            1             0   ← Mumbai
+# 2            0             0   ← Delhi
+# 3            0             1   ← Chennai</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">You have a column "City" with values Delhi, Mumbai, Chennai. You want to use it in a Logistic Regression model. What is the best approach?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',3,'❌ Label encoding (Delhi=0, Mumbai=1, Chennai=2) implies an ordinal relationship that doesn't exist. The model will think Mumbai is "between" Delhi and Chennai.')">Label encode: Delhi=0, Mumbai=1, Chennai=2</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',3,'✓ Correct! One-hot encoding creates binary columns — no false ordering is implied. Use drop_first=True to avoid multicollinearity.')">One-hot encode into binary columns per city</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',3,'❌ ML models cannot process raw text — city names must be encoded numerically.')">Use the raw text strings directly</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',3,'❌ Dropping the column removes useful information. Encode it instead.')">Drop the column — ML can't handle text</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-3"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(2)">← Back</button><span class="nav-counter">3 / 10</span><button class="nav-btn primary" onclick="gotoModule(4)">Next: Supervised Learning →</button></div>
+</div>
+
+<!-- ═══ MODULE 4 ═══ -->
+<div class="module-page" id="mod-4">
+  <div class="mod-hero" data-num="04">
+    <div class="hero-tag">Module 04 · Algorithms</div>
+    <div class="hero-title">Supervised Learning Algorithms</div>
+    <div class="hero-desc">Linear regression, logistic regression, decision trees, and random forests — the core algorithms that solve the majority of real-world ML problems.</div>
+    <div class="hero-pills"><span class="pill">scikit-learn</span><span class="pill">Regression</span><span class="pill">Classification</span><span class="pill">Ensembles</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">Linear regression</div>
+      <p>Fits a line (or hyperplane) through data to predict a <strong>continuous output</strong>. Learns weights <code>w</code> and bias <code>b</code> by minimising the prediction error.</p>
+      <code class="formula">ŷ = w₁x₁ + w₂x₂ + … + wₙxₙ + b</code>
+      <p>Training minimises <strong>Mean Squared Error</strong>: the average of (actual − predicted)². Done via gradient descent or a closed-form normal equation.</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Logistic regression</div>
+      <p>Despite the name, this is a <strong>classification</strong> algorithm. It passes the linear combination through a <strong>sigmoid function</strong> to output a probability between 0 and 1.</p>
+      <code class="formula">P(y=1) = σ(z) = 1 / (1 + e^(−z))     where z = w·x + b</code>
+      <p>Trained with <strong>cross-entropy loss</strong>, not MSE. At threshold 0.5: output ≥ 0.5 → class 1, else → class 0. Interpretable, fast, good default for binary classification.</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Decision trees & random forests</div>
+      <p>A decision tree splits data with yes/no questions on features. The tree is grown by choosing splits that best separate classes — measured by <strong>Gini impurity</strong> or <strong>information gain</strong>.</p>
+      <p>A single deep tree <em>memorises</em> training data (overfits). The fix: <strong>Random Forest</strong> — train hundreds of trees, each on a random subset of data and features. Aggregate their predictions. Variance drops dramatically without adding bias.</p>
+      <div class="callout success"><strong>Practical rule:</strong> When in doubt, try Random Forest first. It handles non-linearity, mixed feature types, missing values (sort-of), and rarely overfits badly. It is the best "baseline powerful model" in classical ML.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Code: compare classifiers on Iris</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">from</span> sklearn.datasets <span class="ck">import</span> load_iris
+<span class="ck">from</span> sklearn.model_selection <span class="ck">import</span> train_test_split
+<span class="ck">from</span> sklearn.linear_model <span class="ck">import</span> LogisticRegression
+<span class="ck">from</span> sklearn.tree <span class="ck">import</span> DecisionTreeClassifier
+<span class="ck">from</span> sklearn.ensemble <span class="ck">import</span> RandomForestClassifier
+
+X, y <span class="co">=</span> load_iris(return_X_y<span class="co">=</span><span class="ck">True</span>)
+X_tr, X_te, y_tr, y_te <span class="co">=</span> train_test_split(X, y, test_size<span class="co">=</span><span class="cn">0.2</span>, random_state<span class="co">=</span><span class="cn">42</span>)
+
+models <span class="co">=</span> {
+    <span class="cs">'Logistic Regression'</span>: LogisticRegression(max_iter<span class="co">=</span><span class="cn">200</span>),
+    <span class="cs">'Decision Tree'</span>:       DecisionTreeClassifier(random_state<span class="co">=</span><span class="cn">42</span>),
+    <span class="cs">'Random Forest'</span>:       RandomForestClassifier(n_estimators<span class="co">=</span><span class="cn">100</span>),
+}
+
+<span class="ck">for</span> name, model <span class="ck">in</span> models.items():
+    model.fit(X_tr, y_tr)
+    acc <span class="co">=</span> model.score(X_te, y_te)
+    <span class="cn">print</span>(<span class="cs">f"<span class="co">{</span>name<span class="co">}</span>: <span class="co">{</span>acc<span class="co">:.3f}</span>"</span>)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">Why does a single deep decision tree often fail on new data even when it performs perfectly on training data?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'correct',4,'✓ Correct! A deep tree memorises the training data (overfitting). It learns the noise, not the pattern. Random Forests fix this by averaging many trees.')">It memorises (overfits) the training data, learning noise instead of patterns</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',4,'❌ Training accuracy can be perfect for a deep tree. The issue is generalisation, not training performance.')">It is too simple to fit the training data well</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',4,'❌ Decision trees don't require feature scaling — that is an advantage, not a weakness.')">It requires feature scaling before training</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',4,'❌ Decision trees can handle both classification and regression tasks.')">It can only solve regression problems, not classification</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-4"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(3)">← Back</button><span class="nav-counter">4 / 10</span><button class="nav-btn primary" onclick="gotoModule(5)">Next: Model Evaluation →</button></div>
+</div>
+
+<!-- ═══ MODULE 5 ═══ -->
+<div class="module-page" id="mod-5">
+  <div class="mod-hero" data-num="05">
+    <div class="hero-tag">Module 05 · Evaluation</div>
+    <div class="hero-title">Model Evaluation</div>
+    <div class="hero-desc">A model with 99% accuracy can be completely useless. Learn to evaluate models properly — the right metrics, the right splits, and the bias-variance tradeoff.</div>
+    <div class="hero-pills"><span class="pill">Metrics</span><span class="pill">Cross-Validation</span><span class="pill">Bias-Variance</span><span class="pill">ROC-AUC</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">Why accuracy misleads</div>
+      <p>If 99% of emails are not spam, a model that <em>always</em> predicts "not spam" achieves 99% accuracy — but catches <strong>zero spam</strong>. Accuracy on imbalanced datasets is meaningless.</p>
+      <table class="data-table">
+        <tr><th>Metric</th><th>Formula</th><th>When to use</th></tr>
+        <tr><td>Precision</td><td>TP / (TP + FP)</td><td>Minimise false alarms (medical tests, fraud)</td></tr>
+        <tr><td>Recall</td><td>TP / (TP + FN)</td><td>Minimise missed positives (cancer detection)</td></tr>
+        <tr><td>F1 Score</td><td>2 × (P×R)/(P+R)</td><td>When both precision and recall matter</td></tr>
+        <tr><td>ROC-AUC</td><td>Area under ROC curve</td><td>Threshold-independent comparison across models</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Train / Validation / Test split</div>
+      <p><strong>Training set (70%):</strong> model learns here. <strong>Validation set (15%):</strong> tune hyperparameters and select between models. <strong>Test set (15%):</strong> held out until the very end — only touched once to report final honest performance.</p>
+      <div class="callout warn"><strong>Never tune on the test set.</strong> If you do, you've "leaked" the test into your training process and your reported performance will be optimistic. This is one of the most common mistakes in real ML projects.</div>
+      <p><strong>K-Fold Cross-Validation:</strong> Split training data into k equal folds. Train k times, each time using a different fold as the validation set. Average the k scores. More reliable than a single split, especially with small datasets.</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Overfitting and underfitting</div>
+      <div class="info-grid">
+        <div class="info-card"><div class="ic-title" style="color:#ef4444">Underfitting</div><div class="ic-body">Model too simple. High bias. Poor performance on both train AND test. Fix: more complex model, more features, reduce regularisation.</div></div>
+        <div class="info-card" style="border-color:var(--green)"><div class="ic-title" style="color:var(--green)">Just right</div><div class="ic-body">Good train AND test performance. The model has learned the underlying pattern without memorising noise. This is the goal.</div></div>
+        <div class="info-card"><div class="ic-title" style="color:var(--amber)">Overfitting</div><div class="ic-body">Model too complex. High variance. Near-perfect train accuracy, poor test accuracy. Fix: more data, regularisation (L1/L2), dropout, simpler model.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">Your fraud detection model has 99.5% accuracy. You check further and find precision = 0.12 and recall = 0.08. What is most likely happening?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'correct',5,'✓ Exactly right. Low precision and recall on fraud (positive class) means the model almost always predicts "not fraud." It scores well on accuracy because fraud is rare, but it is useless at its actual job.')">The model is predicting "not fraud" almost always — accuracy looks good because fraud is rare, but it catches almost nothing</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',5,'❌ A precision of 0.12 is very low — when it does predict fraud, it is wrong 88% of the time. That is not excellent.')">The model is performing excellently — 99.5% accuracy is outstanding</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',5,'❌ Overfitting would show high train accuracy and low test accuracy. That is not what these metrics show.')">The model is overfitting on the training set</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',5,'❌ Data leakage would inflate test accuracy but precision and recall would still be meaningful. Here both are very low.')">The data was leaking from training to test set</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-5"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(4)">← Back</button><span class="nav-counter">5 / 10</span><button class="nav-btn primary" onclick="gotoModule(6)">Next: Neural Networks →</button></div>
+</div>
+
+<!-- ═══ MODULE 6 ═══ -->
+<div class="module-page" id="mod-6">
+  <div class="mod-hero" data-num="06">
+    <div class="hero-tag">Module 06 · Deep Learning</div>
+    <div class="hero-title">Neural Networks</div>
+    <div class="hero-desc">The architecture that powers modern AI — from perceptrons to backpropagation. Understand what actually happens inside a forward and backward pass.</div>
+    <div class="hero-pills"><span class="pill">PyTorch</span><span class="pill">Backpropagation</span><span class="pill">Activations</span><span class="pill">Gradient Descent</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">The neuron</div>
+      <p>A single neuron takes a list of inputs, multiplies each by a learned weight, sums them, adds a bias, then passes through an <strong>activation function</strong>.</p>
+      <code class="formula">output = activation( w₁x₁ + w₂x₂ + … + wₙxₙ + b )</code>
+      <p>The activation function adds <strong>non-linearity</strong>. Without it, stacking layers collapses to a single linear transformation — no matter how deep the network.</p>
+      <table class="data-table">
+        <tr><th>Activation</th><th>Formula</th><th>Use case</th></tr>
+        <tr><td>ReLU</td><td>max(0, x)</td><td>Default for hidden layers. Fast, no vanishing gradient.</td></tr>
+        <tr><td>Sigmoid</td><td>1/(1+e^−x)</td><td>Binary classification output (probability 0–1)</td></tr>
+        <tr><td>Softmax</td><td>eˣⁱ / Σeˣʲ</td><td>Multi-class output — probabilities summing to 1</td></tr>
+        <tr><td>Tanh</td><td>(e^x−e^−x)/(e^x+e^−x)</td><td>Zero-centred hidden layers in RNNs</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Interactive: neural network forward pass</div>
+      <div class="demo-box">
+        <div class="demo-label">Live demo · adjust the input and see activations flow</div>
+        <canvas id="nn-canvas"></canvas>
+        <div class="nn-controls">
+          <span style="font-family:var(--font-mono);font-size:11px">Input strength:</span>
+          <input type="range" min="0" max="100" value="60" id="nn-slider" class="nn-slider" oninput="drawNN(this.value)">
+          <span id="nn-val" style="font-family:var(--font-mono);font-size:11px;color:var(--cyan);min-width:30px">0.6</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Backpropagation</div>
+      <p>Training adjusts all weights to reduce prediction error. The loop: <strong>(1)</strong> Forward pass — compute prediction. <strong>(2)</strong> Compute loss — how wrong? <strong>(3)</strong> Backward pass — use chain rule to find gradient of loss w.r.t. every weight. <strong>(4)</strong> Update weights.</p>
+      <code class="formula">w ← w − α · ∂L/∂w &nbsp;&nbsp;&nbsp;(α = learning rate)</code>
+      <div class="callout warn">The <strong>learning rate</strong> is the most critical hyperparameter. Too large → loss oscillates and diverges. Too small → converges too slowly. Common values: 0.001 (Adam), 0.01 (SGD). Use learning rate schedulers in practice.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Code: first neural net in PyTorch</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">import</span> torch, torch.nn <span class="ck">as</span> nn, torch.optim <span class="ck">as</span> optim
+<span class="ck">from</span> sklearn.datasets <span class="ck">import</span> load_iris
+<span class="ck">from</span> sklearn.preprocessing <span class="ck">import</span> StandardScaler
+
+X, y <span class="co">=</span> load_iris(return_X_y<span class="co">=</span><span class="ck">True</span>)
+X <span class="co">=</span> torch.FloatTensor(StandardScaler().fit_transform(X))
+y <span class="co">=</span> torch.LongTensor(y)
+
+model <span class="co">=</span> nn.Sequential(
+    nn.Linear(<span class="cn">4</span>, <span class="cn">16</span>), nn.ReLU(),
+    nn.Linear(<span class="cn">16</span>, <span class="cn">3</span>)  <span class="cc"># 3 Iris classes</span>
+)
+opt  <span class="co">=</span> optim.Adam(model.parameters(), lr<span class="co">=</span><span class="cn">0.01</span>)
+crit <span class="co">=</span> nn.CrossEntropyLoss()
+
+<span class="ck">for</span> epoch <span class="ck">in</span> range(<span class="cn">150</span>):
+    opt.zero_grad()
+    loss <span class="co">=</span> crit(model(X), y)
+    loss.backward()
+    opt.step()
+    <span class="ck">if</span> (epoch<span class="co">+</span><span class="cn">1</span>) % <span class="cn">30</span> <span class="co">==</span> <span class="cn">0</span>:
+        <span class="cn">print</span>(<span class="cs">f"Epoch <span class="co">{</span>epoch<span class="co">+1}</span>: loss = <span class="co">{</span>loss.item()<span class="co">:.4f}</span>"</span>)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">Why is the ReLU activation function preferred over sigmoid for hidden layers in deep networks?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',6,'❌ ReLU outputs 0 or a positive number — it does not output a probability. That is sigmoid/softmax.')">ReLU outputs values between 0 and 1, making it a probability</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',6,'✓ Correct! Sigmoid saturates at both ends (gradients ≈ 0), causing the vanishing gradient problem in deep networks. ReLU only saturates at negative inputs, keeping gradients alive through most of the network.')">Sigmoid saturates and causes vanishing gradients in deep networks; ReLU avoids this</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',6,'❌ ReLU is computationally simpler (just a max operation) than sigmoid, not more complex.')">ReLU is more computationally expensive and therefore more accurate</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',6,'❌ ReLU does not normalise outputs. Batch Normalisation or Layer Norm do that.')">ReLU normalises the outputs to have mean zero</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-6"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(5)">← Back</button><span class="nav-counter">6 / 10</span><button class="nav-btn primary" onclick="gotoModule(7)">Next: Deep Learning →</button></div>
+</div>
+
+<!-- ═══ MODULE 7 ═══ -->
+<div class="module-page" id="mod-7">
+  <div class="mod-hero" data-num="07">
+    <div class="hero-tag">Module 07 · Architectures</div>
+    <div class="hero-title">Deep Learning</div>
+    <div class="hero-desc">CNNs for images, RNNs and LSTMs for sequences. The specialised architectures that made deep learning transformative across vision, audio, and time-series.</div>
+    <div class="hero-pills"><span class="pill">CNN</span><span class="pill">LSTM</span><span class="pill">Transfer Learning</span><span class="pill">PyTorch</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">Convolutional neural networks (CNNs)</div>
+      <p>Designed for grid data (images, audio spectrograms). Instead of connecting every pixel to every neuron — which would need billions of parameters — CNNs use small <strong>filters</strong> that slide across the image detecting local patterns: edges, corners, textures, shapes.</p>
+      <div class="info-grid">
+        <div class="info-card"><div class="ic-title">Conv layer</div><div class="ic-body">Applies learned filters → produces feature maps that highlight detected patterns</div></div>
+        <div class="info-card"><div class="ic-title">Pooling layer</div><div class="ic-body">Max or average pool → downsamples spatially, reducing parameters and adding shift-invariance</div></div>
+        <div class="info-card"><div class="ic-title">Fully connected</div><div class="ic-body">Final layers take the flattened feature maps and produce class scores</div></div>
+      </div>
+      <p><strong>Transfer learning:</strong> A ResNet pretrained on ImageNet (1.2M images, 1000 classes) has already learned universal visual features. Freeze early layers, fine-tune the last few on your dataset. Get great results with hundreds of examples, not millions.</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">RNNs and LSTMs</div>
+      <p>For sequential data (text, time series, audio). An RNN processes inputs one step at a time, passing a <strong>hidden state</strong> forward — a memory of what it has seen so far.</p>
+      <p><strong>Vanishing gradient problem:</strong> gradients shrink as they propagate back through time steps. Long-range dependencies are forgotten. <strong>LSTM</strong> (Long Short-Term Memory) adds gates — forget, input, output — that selectively retain or discard information over long sequences.</p>
+      <div class="callout warn">In NLP, LSTMs have been largely replaced by <strong>Transformers</strong> (Module 8). But LSTMs remain the go-to for time-series forecasting, sensor data, and low-latency streaming scenarios where full context isn't available upfront.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Code: CNN on MNIST</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">import</span> torch, torch.nn <span class="ck">as</span> nn, torch.optim <span class="ck">as</span> optim
+<span class="ck">from</span> torchvision <span class="ck">import</span> datasets, transforms
+<span class="ck">from</span> torch.utils.data <span class="ck">import</span> DataLoader
+
+train <span class="co">=</span> DataLoader(
+    datasets.MNIST(<span class="cs">'.'</span>, train<span class="co">=</span><span class="ck">True</span>, download<span class="co">=</span><span class="ck">True</span>, transform<span class="co">=</span>transforms.ToTensor()),
+    batch_size<span class="co">=</span><span class="cn">64</span>, shuffle<span class="co">=</span><span class="ck">True</span>
+)
+
+<span class="ck">class</span> <span class="cn">CNN</span>(nn.Module):
+    <span class="ck">def</span> <span class="cf">__init__</span>(self):
+        <span class="cn">super</span>().__init__()
+        self.net <span class="co">=</span> nn.Sequential(
+            nn.Conv2d(<span class="cn">1</span>, <span class="cn">32</span>, <span class="cn">3</span>), nn.ReLU(), nn.MaxPool2d(<span class="cn">2</span>),
+            nn.Flatten(), nn.Linear(<span class="cn">5408</span>, <span class="cn">128</span>), nn.ReLU(), nn.Linear(<span class="cn">128</span>, <span class="cn">10</span>)
+        )
+    <span class="ck">def</span> <span class="cf">forward</span>(self, x): <span class="ck">return</span> self.net(x)
+
+model <span class="co">=</span> CNN()
+opt  <span class="co">=</span> optim.Adam(model.parameters())
+crit <span class="co">=</span> nn.CrossEntropyLoss()
+
+<span class="ck">for</span> epoch <span class="ck">in</span> range(<span class="cn">5</span>):
+    <span class="ck">for</span> xb, yb <span class="ck">in</span> train:
+        opt.zero_grad(); crit(model(xb), yb).backward(); opt.step()
+    <span class="cn">print</span>(<span class="cs">f"Epoch <span class="co">{</span>epoch<span class="co">+1}</span> done"</span>)  <span class="cc"># ~99% acc after 5 epochs</span></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">What is the key advantage of using a pretrained CNN (transfer learning) over training from scratch on a small image dataset?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',7,'❌ Transfer learning uses a pretrained model as a starting point — it is not faster to train from scratch.')">Training from scratch is faster because you don't need to load large weights</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',7,'✓ Correct! Pretrained models have already learned universal visual features (edges, textures, shapes) from millions of images. Fine-tuning reuses this knowledge, achieving good performance with very little labelled data.')">The pretrained model already knows universal visual features; fine-tuning only adjusts the last layers for your specific task</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',7,'❌ You absolutely can fine-tune pretrained models — that is the entire point of transfer learning.')">Pretrained models cannot be modified — they must be used as-is</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',7,'❌ Transfer learning is specifically designed for small datasets. Large datasets often allow training from scratch.')">Transfer learning only works when you have millions of training images</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-7"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(6)">← Back</button><span class="nav-counter">7 / 10</span><button class="nav-btn primary" onclick="gotoModule(8)">Next: NLP & Transformers →</button></div>
+</div>
+
+<!-- ═══ MODULE 8 ═══ -->
+<div class="module-page" id="mod-8">
+  <div class="mod-hero" data-num="08">
+    <div class="hero-tag">Module 08 · Language</div>
+    <div class="hero-title">NLP & Transformers</div>
+    <div class="hero-desc">From bag-of-words to self-attention. How machines learned to read, write, and reason about language — and the architecture that changed everything.</div>
+    <div class="hero-pills"><span class="pill">BERT</span><span class="pill">GPT</span><span class="pill">Attention</span><span class="pill">HuggingFace</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">Text representations — a brief history</div>
+      <table class="data-table">
+        <tr><th>Approach</th><th>Idea</th><th>Limitation</th></tr>
+        <tr><td>Bag of Words</td><td>Count word occurrences per document</td><td>Loses word order completely</td></tr>
+        <tr><td>TF-IDF</td><td>Weight words by frequency vs. rarity in corpus</td><td>Still no word order or semantics</td></tr>
+        <tr><td>Word2Vec / GloVe</td><td>Dense vectors where similar words cluster together</td><td>One vector per word — context-blind</td></tr>
+        <tr><td>BERT / GPT</td><td>Contextual embeddings — same word, different vector per context</td><td>Computationally expensive</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">The transformer architecture</div>
+      <p>Introduced in "Attention Is All You Need" (2017). Replaced RNNs as the dominant architecture for NLP — and then spread to vision, code, audio, and multimodal AI.</p>
+      <p><strong>Core insight: self-attention.</strong> Every token simultaneously attends to every other token. Long-range dependencies are captured in one step — unlike RNNs which process sequentially. And crucially: it parallelises perfectly on GPUs.</p>
+      <code class="formula">Attention(Q, K, V) = softmax( QKᵀ / √dₖ ) · V</code>
+      <p>Q = queries, K = keys, V = values. The dot product of query and key gives an attention score: how relevant is token j to token i? Softmax normalises to weights. Multiply by V to get the attended representation.</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Interactive: attention weights visualiser</div>
+      <div class="demo-box">
+        <div class="demo-label">Click any word to see its attention pattern</div>
+        <canvas id="attn-canvas"></canvas>
+        <p id="attn-desc" style="font-size:11px;font-family:var(--font-mono);color:var(--muted2);margin-top:8px;text-align:center">Click a token below to visualise attention</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">BERT vs GPT</div>
+      <div class="info-grid">
+        <div class="info-card"><div class="ic-title">BERT (encoder)</div><div class="ic-body">Reads the whole sequence at once (bidirectional). Best for: classification, question answering, named entity recognition. Fine-tune on downstream task.</div></div>
+        <div class="info-card"><div class="ic-title">GPT (decoder)</div><div class="ic-body">Generates tokens left-to-right (autoregressive). Best for: text generation, chatbots, coding assistants. Few-shot and zero-shot capable at scale.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Code: HuggingFace sentiment pipeline</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">from</span> transformers <span class="ck">import</span> pipeline
+
+classifier <span class="co">=</span> pipeline(<span class="cs">"sentiment-analysis"</span>)
+
+reviews <span class="co">=</span> [
+    <span class="cs">"This movie was absolutely fantastic!"</span>,
+    <span class="cs">"Terrible film, waste of two hours."</span>,
+    <span class="cs">"It was okay, nothing special."</span>
+]
+
+<span class="ck">for</span> r <span class="ck">in</span> reviews:
+    res <span class="co">=</span> classifier(r)[<span class="cn">0</span>]
+    <span class="cn">print</span>(<span class="cs">f"<span class="co">{</span>res[<span class="cs">'label'</span>]<span class="co">}</span> (<span class="co">{</span>res[<span class="cs">'score'</span>]<span class="co">:.2f}</span>)  →  <span class="co">{</span>r<span class="co">}</span>"</span>)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">What fundamental problem with RNNs did the Transformer architecture solve?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',8,'❌ Transformers are actually more memory-intensive than RNNs due to the O(n²) attention matrix.')">RNNs used too much memory; Transformers are more memory-efficient</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',8,'✓ Correct! RNNs process tokens sequentially — they cannot parallelise, making training slow. Self-attention operates on all tokens simultaneously, enabling massive GPU parallelism and capturing long-range dependencies in one step.')">RNNs process tokens sequentially and struggle with long-range dependencies; Transformers use self-attention to process all tokens simultaneously</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',8,'❌ RNNs can handle classification. The core issues were sequential processing and the vanishing gradient problem.')">RNNs could only handle regression, not classification tasks</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',8,'❌ Transformers can process any length of text (up to context window). They also need tokenisation just like RNNs.')">RNNs could not handle text input; Transformers were the first to tokenise text</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-8"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(7)">← Back</button><span class="nav-counter">8 / 10</span><button class="nav-btn primary" onclick="gotoModule(9)">Next: Unsupervised Learning →</button></div>
+</div>
+
+<!-- ═══ MODULE 9 ═══ -->
+<div class="module-page" id="mod-9">
+  <div class="mod-hero" data-num="09">
+    <div class="hero-tag">Module 09 · Unsupervised</div>
+    <div class="hero-title">Unsupervised Learning</div>
+    <div class="hero-desc">Finding hidden structure without labels. Clustering, dimensionality reduction, and the K-Means algorithm — live and interactive.</div>
+    <div class="hero-pills"><span class="pill">K-Means</span><span class="pill">PCA</span><span class="pill">DBSCAN</span><span class="pill">t-SNE</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">K-Means clustering</div>
+      <p>Group n points into k clusters. <strong>Algorithm:</strong> (1) randomly place k centroids, (2) assign each point to nearest centroid, (3) move each centroid to the mean of its assigned points, (4) repeat until stable.</p>
+      <p><strong>Choosing k:</strong> Plot inertia (sum of distances to centroid) vs k. Look for the "elbow" — where adding more clusters stops significantly reducing inertia.</p>
+      <div class="callout"><strong>K-Means assumes</strong> clusters are roughly spherical and equal-sized. For irregular shapes, use <strong>DBSCAN</strong> which finds clusters of any shape and automatically labels outliers as noise.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Interactive: live K-Means playground</div>
+      <div class="demo-box">
+        <div class="demo-label">Click canvas to add points · choose k · watch clustering</div>
+        <canvas id="kmeans-canvas" onclick="addKMPoint(event)"></canvas>
+        <div class="kmeans-controls">
+          <span style="font-size:11px;font-family:var(--font-mono);color:var(--muted2)">k =</span>
+          <button class="km-btn active-k" onclick="setK(2,this)">2</button>
+          <button class="km-btn" onclick="setK(3,this)">3</button>
+          <button class="km-btn" onclick="setK(4,this)">4</button>
+          <button class="km-btn" onclick="setK(5,this)">5</button>
+          <button class="km-btn" onclick="runKMeans()">▶ Run</button>
+          <button class="km-btn" onclick="clearKM()">✕ Clear</button>
+          <span id="km-status" style="font-size:11px;font-family:var(--font-mono);color:var(--muted2);margin-left:auto"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Principal Component Analysis (PCA)</div>
+      <p>Finds the directions of <strong>maximum variance</strong> in data and projects onto them. Reduces dimensions while retaining as much information as possible.</p>
+      <code class="formula">Z = X · Vₖ  — project onto top-k eigenvectors of the covariance matrix</code>
+      <p>Use cases: visualise high-dimensional data in 2D/3D, remove noise from measurements, compress features before feeding to a model, speed up training.</p>
+      <p>The <strong>explained variance ratio</strong> tells you how much information each component captures. Typically 2–3 components capture 80–95% of variance in well-structured data.</p>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Code: clustering + PCA on Iris</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">from</span> sklearn.datasets <span class="ck">import</span> load_iris
+<span class="ck">from</span> sklearn.cluster <span class="ck">import</span> KMeans
+<span class="ck">from</span> sklearn.decomposition <span class="ck">import</span> PCA
+<span class="ck">from</span> sklearn.preprocessing <span class="ck">import</span> StandardScaler
+<span class="ck">import</span> matplotlib.pyplot <span class="ck">as</span> plt
+
+X, _ <span class="co">=</span> load_iris(return_X_y<span class="co">=</span><span class="ck">True</span>)
+X_s  <span class="co">=</span> StandardScaler().fit_transform(X)
+
+labels <span class="co">=</span> KMeans(n_clusters<span class="co">=</span><span class="cn">3</span>, random_state<span class="co">=</span><span class="cn">42</span>, n_init<span class="co">=</span><span class="cn">10</span>).fit_predict(X_s)
+X_2d  <span class="co">=</span> PCA(n_components<span class="co">=</span><span class="cn">2</span>).fit_transform(X_s)
+
+<span class="ck">for</span> c <span class="ck">in</span> range(<span class="cn">3</span>):
+    mask <span class="co">=</span> labels <span class="co">==</span> c
+    plt.scatter(X_2d[mask,<span class="cn">0</span>], X_2d[mask,<span class="cn">1</span>], label<span class="co">=</span><span class="cs">f"Cluster <span class="co">{</span>c<span class="co">}</span>"</span>)
+plt.legend(); plt.title(<span class="cs">"K-Means + PCA"</span>); plt.show()</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">You run K-Means on customer data. The inertia curve shows a sharp drop from k=1 to k=3, then flattens out. What should you do?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',9,'❌ Inertia always decreases as k increases — minimising inertia alone would always choose the largest possible k.')">Choose the k with the lowest inertia (highest possible k)</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',9,'✓ Correct! The "elbow" at k=3 indicates adding more clusters beyond 3 provides diminishing returns. This is the optimal k — meaningful structure has been found.')">Use k=3 — it is the "elbow" where adding clusters stops significantly improving separation</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',9,'❌ Always use k=2 is not sound advice. The optimal k depends on the data structure.')">Always use k=2 for binary business decisions</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',9,'❌ A flat inertia curve after k=3 means the data has 3 natural clusters. Using k=10 would create meaningless micro-clusters.')">Continue increasing k until inertia reaches zero</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-9"></div>
+      </div>
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(8)">← Back</button><span class="nav-counter">9 / 10</span><button class="nav-btn primary" onclick="gotoModule(10)">Next: Practical AI →</button></div>
+</div>
+
+<!-- ═══ MODULE 10 ═══ -->
+<div class="module-page" id="mod-10">
+  <div class="mod-hero" data-num="10">
+    <div class="hero-tag">Module 10 · Applied AI</div>
+    <div class="hero-title">Practical AI & APIs</div>
+    <div class="hero-desc">LLM APIs, prompt engineering, Retrieval-Augmented Generation, and deploying models. The skills that turn theory into real products.</div>
+    <div class="hero-pills"><span class="pill">Prompt Engineering</span><span class="pill">RAG</span><span class="pill">FastAPI</span><span class="pill">Docker</span></div>
+  </div>
+  <div class="mod-body">
+    <div class="section">
+      <div class="sec-title">Prompt engineering</div>
+      <p>LLMs are instruction-following systems. How you phrase a prompt dramatically changes output quality and reliability.</p>
+      <table class="data-table">
+        <tr><th>Technique</th><th>What it does</th><th>Example</th></tr>
+        <tr><td>Zero-shot</td><td>Give the task directly</td><td>"Classify this review: Positive, Negative, or Neutral. Review: ..."</td></tr>
+        <tr><td>Few-shot</td><td>Provide 2–3 examples before the task</td><td>Show example input/output pairs, then ask</td></tr>
+        <tr><td>Chain-of-thought</td><td>Ask the model to reason step by step</td><td>"Think step by step before answering."</td></tr>
+        <tr><td>System prompt</td><td>Set persona, constraints, output format upfront</td><td>"You are a JSON-only API. Never output prose."</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Retrieval-Augmented Generation (RAG)</div>
+      <p>LLMs have a knowledge cutoff and a finite context window. <strong>RAG</strong> solves this by retrieving relevant documents at query time and injecting them as context.</p>
+      <div class="info-grid">
+        <div class="info-card"><div class="ic-title">1. Ingest</div><div class="ic-body">Chunk documents into passages. Embed each chunk with a text embedding model. Store vectors in a vector database (Chroma, Pinecone, FAISS).</div></div>
+        <div class="info-card"><div class="ic-title">2. Retrieve</div><div class="ic-body">Embed the user's question. Search the vector DB for the most similar chunks using approximate nearest-neighbour search.</div></div>
+        <div class="info-card"><div class="ic-title">3. Generate</div><div class="ic-body">Stuff the retrieved chunks + user question into the LLM prompt. The model answers using the retrieved context.</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Code: LLM API call</div>
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-lang">python</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+        <div class="code-block"><span class="ck">import</span> anthropic
+
+client <span class="co">=</span> anthropic.Anthropic()  <span class="cc"># reads ANTHROPIC_API_KEY from env</span>
+
+<span class="ck">def</span> <span class="cf">classify_sentiment</span>(text: str) -> str:
+    msg <span class="co">=</span> client.messages.create(
+        model<span class="co">=</span><span class="cs">"claude-sonnet-4-6"</span>,
+        max_tokens<span class="co">=</span><span class="cn">10</span>,
+        system<span class="co">=</span><span class="cs">"Reply with exactly one word: positive, negative, or neutral."</span>,
+        messages<span class="co">=</span>[{<span class="cs">"role"</span>: <span class="cs">"user"</span>, <span class="cs">"content"</span>: text}]
+    )
+    <span class="ck">return</span> msg.content[<span class="cn">0</span>].text.strip().lower()
+
+sentences <span class="co">=</span> [<span class="cs">"I love this!"</span>, <span class="cs">"Terrible product."</span>, <span class="cs">"It arrived on time."</span>]
+<span class="ck">for</span> s <span class="ck">in</span> sentences:
+    <span class="cn">print</span>(<span class="cs">f"<span class="co">{</span>classify_sentiment(s)<span class="co">:10</span>}</span> | <span class="co">{</span>s<span class="co">}</span>"</span>)</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Deployment stack</div>
+      <table class="data-table">
+        <tr><th>Tool</th><th>What it does</th><th>When to use</th></tr>
+        <tr><td>FastAPI</td><td>Exposes model as REST endpoint — POST /predict → JSON</td><td>Production API serving</td></tr>
+        <tr><td>Gradio</td><td>Web UI for your model in ~5 lines of code</td><td>Quick demos, sharing experiments</td></tr>
+        <tr><td>Docker</td><td>Package model + code + dependencies into a portable container</td><td>Consistent deployment anywhere</td></tr>
+        <tr><td>HF Spaces</td><td>Free hosting for Gradio/Streamlit apps</td><td>Sharing public demos</td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="sec-title">Quiz</div>
+      <div class="quiz-card">
+        <div class="quiz-tag">// knowledge check</div>
+        <div class="quiz-q">Why is RAG (Retrieval-Augmented Generation) useful when using LLMs for domain-specific Q&A?</div>
+        <div class="quiz-opts">
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',10,'❌ RAG does not make LLMs faster. Retrieval adds a step. Speed is not the primary benefit.')">RAG makes LLMs faster by caching common answers</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',10,'❌ Fine-tuning is the approach that changes model weights. RAG is a prompting technique that keeps the model frozen.')">RAG fine-tunes the LLM on your private documents</button>
+          <button class="quiz-opt" onclick="checkQ(this,'correct',10,'✓ Correct! LLMs have a knowledge cutoff and cannot access your private documents. RAG retrieves relevant context at query time and injects it into the prompt, giving the LLM current, domain-specific information without retraining.')">RAG injects relevant document context at query time, letting the LLM answer from your private or up-to-date knowledge without retraining</button>
+          <button class="quiz-opt" onclick="checkQ(this,'wrong',10,'❌ RAG does not reduce hallucinations to zero. It grounds the model in retrieved context, which reduces factual errors, but hallucinations can still occur.')">RAG completely eliminates LLM hallucinations</button>
+        </div>
+        <div class="quiz-feedback" id="qfb-10"></div>
+      </div>
+    </div>
+
+    <div class="callout success" style="margin-top:24px">
+      <strong>🎉 Course complete!</strong> You have covered the full AI stack — from data science foundations through deep learning, transformers, and LLM APIs. The natural next step is building your capstone project: choose a real dataset, apply the full pipeline end-to-end, and deploy it.
+    </div>
+  </div>
+  <div class="mod-nav"><button class="nav-btn" onclick="gotoModule(9)">← Back</button><span class="nav-counter">10 / 10</span><span style="font-family:var(--font-mono);font-size:12px;color:var(--green)">All modules complete ✓</span></div>
+</div>
+
+</main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Background canvas ──────────────────────────────────────
+const bgCanvas = document.getElementById('bg');
+const bgCtx = bgCanvas.getContext('2d');
+let nodes = [];
+function resizeBG() { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; }
+resizeBG();
+window.addEventListener('resize', resizeBG);
+for (let i = 0; i < 55; i++) nodes.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, vx: (Math.random()-.5)*.25, vy: (Math.random()-.5)*.25, r: Math.random()*1.5+.5, pulse: Math.random()*Math.PI*2 });
+function drawBG() {
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  nodes.forEach(n => { n.x+=n.vx; n.y+=n.vy; n.pulse+=.02; if(n.x<0||n.x>bgCanvas.width)n.vx*=-1; if(n.y<0||n.y>bgCanvas.height)n.vy*=-1; });
+  for (let i=0;i<nodes.length;i++) for (let j=i+1;j<nodes.length;j++) {
+    const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y, d=Math.sqrt(dx*dx+dy*dy);
+    if (d<120) { bgCtx.beginPath(); bgCtx.moveTo(nodes[i].x,nodes[i].y); bgCtx.lineTo(nodes[j].x,nodes[j].y); bgCtx.strokeStyle=`rgba(0,180,255,${(1-d/120)*.06})`; bgCtx.stroke(); }
+  }
+  nodes.forEach(n => { const a=.3+.15*Math.sin(n.pulse); bgCtx.beginPath(); bgCtx.arc(n.x,n.y,n.r,0,Math.PI*2); bgCtx.fillStyle=`rgba(0,200,255,${a})`; bgCtx.fill(); });
+  requestAnimationFrame(drawBG);
+}
+drawBG();
+
+// ── State ─────────────────────────────────────────────────
+let cur = 1, completed = new Set(), quizDone = new Set();
+
+function gotoModule(n) {
+  document.getElementById('mod-'+cur).classList.remove('active');
+  document.getElementById('nav-'+cur).classList.remove('active');
+  cur = n;
+  document.getElementById('mod-'+n).classList.add('active');
+  document.getElementById('nav-'+n).classList.add('active');
+  document.getElementById('main').scrollTo({top:0,behavior:'smooth'});
+  if (!completed.has(n)) { completed.add(n); updateXP(); }
+  if (n === 6) setTimeout(()=>drawNN(60), 300);
+  if (n === 8) setTimeout(initAttn, 300);
+  if (n === 9) initKM();
+}
+
+function updateXP() {
+  const c = completed.size;
+  document.getElementById('xp-fill').style.width = (c/10*100)+'%';
+  document.getElementById('xp-text').textContent = c + ' / 10 modules';
+}
+
+// ── Quiz logic ────────────────────────────────────────────
+function checkQ(btn, result, qNum, msg) {
+  if (quizDone.has(qNum)) return;
+  quizDone.add(qNum);
+  const opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  btn.classList.add(result);
+  const fb = document.getElementById('qfb-'+qNum);
+  fb.textContent = msg;
+  fb.className = 'quiz-feedback show ' + (result==='correct'?'ok':'bad');
+  if (result==='correct') showToast('✓ Correct! +XP');
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function toggleInfo(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function copyCode(btn) {
+  const code = btn.closest('.code-wrap').querySelector('.code-block');
+  navigator.clipboard.writeText(code.innerText).then(()=>{ btn.textContent='copied!'; setTimeout(()=>btn.textContent='copy',1500); });
+}
+
+// ── Neural network visualisation ──────────────────────────
+function drawNN(val) {
+  const v = val/100;
+  document.getElementById('nn-val').textContent = v.toFixed(2);
+  const c = document.getElementById('nn-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.offsetWidth, H = c.offsetHeight;
+  c.width = W; c.height = H;
+  ctx.clearRect(0,0,W,H);
+  const layers = [[.15,.35,.55,.7,.85],[.25,.5,.75],[.5]];
+  const xp = [W*.18, W*.5, W*.82];
+  const cols = ['#00d4ff','#8b5cf6','#10d988'];
+
+  // activations simulated
+  function relu(x){ return Math.max(0,x); }
+  const inp = layers[0].map((_,i)=>[v, v*.8+.1, v*.6+.2, v*.9, v*.7+.15][i]);
+  const h1 = layers[1].map((_,j)=> relu(inp.reduce((s,x,i)=>s+x*(0.3+j*0.1+i*0.05),0)/3));
+  const out = relu(h1.reduce((s,x,i)=>s+x*(0.4+i*0.1),0)/2);
+  const acts = [inp, h1.map(x=>Math.min(1,x)), [Math.min(1,out)]];
+
+  layers.forEach((layer, li) => {
+    if (li < layers.length-1) {
+      layer.forEach(y1 => {
+        layers[li+1].forEach(y2 => {
+          const a = acts[li].reduce((s,x)=>s+x,0)/acts[li].length * .4;
+          ctx.beginPath(); ctx.moveTo(xp[li], y1*H); ctx.lineTo(xp[li+1], y2*H);
+          ctx.strokeStyle = `rgba(0,180,255,${a.toFixed(2)})`; ctx.lineWidth = .8; ctx.stroke();
+        });
+      });
+    }
+    layer.forEach((y, ni) => {
+      const act = acts[li][ni] || 0;
+      const r = 10;
+      ctx.beginPath(); ctx.arc(xp[li], y*H, r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${li===0?'0,212,255':li===1?'139,92,246':'16,217,136'},${0.15+act*.6})`;
+      ctx.fill();
+      ctx.strokeStyle = cols[li]; ctx.lineWidth = 1.2; ctx.stroke();
+      if (act > .1) {
+        ctx.fillStyle = cols[li]; ctx.font = '9px IBM Plex Mono,monospace'; ctx.textAlign='center';
+        ctx.fillText(act.toFixed(1), xp[li], y*H+3);
+      }
+    });
+  });
+  const lnames = ['Input','Hidden','Output'];
+  lnames.forEach((n,i)=>{ ctx.fillStyle='rgba(90,106,138,.8)'; ctx.font='10px IBM Plex Mono,monospace'; ctx.textAlign='center'; ctx.fillText(n, xp[i], H-6); });
+}
+document.getElementById('nn-slider')?.addEventListener('input', e => drawNN(e.target.value));
+
+// ── Attention visualisation ───────────────────────────────
+const attnTokens = ['The','cat','sat','on','the','mat'];
+let selTok = 2;
+function initAttn() {
+  const c = document.getElementById('attn-canvas');
+  if (!c) return;
+  c.width = c.offsetWidth; c.height = c.offsetHeight;
+  drawAttn();
+}
+function drawAttn() {
+  const c = document.getElementById('attn-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d'), W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
+  const n = attnTokens.length;
+  const xs = attnTokens.map((_,i)=> W*.1 + i*(W*.8/(n-1)));
+  const y1 = H*.35, y2 = H*.75;
+  // fake attention weights for selected token
+  const weights = [.05,.08,.7,.04,.08,.05].map((w,i)=> selTok===i ? 0.9 : w);
+  const wn = weights.map(w=>w/weights.reduce((a,b)=>a+b,0));
+
+  // draw arcs
+  attnTokens.forEach((_,i) => {
+    const w = wn[i];
+    if (w < .02) return;
+    const x1 = xs[selTok], x2 = xs[i];
+    const cy = y1 - 30 - Math.abs(x2-x1)*.18;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.quadraticCurveTo((x1+x2)/2, cy, x2, y1);
+    ctx.strokeStyle = `rgba(0,212,255,${Math.min(1,w*3)})`; ctx.lineWidth = w*12+.5; ctx.stroke();
+  });
+
+  // draw tokens
+  attnTokens.forEach((tok,i) => {
+    const x = xs[i], isSelected = i === selTok;
+    const w = wn[i];
+    ctx.beginPath(); ctx.roundRect(x-22, y1-14, 44, 28, 6);
+    ctx.fillStyle = isSelected ? 'rgba(0,212,255,.2)' : `rgba(139,92,246,${.05+w*.5})`;
+    ctx.fill();
+    ctx.strokeStyle = isSelected ? '#00d4ff' : `rgba(139,92,246,${.4+w*.4})`; ctx.lineWidth = isSelected?1.5:1; ctx.stroke();
+    ctx.fillStyle = isSelected ? '#00d4ff' : '#dde4f0'; ctx.font = `${isSelected?'bold ':''} 12px IBM Plex Mono,monospace`; ctx.textAlign='center';
+    ctx.fillText(tok, x, y1+4);
+    // weight label
+    if (w > .04) { ctx.fillStyle='rgba(0,212,255,.7)'; ctx.font='9px IBM Plex Mono,monospace'; ctx.fillText(w.toFixed(2), x, y2); }
+    ctx.fillStyle='rgba(90,106,138,.5)'; ctx.font='9px IBM Plex Mono,monospace'; ctx.fillText('tok '+i, x, H-4);
+  });
+  document.getElementById('attn-desc').textContent = `Token "${attnTokens[selTok]}" attends most strongly to "${attnTokens[wn.indexOf(Math.max(...wn))]}" · click another token`;
+}
+document.getElementById('attn-canvas')?.addEventListener('click', function(e) {
+  const r = this.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * (this.width / r.width);
+  const n = attnTokens.length;
+  const xs = attnTokens.map((_,i)=> this.width*.1 + i*(this.width*.8/(n-1)));
+  xs.forEach((x,i)=>{ if (Math.abs(mx-x)<28) { selTok=i; drawAttn(); } });
+});
+
+// ── K-Means ───────────────────────────────────────────────
+let kmPoints = [], kmK = 2, kmCentroids = [], kmLabels = [];
+const kmColors = ['#00d4ff','#10d988','#f59e0b','#ef4444','#8b5cf6'];
+function initKM() {
+  const c = document.getElementById('kmeans-canvas');
+  if (!c) return; c.width = c.offsetWidth; c.height = c.offsetHeight;
+  drawKM();
+}
+function addKMPoint(e) {
+  const c = document.getElementById('kmeans-canvas');
+  const r = c.getBoundingClientRect();
+  kmPoints.push({ x:(e.clientX-r.left)*(c.width/r.width), y:(e.clientY-r.top)*(c.height/r.height) });
+  document.getElementById('km-status').textContent = kmPoints.length + ' points';
+  drawKM();
+}
+function setK(k, btn) { kmK=k; document.querySelectorAll('.km-btn').forEach(b=>b.classList.remove('active-k')); btn.classList.add('active-k'); }
+function clearKM() { kmPoints=[]; kmCentroids=[]; kmLabels=[]; document.getElementById('km-status').textContent=''; drawKM(); }
+function runKMeans() {
+  if (kmPoints.length < kmK) { document.getElementById('km-status').textContent='Add more points!'; return; }
+  // init centroids randomly from points
+  const shuffled = [...kmPoints].sort(()=>Math.random()-.5);
+  kmCentroids = shuffled.slice(0,kmK).map(p=>({x:p.x,y:p.y}));
+  for (let iter=0;iter<20;iter++) {
+    kmLabels = kmPoints.map(p=>{ let best=0,bestD=Infinity; kmCentroids.forEach((c,i)=>{ const d=(p.x-c.x)**2+(p.y-c.y)**2; if(d<bestD){bestD=d;best=i;} }); return best; });
+    kmCentroids = kmCentroids.map((_,ci)=>{ const pts=kmPoints.filter((_,i)=>kmLabels[i]===ci); if(!pts.length)return kmCentroids[ci]; return {x:pts.reduce((s,p)=>s+p.x,0)/pts.length, y:pts.reduce((s,p)=>s+p.y,0)/pts.length}; });
+  }
+  document.getElementById('km-status').textContent = 'Converged · k='+kmK;
+  drawKM();
+}
+function drawKM() {
+  const c = document.getElementById('kmeans-canvas');
+  if (!c||!c.width) return;
+  const ctx = c.getContext('2d'); ctx.clearRect(0,0,c.width,c.height);
+  // voronoi-ish bg
+  if (kmCentroids.length) {
+    const idata = ctx.createImageData(c.width, c.height);
+    for (let px=0;px<c.width;px+=3) for (let py=0;py<c.height;py+=3) {
+      let best=0,bestD=Infinity;
+      kmCentroids.forEach((cent,i)=>{ const d=(px-cent.x)**2+(py-cent.y)**2; if(d<bestD){bestD=d;best=i;} });
+      const col = kmColors[best]; const r=parseInt(col.slice(1,3),16), g=parseInt(col.slice(3,5),16), b=parseInt(col.slice(5,7),16);
+      for(let ox=0;ox<3;ox++) for(let oy=0;oy<3;oy++) {
+        const idx=((py+oy)*c.width+(px+ox))*4;
+        idata.data[idx]=r; idata.data[idx+1]=g; idata.data[idx+2]=b; idata.data[idx+3]=18;
+      }
+    }
+    ctx.putImageData(idata,0,0);
+  }
+  kmPoints.forEach((p,i)=>{
+    const col = kmLabels.length ? kmColors[kmLabels[i]] : '#5a6a8a';
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,.4)'; ctx.lineWidth=1; ctx.stroke();
+  });
+  kmCentroids.forEach((c2,i)=>{
+    ctx.beginPath(); ctx.arc(c2.x,c2.y,9,0,Math.PI*2);
+    ctx.fillStyle='#fff'; ctx.fill();
+    ctx.strokeStyle=kmColors[i]; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.fillStyle=kmColors[i]; ctx.font='bold 10px IBM Plex Mono,monospace'; ctx.textAlign='center'; ctx.fillText('C'+(i+1),c2.x,c2.y+3.5);
+  });
+  if (!kmPoints.length) {
+    ctx.fillStyle='rgba(90,106,138,.5)'; ctx.font='13px IBM Plex Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText('Click to add data points', c.width/2, c.height/2);
+  }
+}
+
+// init
+completed.add(1); updateXP();
+setTimeout(()=>{ initKM(); }, 100);
+</script>
+</body>
+</html>
