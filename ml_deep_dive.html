@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Deep Dive — Interactive Learning Module</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--surface:#13161e;--surface2:#1c2030;--surface3:#242840;--border:#2a2e40;--border2:#353a52;--text:#e8eaf2;--text2:#8b90a8;--text3:#5a6080;--accent:#7c6ee6;--accent2:#a594ff;--accent-glow:rgba(124,110,230,0.15);--teal:#2dd4a4;--teal-bg:rgba(45,212,164,0.1);--amber:#f5a623;--amber-bg:rgba(245,166,35,0.1);--coral:#f06470;--coral-bg:rgba(240,100,112,0.1);--green:#4cde8a;--green-bg:rgba(76,222,138,0.1);--mono:'DM Mono',monospace;--sans:'Sora',sans-serif;--radius:10px;--radius-lg:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.7}
+.app{display:flex;min-height:100vh}
+.sidebar{width:264px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 0;position:fixed;top:0;left:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.main{margin-left:264px;padding:2.5rem 2.5rem 4rem;max-width:960px}
+.logo{padding:0 1.5rem 1.25rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.logo h1{font-family:var(--mono);font-size:13px;color:var(--accent2);letter-spacing:0.5px;font-weight:500}
+.logo p{font-size:11px;color:var(--text3);margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.5rem;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;transition:all 0.18s;user-select:none}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--accent2);border-left-color:var(--accent);background:var(--accent-glow)}
+.nav-num{font-family:var(--mono);font-size:11px;color:var(--text3);width:18px;flex-shrink:0}
+.nav-item.active .nav-num{color:var(--accent)}
+.nav-done{margin-left:auto;width:16px;height:16px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#0d0f14;font-weight:700}
+.progress-wrap{padding:1.25rem 1.5rem;margin-top:auto;border-top:1px solid var(--border)}
+.progress-label{font-size:11px;color:var(--text3);margin-bottom:8px;display:flex;justify-content:space-between}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:2px;transition:width 0.5s ease}
+.section{display:none;animation:fadeIn 0.3s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.section-header{margin-bottom:2rem}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:20px;margin-bottom:0.75rem;border:1px solid;letter-spacing:0.3px}
+.chip-reg{color:var(--accent2);border-color:var(--accent);background:var(--accent-glow)}
+.chip-cls{color:var(--teal);border-color:var(--teal);background:var(--teal-bg)}
+.chip-clu{color:var(--amber);border-color:var(--amber);background:var(--amber-bg)}
+.chip-cm{color:var(--coral);border-color:var(--coral);background:var(--coral-bg)}
+.chip-prf{color:var(--green);border-color:var(--green);background:var(--green-bg)}
+.chip-cv{color:var(--accent2);border-color:var(--accent);background:var(--accent-glow)}
+.chip-ht{color:var(--amber);border-color:var(--amber);background:var(--amber-bg)}
+.section-header h2{font-size:28px;font-weight:600;letter-spacing:-0.5px;line-height:1.3}
+.section-header p{font-size:15px;color:var(--text2);margin-top:0.5rem;max-width:580px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem}
+.card-label{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:0.75rem;display:flex;align-items:center;gap:6px}
+.card-label::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.7}
+.card-label.c-acc{color:var(--accent2)}.card-label.c-teal{color:var(--teal)}.card-label.c-amber{color:var(--amber)}.card-label.c-coral{color:var(--coral)}.card-label.c-green{color:var(--green)}
+h3{font-size:17px;font-weight:500;margin-bottom:0.5rem}
+p{color:var(--text2);line-height:1.75;margin-bottom:0.6rem}
+p:last-child{margin-bottom:0}
+.example-box{background:var(--surface2);border-left:3px solid var(--teal);border-radius:0 var(--radius) var(--radius) 0;padding:1rem 1.25rem;margin:0.75rem 0}
+.example-box strong{color:var(--teal);font-size:12px;font-family:var(--mono);letter-spacing:0.5px;display:block;margin-bottom:4px}
+.example-box p{margin:0;font-size:14px}
+.formula{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;font-family:var(--mono);font-size:14px;margin:0.75rem 0;color:var(--text);position:relative;overflow-x:auto}
+.formula .hi{color:var(--accent2);font-weight:500}
+.formula .ht{color:var(--teal);font-weight:500}
+.formula .ha{color:var(--amber);font-weight:500}
+.formula .lbl{position:absolute;top:8px;right:10px;font-size:10px;color:var(--text3);letter-spacing:0.5px}
+.slider-group{margin:0.6rem 0}
+.slider-row{display:flex;align-items:center;gap:12px;padding:4px 0}
+.slider-row label{font-size:13px;color:var(--text2);min-width:145px}
+.slider-row input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--border2);border-radius:2px;outline:none}
+.slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent2);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 8px rgba(124,110,230,0.4)}
+.slider-val{font-family:var(--mono);font-size:13px;color:var(--accent2);min-width:46px;text-align:right}
+canvas{width:100%;border-radius:var(--radius);background:var(--surface2);display:block;border:1px solid var(--border)}
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:1rem 0}
+.metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+.metric-val{font-size:22px;font-weight:600;font-family:var(--mono);color:var(--accent2)}
+.metric-lbl{font-size:11px;color:var(--text3);margin-top:3px;letter-spacing:0.5px}
+button{font-family:var(--sans);cursor:pointer;transition:all 0.18s;border-radius:var(--radius);font-size:13px;font-weight:500}
+.btn{padding:8px 18px;border:1px solid var(--border2);background:transparent;color:var(--text2)}
+.btn:hover{background:var(--surface2);color:var(--text)}
+.btn-accent{padding:8px 18px;border:1px solid var(--accent);background:var(--accent-glow);color:var(--accent2)}
+.btn-accent:hover{background:var(--accent);color:#fff}
+.btn-teal{padding:8px 18px;border:1px solid var(--teal);background:var(--teal-bg);color:var(--teal)}
+.btn-teal:hover{background:var(--teal);color:#0d0f14}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:0.75rem 0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.types-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.type-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.type-card h4{font-size:14px;font-weight:500;margin-bottom:0.4rem}
+.type-card p{font-size:12px;color:var(--text3);margin:0}
+.type-card .mini-formula{font-family:var(--mono);font-size:11px;color:var(--accent2);margin-top:6px;background:var(--surface3);padding:4px 8px;border-radius:4px;display:inline-block}
+.cm-wrap{overflow-x:auto}
+.cm-table{border-collapse:collapse;margin:0.75rem auto;width:100%}
+.cm-table td,.cm-table th{border:1px solid var(--border);padding:12px 16px;text-align:center;font-size:13px}
+.cm-table th{background:var(--surface2);color:var(--text3);font-family:var(--mono);font-size:11px;font-weight:500}
+.cm-tp{background:rgba(76,222,138,0.12);color:var(--green);font-weight:600;font-size:20px;font-family:var(--mono)}
+.cm-tn{background:rgba(76,222,138,0.12);color:var(--teal);font-weight:600;font-size:20px;font-family:var(--mono)}
+.cm-fp{background:rgba(240,100,112,0.12);color:var(--coral);font-weight:600;font-size:20px;font-family:var(--mono)}
+.cm-fn{background:rgba(245,166,35,0.12);color:var(--amber);font-weight:600;font-size:20px;font-family:var(--mono)}
+.cm-label{font-size:11px;display:block;color:var(--text3);margin-top:2px;font-weight:400;font-family:var(--mono)}
+.quiz-opts button{display:block;width:100%;text-align:left;margin:6px 0;padding:12px 16px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);border-radius:var(--radius);font-size:13px}
+.quiz-opts button:hover{border-color:var(--accent);color:var(--text)}
+.quiz-opts button.correct{border-color:var(--teal)!important;background:var(--teal-bg)!important;color:var(--teal)!important}
+.quiz-opts button.wrong{border-color:var(--coral)!important;background:var(--coral-bg)!important;color:var(--coral)!important}
+.quiz-result{margin-top:10px;font-size:13px;padding:10px 14px;border-radius:var(--radius);display:none}
+.quiz-result.show{display:block}
+.quiz-result.ok{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal)}
+.quiz-result.bad{background:var(--coral-bg);color:var(--coral);border:1px solid var(--coral)}
+.steps{display:flex;flex-direction:column;gap:0.75rem}
+.step{display:flex;gap:12px;align-items:flex-start}
+.step-n{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:var(--surface3);border:1px solid var(--border2);font-family:var(--mono);font-size:11px;color:var(--accent2);display:flex;align-items:center;justify-content:center;margin-top:2px}
+.step-t{font-size:14px;color:var(--text2)}
+.nav-footer{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.cv-fold{display:flex;gap:4px;margin-bottom:6px;align-items:center}
+.cv-fold-label{font-family:var(--mono);font-size:11px;color:var(--text3);width:50px}
+.cv-blocks{display:flex;gap:3px;flex:1}
+.cv-block{height:24px;flex:1;border-radius:4px;border:1px solid transparent;transition:all 0.3s}
+.cv-train{background:var(--surface3);border-color:var(--border2)}
+.cv-test{background:var(--accent-glow);border-color:var(--accent)}
+.pill{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:12px;border:1px solid var(--border2);color:var(--text3);margin:2px}
+@media(max-width:720px){.sidebar{display:none}.main{margin-left:0;padding:1rem}.two-col,.types-grid{grid-template-columns:1fr}.metrics-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <h1>ML // DEEP DIVE</h1>
+    <p>Interactive Learning Module</p>
+  </div>
+  <nav>
+    <div class="nav-item active" onclick="goTo(0)" id="nav-0"><span class="nav-num">01</span>Regression Models</div>
+    <div class="nav-item" onclick="goTo(1)" id="nav-1"><span class="nav-num">02</span>Classification</div>
+    <div class="nav-item" onclick="goTo(2)" id="nav-2"><span class="nav-num">03</span>Clustering</div>
+    <div class="nav-item" onclick="goTo(3)" id="nav-3"><span class="nav-num">04</span>Confusion Matrix</div>
+    <div class="nav-item" onclick="goTo(4)" id="nav-4"><span class="nav-num">05</span>Precision / Recall / F1</div>
+    <div class="nav-item" onclick="goTo(5)" id="nav-5"><span class="nav-num">06</span>Cross-Validation</div>
+    <div class="nav-item" onclick="goTo(6)" id="nav-6"><span class="nav-num">07</span>Hyperparameter Tuning</div>
+  </nav>
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Progress</span><span id="prog-pct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ═══ SECTION 0 — REGRESSION ═══ -->
+<div class="section active" id="sec-0">
+  <div class="section-header">
+    <span class="chip chip-reg">Topic 01 / 07 — Supervised Learning</span>
+    <h2>Regression Models</h2>
+    <p>Predicting a continuous number from input features — think house prices, temperatures, and scores.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English</div>
+    <h3>What is Regression?</h3>
+    <div class="example-box">
+      <strong>Real-world analogy</strong>
+      <p>You want to predict a house price. You consider its size (1200 sq ft), number of bedrooms (3), and location. Regression learns the pattern from thousands of past sales and draws the best-fit line so it can estimate any new house's price.</p>
+    </div>
+    <p>Other examples: predicting tomorrow's temperature, a student's exam score, a car's fuel efficiency, or estimated delivery time. The key idea: the <strong style="color:var(--accent2)">output is a number</strong> on a continuous scale — not a category.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-acc">Technical Deep Dive</div>
+    <h3>Linear Regression</h3>
+    <p>Finds coefficients (β values) that define the best straight line through data points, minimizing prediction error.</p>
+    <div class="formula">
+      <span class="lbl">prediction equation</span>
+      ŷ = <span class="hi">β₀</span> + <span class="hi">β₁</span>x₁ + <span class="hi">β₂</span>x₂ + ... + <span class="hi">βₙ</span>xₙ
+    </div>
+    <p style="font-size:13px">β₀ = intercept (base value when all features = 0) &nbsp;·&nbsp; β₁…βₙ = how much each feature contributes per unit</p>
+    <div class="formula">
+      <span class="lbl">loss function — Mean Squared Error</span>
+      MSE = <span class="ht">(1/n)</span> × Σᵢ ( <span class="hi">yᵢ</span> − <span class="ha">ŷᵢ</span> )²
+    </div>
+    <p style="font-size:13px">We minimize MSE using <strong style="color:var(--accent2)">gradient descent</strong> — nudging β values step by step in the direction that reduces error, like rolling a ball downhill to its lowest point.</p>
+    <div class="formula">
+      <span class="lbl">goodness of fit</span>
+      R² = <span class="hi">1</span> − ( SS_residual / SS_total ) &nbsp;&nbsp; range: 0 → 1 &nbsp; (1 = perfect fit)
+    </div>
+    <div class="formula">
+      <span class="lbl">gradient descent update rule</span>
+      βⱼ ← βⱼ − <span class="ha">α</span> × ∂MSE/∂βⱼ &nbsp;&nbsp; where α = learning rate
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-acc">Interactive Demo — fit the line</div>
+    <p style="font-size:13px;margin-bottom:0.75rem">Manually adjust slope and intercept. Watch residual lines (the errors) shrink. Hit <strong style="color:var(--accent2)">Auto-fit</strong> to find the mathematical optimum using the normal equation.</p>
+    <div class="slider-group">
+      <div class="slider-row">
+        <label>Slope (β₁)</label>
+        <input type="range" min="-5" max="20" value="5" step="0.5" id="reg-slope" oninput="updateRegression()">
+        <span class="slider-val" id="reg-slope-v">5.0</span>
+      </div>
+      <div class="slider-row">
+        <label>Intercept (β₀)</label>
+        <input type="range" min="0" max="300" value="80" step="5" id="reg-int" oninput="updateRegression()">
+        <span class="slider-val" id="reg-int-v">80</span>
+      </div>
+    </div>
+    <canvas id="reg-canvas" height="220"></canvas>
+    <div class="metrics-row">
+      <div class="metric-card"><div class="metric-val" id="m-mse">—</div><div class="metric-lbl">MSE (lower = better)</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-r2" style="color:var(--teal)">—</div><div class="metric-lbl">R² Score</div></div>
+      <div class="metric-card"><div class="metric-val" id="m-fit" style="font-size:14px">—</div><div class="metric-lbl">Fit Quality</div></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-accent" onclick="setBestFit()">Auto-fit (optimal parameters)</button>
+      <button class="btn" onclick="addPoint()">Add random point</button>
+      <button class="btn" onclick="initRegression()">Reset data</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-acc">Types of Regression</div>
+    <div class="types-grid">
+      <div class="type-card"><h4 style="color:var(--accent2)">Linear</h4><p>Straight-line relationship. Works when output scales proportionally with inputs.</p><div class="mini-formula">ŷ = β₀ + β₁x</div></div>
+      <div class="type-card"><h4 style="color:var(--teal)">Polynomial</h4><p>Curved relationship. Adds powers of x as new features to capture bends.</p><div class="mini-formula">ŷ = β₀ + β₁x + β₂x²</div></div>
+      <div class="type-card"><h4 style="color:var(--amber)">Ridge (L2)</h4><p>Prevents overfitting by penalizing large β values. Shrinks all coefficients toward zero.</p><div class="mini-formula">Loss + λΣβ²</div></div>
+      <div class="type-card"><h4 style="color:var(--coral)">Lasso (L1)</h4><p>Like Ridge but zeros out unimportant features entirely — automatic feature selection.</p><div class="mini-formula">Loss + λΣ|β|</div></div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <span></span>
+    <button class="btn-accent" onclick="goTo(1)">Next: Classification →</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 1 — CLASSIFICATION ═══ -->
+<div class="section" id="sec-1">
+  <div class="section-header">
+    <span class="chip chip-cls">Topic 02 / 07 — Supervised Learning</span>
+    <h2>Classification Models</h2>
+    <p>Predicting which category or class a data point belongs to.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English</div>
+    <h3>What is Classification?</h3>
+    <div class="example-box">
+      <strong>Real-world analogy</strong>
+      <p>A doctor looks at your symptoms and says "flu" or "cold." An email filter decides "spam" or "not spam." A photo app identifies "cat," "dog," or "bird." Classification puts things into <strong>discrete boxes</strong> — not on a number line.</p>
+    </div>
+    <p>Binary classification = 2 classes (spam/not spam) &nbsp;·&nbsp; Multi-class = 3+ classes (cat/dog/bird) &nbsp;·&nbsp; Multi-label = multiple tags per sample</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Technical Deep Dive</div>
+    <h3>Logistic Regression — despite the name, it classifies!</h3>
+    <p>Uses the sigmoid function to squeeze any real number into a probability between 0 and 1. If probability > 0.5, predict class 1.</p>
+    <div class="formula">
+      <span class="lbl">sigmoid (logistic) function</span>
+      σ(z) = <span class="hi">1</span> / ( 1 + e<sup style="font-size:12px">−z</sup> ) &nbsp;&nbsp; where z = β₀ + β₁x₁ + ... + βₙxₙ
+    </div>
+    <div class="formula">
+      <span class="lbl">Binary Cross-Entropy loss</span>
+      L = −[ <span class="ht">y</span> · log(ŷ) + <span class="ha">(1−y)</span> · log(1−ŷ) ]
+    </div>
+    <p style="font-size:13px">When y=1 (true positive), we penalize low confidence predictions. When y=0 (true negative), we penalize high confidence predictions. The model learns to be confident <em>and</em> correct simultaneously.</p>
+    <div class="formula">
+      <span class="lbl">Decision rule</span>
+      if σ(z) &gt; <span class="ha">threshold (0.5)</span> → predict class 1 &nbsp; else → predict class 0
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Interactive — Sigmoid Function Explorer</div>
+    <p style="font-size:13px;margin-bottom:0.75rem">Slide z to see how any input maps to a probability. Extreme values (±6) produce near-certain predictions. z≈0 means maximum uncertainty.</p>
+    <div class="slider-row">
+      <label>Input z</label>
+      <input type="range" min="-8" max="8" value="0" step="0.25" id="sig-z" oninput="updateSigmoid()">
+      <span class="slider-val" id="sig-z-v">0.00</span>
+    </div>
+    <canvas id="sig-canvas" height="200"></canvas>
+    <div class="metrics-row">
+      <div class="metric-card"><div class="metric-val" id="s-prob" style="color:var(--teal)">0.500</div><div class="metric-lbl">P(class = 1)</div></div>
+      <div class="metric-card"><div class="metric-val" id="s-pred">?</div><div class="metric-lbl">Predicted class</div></div>
+      <div class="metric-card"><div class="metric-val" id="s-conf" style="font-size:14px">Uncertain</div><div class="metric-lbl">Confidence</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Other Popular Classifiers</div>
+    <div class="types-grid">
+      <div class="type-card"><h4 style="color:var(--teal)">Decision Tree</h4><p>Asks yes/no questions like a flowchart. "Age > 30?" → "Income > 50k?" → approve. Intuitive and explainable.</p></div>
+      <div class="type-card"><h4 style="color:var(--accent2)">Random Forest</h4><p>Hundreds of decision trees each vote. Majority wins. Much harder to overfit — wisdom of the crowd.</p></div>
+      <div class="type-card"><h4 style="color:var(--amber)">SVM (Support Vector Machine)</h4><p>Finds the widest possible margin between classes. Kernels allow complex non-linear boundaries.</p></div>
+      <div class="type-card"><h4 style="color:var(--coral)">k-Nearest Neighbors</h4><p>"You are like your k nearest neighbors." Lazy learner — memorizes training data, classifies at query time by majority vote.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Quiz</div>
+    <h3>An email gets σ(z) = 0.91. What happens?</h3>
+    <div class="quiz-opts" id="q1">
+      <button onclick="quiz('q1',this,true)">Classified as spam — 0.91 > 0.5, so the model predicts class 1 (spam) with high confidence</button>
+      <button onclick="quiz('q1',this,false)">Not spam — 0.91 is close to 1.0 so the model is uncertain</button>
+      <button onclick="quiz('q1',this,false)">We need more features before the model can decide</button>
+    </div>
+    <div class="quiz-result" id="q1-res"></div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn" onclick="goTo(0)">← Regression</button>
+    <button class="btn-teal" onclick="goTo(2)">Next: Clustering →</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 2 — CLUSTERING ═══ -->
+<div class="section" id="sec-2">
+  <div class="section-header">
+    <span class="chip chip-clu">Topic 03 / 07 — Unsupervised Learning</span>
+    <h2>Clustering</h2>
+    <p>Finding natural groups in data — without any predefined labels.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English</div>
+    <div class="example-box">
+      <strong>Real-world analogy</strong>
+      <p>A supermarket never told the computer who is a "budget shopper" vs a "premium buyer." Clustering analyzes purchase history and discovers these groups on its own — like sorting a pile of socks by color when no one told you what colors exist. Pure, unsupervised pattern-finding.</p>
+    </div>
+    <p>Unlike classification, this is <strong style="color:var(--amber)">unsupervised</strong> — no labels, no correct answers. The algorithm invents the categories.</p>
+    <p><strong style="color:var(--text)">Other real-world uses:</strong> customer segmentation, anomaly/fraud detection, gene expression grouping, news topic discovery, image compression (color quantization).</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Technical — K-Means Algorithm</div>
+    <h3>How K-Means works</h3>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-t">Choose k (number of clusters). Place k centroids randomly in the feature space.</div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-t">Assign each point to its nearest centroid using Euclidean distance.</div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-t">Move each centroid to the mean position of all points assigned to it.</div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-t">Repeat steps 2–3 until centroids stop moving (convergence).</div></div>
+    </div>
+    <div class="formula">
+      <span class="lbl">Euclidean distance</span>
+      d(a, b) = <span class="ht">√</span>( (x₂−x₁)² + (y₂−y₁)² )
+    </div>
+    <div class="formula">
+      <span class="lbl">Objective — minimize WCSS (Within-Cluster Sum of Squares)</span>
+      J = Σᵢ₌₁ᵏ &nbsp; Σ<sub>x∈Cᵢ</sub> <span class="hi">‖x − μᵢ‖²</span>
+    </div>
+    <p style="font-size:13px">The <strong style="color:var(--amber)">Elbow Method</strong>: plot WCSS vs k. The "elbow" — where gains in WCSS diminish sharply — reveals the optimal k.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Interactive — K-Means Step by Step</div>
+    <div class="slider-row">
+      <label>Number of clusters (k)</label>
+      <input type="range" min="2" max="6" value="3" step="1" id="k-sl" oninput="document.getElementById('k-v').textContent=this.value;resetKMeans()">
+      <span class="slider-val" id="k-v">3</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="genPoints()">Generate points</button>
+      <button class="btn-accent" onclick="stepKMeans()">Step →</button>
+      <button class="btn-teal" onclick="runFullKMeans()">Run to completion</button>
+      <button class="btn" onclick="resetKMeans()">Reset</button>
+    </div>
+    <canvas id="km-canvas" height="240"></canvas>
+    <p style="font-size:12px;color:var(--text3);margin-top:8px" id="km-status">Click "Generate points" to begin. Triangles = centroids.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Other Clustering Methods</div>
+    <div class="types-grid">
+      <div class="type-card"><h4 style="color:var(--amber)">DBSCAN</h4><p>Density-based. Discovers arbitrarily-shaped clusters. Automatically labels outliers as "noise." No need to specify k!</p></div>
+      <div class="type-card"><h4 style="color:var(--accent2)">Hierarchical (Agglomerative)</h4><p>Builds a dendrogram — a tree of cluster merges. Cut at any level to get your desired number of groups.</p></div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn" onclick="goTo(1)">← Classification</button>
+    <button class="btn" style="border-color:var(--coral);background:var(--coral-bg);color:var(--coral)" onclick="goTo(3)">Next: Confusion Matrix →</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 3 — CONFUSION MATRIX ═══ -->
+<div class="section" id="sec-3">
+  <div class="section-header">
+    <span class="chip chip-cm">Topic 04 / 07 — Model Evaluation</span>
+    <h2>Confusion Matrix</h2>
+    <p>A detailed scorecard showing exactly where your classifier gets it right — and wrong.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English</div>
+    <div class="example-box">
+      <strong>Real-world analogy</strong>
+      <p>A COVID test can fail in two distinct ways: saying you're sick when you're healthy (false alarm), or saying you're healthy when you're actually sick (missed detection). A confusion matrix lays out all four possible outcomes so you know precisely what kind of errors the model makes — not just how often it's wrong.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-coral">Technical — The Four Cells</div>
+    <div class="cm-wrap">
+      <table class="cm-table">
+        <tr><th></th><th>Predicted: Positive</th><th>Predicted: Negative</th></tr>
+        <tr><th>Actual: Positive</th>
+          <td class="cm-tp">TP<span class="cm-label">True Positive</span></td>
+          <td class="cm-fn">FN<span class="cm-label">False Negative</span></td>
+        </tr>
+        <tr><th>Actual: Negative</th>
+          <td class="cm-fp">FP<span class="cm-label">False Positive</span></td>
+          <td class="cm-tn">TN<span class="cm-label">True Negative</span></td>
+        </tr>
+      </table>
+    </div>
+    <div class="two-col" style="margin-top:1rem">
+      <div style="background:var(--green-bg);border:1px solid var(--green);border-radius:var(--radius);padding:0.75rem"><div style="font-size:11px;font-family:var(--mono);color:var(--green);margin-bottom:4px">TRUE POSITIVE (TP)</div><p style="font-size:13px;margin:0">Predicted positive + Actually positive. A correct hit. "Diagnosed flu → Had flu."</p></div>
+      <div style="background:var(--teal-bg);border:1px solid var(--teal);border-radius:var(--radius);padding:0.75rem"><div style="font-size:11px;font-family:var(--mono);color:var(--teal);margin-bottom:4px">TRUE NEGATIVE (TN)</div><p style="font-size:13px;margin:0">Predicted negative + Actually negative. Correct rejection. "No flu → no flu."</p></div>
+      <div style="background:var(--coral-bg);border:1px solid var(--coral);border-radius:var(--radius);padding:0.75rem"><div style="font-size:11px;font-family:var(--mono);color:var(--coral);margin-bottom:4px">FALSE POSITIVE (FP) — Type I Error</div><p style="font-size:13px;margin:0">Predicted positive → Actually negative. False alarm. "Said flu → Was just a cold."</p></div>
+      <div style="background:var(--amber-bg);border:1px solid var(--amber);border-radius:var(--radius);padding:0.75rem"><div style="font-size:11px;font-family:var(--mono);color:var(--amber);margin-bottom:4px">FALSE NEGATIVE (FN) — Type II Error</div><p style="font-size:13px;margin:0">Predicted negative → Actually positive. Missed it. "Said healthy → Had cancer."</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-coral">Interactive — Build Your Confusion Matrix</div>
+    <p style="font-size:13px">Drag the sliders to simulate different model outcomes. Watch the derived metrics update in real time.</p>
+    <div class="slider-group">
+      <div class="slider-row"><label>True Positives (TP)</label><input type="range" min="0" max="60" value="45" step="1" id="cm-tp-sl" oninput="updateCM()"><span class="slider-val" id="cm-tp-v">45</span></div>
+      <div class="slider-row"><label>False Positives (FP)</label><input type="range" min="0" max="60" value="10" step="1" id="cm-fp-sl" oninput="updateCM()"><span class="slider-val" id="cm-fp-v">10</span></div>
+      <div class="slider-row"><label>False Negatives (FN)</label><input type="range" min="0" max="60" value="8" step="1" id="cm-fn-sl" oninput="updateCM()"><span class="slider-val" id="cm-fn-v">8</span></div>
+      <div class="slider-row"><label>True Negatives (TN)</label><input type="range" min="0" max="60" value="37" step="1" id="cm-tn-sl" oninput="updateCM()"><span class="slider-val" id="cm-tn-v">37</span></div>
+    </div>
+    <div class="metrics-row" style="grid-template-columns:repeat(4,1fr)">
+      <div class="metric-card"><div class="metric-val" id="cm-acc" style="color:var(--teal)">—</div><div class="metric-lbl">Accuracy</div></div>
+      <div class="metric-card"><div class="metric-val" id="cm-prec" style="color:var(--accent2)">—</div><div class="metric-lbl">Precision</div></div>
+      <div class="metric-card"><div class="metric-val" id="cm-rec" style="color:var(--amber)">—</div><div class="metric-lbl">Recall</div></div>
+      <div class="metric-card"><div class="metric-val" id="cm-f1" style="color:var(--coral)">—</div><div class="metric-lbl">F1 Score</div></div>
+    </div>
+    <canvas id="cm-canvas" height="170"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-coral">Quiz</div>
+    <h3>A cancer detector flags 10 healthy people as sick (FP=10) and misses 2 actual cancer cases (FN=2). Which error is more dangerous?</h3>
+    <div class="quiz-opts" id="q2">
+      <button onclick="quiz('q2',this,false)">FP=10 is worse — falsely alarming 10 people causes serious unnecessary stress and expense</button>
+      <button onclick="quiz('q2',this,true)">FN=2 is worse — missing cancer cases means those patients receive no treatment (potentially life-threatening)</button>
+      <button onclick="quiz('q2',this,false)">Both are equally severe in any medical context</button>
+    </div>
+    <div class="quiz-result" id="q2-res"></div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn" onclick="goTo(2)">← Clustering</button>
+    <button class="btn" style="border-color:var(--green);background:var(--green-bg);color:var(--green)" onclick="goTo(4)">Next: Precision / Recall / F1 →</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 4 — PRECISION / RECALL / F1 ═══ -->
+<div class="section" id="sec-4">
+  <div class="section-header">
+    <span class="chip chip-prf">Topic 05 / 07 — Model Evaluation</span>
+    <h2>Precision, Recall &amp; F1 Score</h2>
+    <p>Going beyond accuracy to understand the quality and completeness of your predictions.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English — Why Accuracy Isn't Enough</div>
+    <div class="example-box">
+      <strong>The 99% accuracy trap</strong>
+      <p>If 99% of emails are not spam, a model that labels everything "not spam" achieves 99% accuracy — yet catches zero spam! That's a useless model with deceptive accuracy. Precision and Recall reveal the full story.</p>
+    </div>
+    <div class="two-col" style="margin-top:0.75rem">
+      <div style="background:var(--surface2);border-radius:var(--radius);padding:1rem;border:1px solid var(--border)">
+        <div style="font-size:11px;font-family:var(--mono);color:var(--accent2);margin-bottom:6px">PRECISION</div>
+        <p style="font-size:13px;margin:0">Of all the cases I <em>predicted positive</em>, how many actually were? Measures quality of my alarms.</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:6px">"When I cry wolf, am I actually right?"</p>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--radius);padding:1rem;border:1px solid var(--border)">
+        <div style="font-size:11px;font-family:var(--mono);color:var(--amber);margin-bottom:6px">RECALL (SENSITIVITY)</div>
+        <p style="font-size:13px;margin:0">Of all <em>actual positives</em>, how many did I catch? Measures completeness — did I miss any?</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:6px">"Do I catch all the wolves that exist?"</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-green">Mathematical Formulas</div>
+    <div class="formula"><span class="lbl">Accuracy</span>Accuracy = <span class="ht">(TP + TN)</span> / (TP + TN + FP + FN)</div>
+    <div class="formula"><span class="lbl">Precision — purity of positive predictions</span>Precision = <span class="hi">TP</span> / (TP + <span class="ha">FP</span>) &nbsp;&nbsp;&nbsp; ← "of my positive calls, fraction that were right"</div>
+    <div class="formula"><span class="lbl">Recall — coverage of actual positives</span>Recall = <span class="hi">TP</span> / (TP + <span class="ha">FN</span>) &nbsp;&nbsp;&nbsp; ← "of all real positives, fraction I found"</div>
+    <div class="formula"><span class="lbl">F1 Score — harmonic mean of P and R</span>F1 = <span class="hi">2</span> × (Precision × Recall) / (Precision + Recall)</div>
+    <p style="font-size:13px">F1 uses the harmonic mean — it punishes extreme imbalances more than arithmetic mean. A model with P=1.0 and R=0.01 only scores F1=0.02. You need both to score well.</p>
+    <div class="formula"><span class="lbl">Fβ — weighted F score</span>Fβ = <span class="hi">(1+β²)</span> × P × R / (β²·P + R) &nbsp;&nbsp; [β&gt;1 weights recall; β&lt;1 weights precision]</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-green">Interactive — The Precision-Recall Trade-off</div>
+    <p style="font-size:13px">Lower the threshold → catch more positives (↑ Recall, ↓ Precision). Raise it → be more selective (↑ Precision, ↓ Recall). Watch all three curves respond.</p>
+    <div class="slider-row">
+      <label>Decision threshold</label>
+      <input type="range" min="0.05" max="0.95" value="0.5" step="0.05" id="thresh-sl" oninput="updateThresh()">
+      <span class="slider-val" id="thresh-v">0.50</span>
+    </div>
+    <canvas id="prf-canvas" height="220"></canvas>
+    <div class="metrics-row">
+      <div class="metric-card"><div class="metric-val" id="prf-p" style="color:var(--accent2)">—</div><div class="metric-lbl">Precision</div></div>
+      <div class="metric-card"><div class="metric-val" id="prf-r" style="color:var(--amber)">—</div><div class="metric-lbl">Recall</div></div>
+      <div class="metric-card"><div class="metric-val" id="prf-f1" style="color:var(--green)">—</div><div class="metric-lbl">F1 Score</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-green">When to prioritize what</div>
+    <div class="types-grid">
+      <div class="type-card"><h4 style="color:var(--accent2)">Maximize Precision</h4><p>When false alarms are costly. Spam filters — you don't want real emails deleted. Legal or compliance flagging systems.</p></div>
+      <div class="type-card"><h4 style="color:var(--amber)">Maximize Recall</h4><p>When missing a positive is dangerous. Cancer or fraud detection — missing a case is worse than a false alarm.</p></div>
+      <div class="type-card"><h4 style="color:var(--green)">Balance with F1</h4><p>When both errors matter equally. General NLP tasks, most business classifiers, benchmark evaluations.</p></div>
+      <div class="type-card"><h4 style="color:var(--coral)">AUC-ROC</h4><p>Area under the ROC curve — model quality across all thresholds. 0.5 = random guessing, 1.0 = perfect. Threshold-independent.</p></div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn" onclick="goTo(3)">← Confusion Matrix</button>
+    <button class="btn-accent" onclick="goTo(5)">Next: Cross-Validation →</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 5 — CROSS-VALIDATION ═══ -->
+<div class="section" id="sec-5">
+  <div class="section-header">
+    <span class="chip chip-cv">Topic 06 / 07 — Model Evaluation</span>
+    <h2>Cross-Validation</h2>
+    <p>A robust technique to estimate how well a model truly generalizes to unseen data.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English</div>
+    <div class="example-box">
+      <strong>Real-world analogy</strong>
+      <p>You're studying for a board exam. If you only practice the same 10 questions over and over, you might memorize them without truly understanding the material. Cross-validation forces the model to be tested on data it has never seen — multiple times — giving you a much more honest performance estimate.</p>
+    </div>
+    <p>A simple train/test split is like taking one exam. Cross-validation is like taking 5 different exams on different question sets and averaging your score — far more reliable and trustworthy.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-acc">Technical — K-Fold Cross-Validation</div>
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-t">Shuffle the full dataset and divide it into k equal-sized folds.</div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-t">Train the model on k−1 folds. Evaluate on the remaining 1 fold. Record validation score.</div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-t">Rotate: use a different fold as the test set. Repeat until every fold has been the test set once.</div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-t">Final reported score = mean ± std deviation across all k scores.</div></div>
+    </div>
+    <div class="formula"><span class="lbl">CV mean score</span>CV = <span class="hi">(1/k)</span> × Σᵢ₌₁ᵏ score(foldᵢ) &nbsp;&nbsp; typical: k = 5 or 10</div>
+    <div class="formula"><span class="lbl">Interpreting results</span>High variance (large std) across folds → model is unstable → likely overfitting<br>Consistently low score → model is too simple → likely underfitting</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-acc">Interactive — K-Fold Visualizer</div>
+    <div class="slider-row">
+      <label>Number of folds (k)</label>
+      <input type="range" min="2" max="10" value="5" step="1" id="k-fold-sl" oninput="updateCVViz()">
+      <span class="slider-val" id="k-fold-v">5</span>
+    </div>
+    <div id="cv-viz" style="margin:1rem 0"></div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:0.75rem"><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:var(--accent-glow);border:1px solid var(--accent);margin-right:4px;vertical-align:middle"></span>Test fold &nbsp;&nbsp;<span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:var(--surface3);border:1px solid var(--border2);margin-right:4px;vertical-align:middle"></span>Training fold</p>
+    <div id="cv-scores" style="margin-top:1rem"></div>
+    <div class="metrics-row" style="margin-top:0.75rem">
+      <div class="metric-card"><div class="metric-val" id="cv-mean" style="color:var(--teal)">—</div><div class="metric-lbl">Mean Accuracy</div></div>
+      <div class="metric-card"><div class="metric-val" id="cv-std" style="color:var(--amber)">—</div><div class="metric-lbl">Std Deviation</div></div>
+      <div class="metric-card"><div class="metric-val" id="cv-ci" style="font-size:12px;color:var(--accent2)">—</div><div class="metric-lbl">95% CI</div></div>
+    </div>
+    <div class="btn-row"><button class="btn-accent" onclick="runCVSim()">Simulate new CV run</button></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-acc">Variants of Cross-Validation</div>
+    <div class="types-grid">
+      <div class="type-card"><h4 style="color:var(--accent2)">Stratified K-Fold</h4><p>Ensures each fold preserves the class ratio of the full dataset. Essential for imbalanced classes.</p></div>
+      <div class="type-card"><h4 style="color:var(--teal)">Leave-One-Out (LOOCV)</h4><p>k = n (sample count). Every single point is tested once. Very thorough but computationally expensive.</p></div>
+      <div class="type-card"><h4 style="color:var(--amber)">Time-Series CV</h4><p>Always train on the past, test on future. Never "look ahead." Walk-forward / expanding window validation.</p></div>
+      <div class="type-card"><h4 style="color:var(--coral)">Nested CV</h4><p>Outer loop evaluates the model; inner loop tunes hyperparameters. Prevents information leakage when tuning and evaluating.</p></div>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn" onclick="goTo(4)">← Precision / Recall</button>
+    <button class="btn" style="border-color:var(--amber);background:var(--amber-bg);color:var(--amber)" onclick="goTo(6)">Next: Hyperparameter Tuning →</button>
+  </div>
+</div>
+
+<!-- ═══ SECTION 6 — HYPERPARAMETER TUNING ═══ -->
+<div class="section" id="sec-6">
+  <div class="section-header">
+    <span class="chip chip-ht">Topic 07 / 07 — Optimization</span>
+    <h2>Hyperparameter Tuning</h2>
+    <p>Finding the model settings that unlock peak performance — the art of dialing in your ML system.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-teal">Plain English</div>
+    <div class="example-box">
+      <strong>Real-world analogy</strong>
+      <p>When baking bread, you control oven temperature, flour amount, and kneading time. These are your "hyperparameters." The flour-to-yeast ratio once baking starts are "parameters" (learned in the process). Hyperparameter tuning = systematically testing different oven temperatures and times until you find the perfect loaf.</p>
+    </div>
+    <p>Model <strong style="color:var(--accent2)">parameters</strong> are learned automatically from data (e.g., β weights in regression). <strong style="color:var(--amber)">Hyperparameters</strong> are set by you before training begins — they control how learning happens.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Three Search Strategies</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-n" style="background:var(--accent-glow);border-color:var(--accent)">1</div>
+        <div class="step-t"><strong style="color:var(--accent2)">Grid Search</strong> — Exhaustively tries every combination. Guaranteed to find the best in the specified grid. But: 5 values × 5 values × 5 values = 125 training runs. Expensive with many parameters.</div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:var(--teal-bg);border-color:var(--teal)">2</div>
+        <div class="step-t"><strong style="color:var(--teal)">Random Search</strong> — Samples combinations randomly. Bergstra & Bengio (2012) proved random search often finds near-optimal results with far fewer trials. Works especially well when only a few hyperparameters truly matter.</div>
+      </div>
+      <div class="step">
+        <div class="step-n" style="background:var(--amber-bg);border-color:var(--amber)">3</div>
+        <div class="step-t"><strong style="color:var(--amber)">Bayesian Optimization</strong> — Builds a probabilistic surrogate model (often a Gaussian Process) of the objective function. Uses past results to intelligently decide which combination to try next. Most efficient for expensive-to-evaluate models.</div>
+      </div>
+    </div>
+    <div class="formula"><span class="lbl">Grid search — combinatorial explosion</span>Total trials = |H₁| × |H₂| × ... × |Hₙ| &nbsp;&nbsp; (grows exponentially → "curse of dimensionality")</div>
+    <div class="formula"><span class="lbl">Acquisition function (Bayesian) — Expected Improvement</span>EI(x) = <span class="ht">𝔼</span>[max(0, f(x) − f(x*))] &nbsp;&nbsp; balance: exploit best vs explore unknown</div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Interactive — Grid Search Heatmap</div>
+    <h3>Finding optimal learning rate &amp; tree depth</h3>
+    <p style="font-size:13px">Each cell = one full training run. Color intensity = validation accuracy. The ★ star marks the best combination. Click any cell to inspect its hyperparameters.</p>
+    <div id="hp-wrap" style="margin:1rem 0"></div>
+    <div class="metrics-row">
+      <div class="metric-card"><div class="metric-val" id="hp-lr" style="color:var(--accent2)">—</div><div class="metric-lbl">Learning Rate</div></div>
+      <div class="metric-card"><div class="metric-val" id="hp-md" style="color:var(--amber)">—</div><div class="metric-lbl">Max Depth</div></div>
+      <div class="metric-card"><div class="metric-val" id="hp-acc" style="color:var(--teal)">—</div><div class="metric-lbl">Val Accuracy</div></div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="regenHPGrid()">Regenerate grid (simulate new training)</button></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Common Hyperparameters by Model Type</div>
+    <div class="types-grid">
+      <div class="type-card"><h4 style="color:var(--accent2)">Neural Networks</h4><p>Learning rate, batch size, number of layers, neurons per layer, dropout rate, activation function, optimizer type.</p></div>
+      <div class="type-card"><h4 style="color:var(--teal)">Random Forest</h4><p>n_estimators (# trees), max_depth, min_samples_split, max_features per split, bootstrap.</p></div>
+      <div class="type-card"><h4 style="color:var(--amber)">SVM</h4><p>C (regularization strength), kernel type (rbf / poly / linear), gamma (kernel width parameter).</p></div>
+      <div class="type-card"><h4 style="color:var(--coral)">k-NN</h4><p>k (# neighbors), distance metric (Euclidean / Manhattan / Minkowski), distance weighting scheme.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label c-amber">Quiz — Final Challenge</div>
+    <h3>You tune 4 hyperparameters with 5 values each using grid search. How many training runs are required?</h3>
+    <div class="quiz-opts" id="q3">
+      <button onclick="quiz('q3',this,false)">20 runs (4 × 5 = 20)</button>
+      <button onclick="quiz('q3',this,false)">100 runs (5² × 4 = 100)</button>
+      <button onclick="quiz('q3',this,true)">625 runs (5⁴ = 5 × 5 × 5 × 5 = 625)</button>
+      <button onclick="quiz('q3',this,false)">It depends on the number of CV folds</button>
+    </div>
+    <div class="quiz-result" id="q3-res"></div>
+  </div>
+
+  <div class="card" style="text-align:center;border-color:var(--accent);background:var(--accent-glow)">
+    <div style="font-size:32px;margin-bottom:0.75rem">🎓</div>
+    <h3 style="color:var(--accent2)">Module Complete — Well Done!</h3>
+    <p style="margin-top:0.5rem">You've covered the full ML evaluation pipeline: from building models to measuring their performance and optimizing them. You now have both the intuition and the mathematical foundation to go deeper.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:1rem">
+      <span class="pill" style="color:var(--accent2);border-color:var(--accent)">Regression ✓</span>
+      <span class="pill" style="color:var(--teal);border-color:var(--teal)">Classification ✓</span>
+      <span class="pill" style="color:var(--amber);border-color:var(--amber)">Clustering ✓</span>
+      <span class="pill" style="color:var(--coral);border-color:var(--coral)">Confusion Matrix ✓</span>
+      <span class="pill" style="color:var(--green);border-color:var(--green)">P / R / F1 ✓</span>
+      <span class="pill" style="color:var(--accent2);border-color:var(--accent)">Cross-Validation ✓</span>
+      <span class="pill" style="color:var(--amber);border-color:var(--amber)">Hyperparameter Tuning ✓</span>
+    </div>
+  </div>
+
+  <div class="nav-footer">
+    <button class="btn" onclick="goTo(5)">← Cross-Validation</button>
+    <button class="btn-accent" onclick="goTo(0)">Start over ↺</button>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+/* ─── STATE ─── */
+let current = 0;
+const visited = new Set([0]);
+const TOTAL = 7;
+
+/* ─── NAVIGATION ─── */
+function goTo(n) {
+  document.getElementById('sec-' + current).classList.remove('active');
+  document.getElementById('nav-' + current).classList.remove('active');
+  current = n;
+  document.getElementById('sec-' + n).classList.add('active');
+  document.getElementById('nav-' + n).classList.add('active');
+  visited.add(n);
+  updateProgress();
+  updateDone();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => initSection(n), 80);
+}
+
+function updateProgress() {
+  const pct = Math.round((visited.size / TOTAL) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function updateDone() {
+  visited.forEach(i => {
+    const el = document.getElementById('nav-' + i);
+    if (!el.querySelector('.nav-done')) {
+      const d = document.createElement('span');
+      d.className = 'nav-done';
+      d.textContent = '✓';
+      el.appendChild(d);
+    }
+  });
+}
+
+function initSection(n) {
+  if (n === 0) initRegression();
+  if (n === 1) initSigmoid();
+  if (n === 2) genPoints();
+  if (n === 3) updateCM();
+  if (n === 4) updateThresh();
+  if (n === 5) { updateCVViz(); runCVSim(); }
+  if (n === 6) initHPGrid();
+}
+
+/* ─── QUIZ ─── */
+function quiz(id, btn, correct) {
+  document.querySelectorAll('#' + id + ' button').forEach(b => {
+    b.disabled = true;
+    b.classList.remove('correct', 'wrong');
+    if (b.getAttribute('onclick').includes('true')) b.classList.add('correct');
+  });
+  if (!correct) btn.classList.add('wrong');
+  const r = document.getElementById(id + '-res');
+  r.className = 'quiz-result show ' + (correct ? 'ok' : 'bad');
+  r.textContent = correct ? '✓ Correct! Great understanding.' : '✗ Not quite — the correct answer is highlighted in green above.';
+}
+
+/* ─── CANVAS HELPERS ─── */
+const R = () => window.devicePixelRatio || 1;
+function setup(id, h) {
+  const c = document.getElementById(id);
+  if (!c) return null;
+  const w = c.parentElement.getBoundingClientRect().width || 700;
+  c.width = w * R(); c.height = h * R();
+  c.style.width = '100%'; c.style.height = h + 'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(R(), R());
+  ctx.W = w; ctx.H = h;
+  return ctx;
+}
+const C = {
+  bg2: '#1c2030', border: '#2a2e40', text: '#8b90a8', text2: '#e8eaf2',
+  acc: '#7c6ee6', acc2: '#a594ff', teal: '#2dd4a4', amber: '#f5a623',
+  coral: '#f06470', green: '#4cde8a'
+};
+
+/* ═══════════════════════════
+   SECTION 0 — REGRESSION
+═══════════════════════════ */
+let regPts = [];
+function genRegPoints() {
+  regPts = [];
+  for (let i = 0; i < 22; i++) {
+    const x = 18 + Math.random() * 164;
+    const y = 60 + x * 6.8 + (Math.random() - 0.5) * 90;
+    regPts.push({ x, y });
+  }
+}
+function initRegression() { genRegPoints(); updateRegression(); }
+function updateRegression() {
+  const slope = parseFloat(document.getElementById('reg-slope').value);
+  const intercept = parseFloat(document.getElementById('reg-int').value);
+  document.getElementById('reg-slope-v').textContent = slope.toFixed(1);
+  document.getElementById('reg-int-v').textContent = intercept;
+  drawReg(slope, intercept);
+}
+function drawReg(b1, b0) {
+  const ctx = setup('reg-canvas', 220); if (!ctx) return;
+  const { W, H } = ctx;
+  const pad = 38;
+  ctx.fillStyle = C.bg2; ctx.fillRect(0, 0, W, H);
+  const xMn=0, xMx=200, yMn=0, yMx=1600;
+  const tx = v => pad + (v-xMn)/(xMx-xMn)*(W-2*pad);
+  const ty = v => H-pad-(v-yMn)/(yMx-yMn)*(H-2*pad);
+  // grid
+  ctx.strokeStyle = C.border; ctx.lineWidth = 0.5;
+  for (let i=0;i<=4;i++) { const y=pad+i*(H-2*pad)/4; ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(W-pad,y); ctx.stroke(); }
+  for (let i=0;i<=4;i++) { const x=pad+i*(W-2*pad)/4; ctx.beginPath(); ctx.moveTo(x,pad); ctx.lineTo(x,H-pad); ctx.stroke(); }
+  // axis labels
+  ctx.fillStyle=C.text; ctx.font='10px DM Mono'; ctx.textAlign='center';
+  ctx.fillText('Area (sq ft)',W/2,H-5);
+  ctx.save(); ctx.translate(12,H/2); ctx.rotate(-Math.PI/2); ctx.fillText('Price (₹k)',0,0); ctx.restore();
+  // residuals
+  ctx.strokeStyle='rgba(240,100,112,0.35)'; ctx.lineWidth=1;
+  regPts.forEach(p => { ctx.beginPath(); ctx.moveTo(tx(p.x),ty(p.y)); ctx.lineTo(tx(p.x),ty(b0+b1*p.x)); ctx.stroke(); });
+  // line
+  ctx.strokeStyle=C.acc2; ctx.lineWidth=2.5;
+  ctx.beginPath(); ctx.moveTo(tx(xMn),ty(b0+b1*xMn)); ctx.lineTo(tx(xMx),ty(b0+b1*xMx)); ctx.stroke();
+  // points
+  regPts.forEach(p => { ctx.fillStyle=C.teal; ctx.beginPath(); ctx.arc(tx(p.x),ty(p.y),4.5,0,Math.PI*2); ctx.fill(); });
+  // metrics
+  const n=regPts.length;
+  const yBar=regPts.reduce((s,p)=>s+p.y,0)/n;
+  let mse=0, ssR=0, ssT=0;
+  regPts.forEach(p => { const pred=b0+b1*p.x; mse+=(p.y-pred)**2; ssR+=(p.y-pred)**2; ssT+=(p.y-yBar)**2; });
+  mse/=n;
+  const r2=Math.max(0,1-ssR/ssT);
+  document.getElementById('m-mse').textContent = Math.round(mse).toLocaleString();
+  document.getElementById('m-r2').textContent = r2.toFixed(3);
+  const el=document.getElementById('m-fit');
+  const q = r2>0.9?'Excellent':r2>0.7?'Good':r2>0.5?'Fair':'Poor';
+  el.textContent=q; el.style.color=r2>0.7?C.teal:r2>0.5?C.amber:C.coral;
+}
+function setBestFit() {
+  const n=regPts.length;
+  const xB=regPts.reduce((s,p)=>s+p.x,0)/n;
+  const yB=regPts.reduce((s,p)=>s+p.y,0)/n;
+  let num=0, den=0;
+  regPts.forEach(p=>{num+=(p.x-xB)*(p.y-yB);den+=(p.x-xB)**2;});
+  const b1=num/den, b0=yB-b1*xB;
+  document.getElementById('reg-slope').value = Math.min(20,Math.max(-5,parseFloat(b1.toFixed(1))));
+  document.getElementById('reg-int').value = Math.min(300,Math.max(0,Math.round(b0/5)*5));
+  updateRegression();
+}
+function addPoint() {
+  const x=18+Math.random()*164, y=60+x*6.8+(Math.random()-0.5)*120;
+  regPts.push({x,y}); updateRegression();
+}
+
+/* ═══════════════════════════
+   SECTION 1 — SIGMOID
+═══════════════════════════ */
+const sig = z => 1/(1+Math.exp(-z));
+function initSigmoid() { updateSigmoid(); }
+function updateSigmoid() {
+  const z=parseFloat(document.getElementById('sig-z').value);
+  document.getElementById('sig-z-v').textContent=z.toFixed(2);
+  const p=sig(z);
+  document.getElementById('s-prob').textContent=p.toFixed(3);
+  const isCl1=p>0.5;
+  document.getElementById('s-pred').textContent=isCl1?'Class 1':'Class 0';
+  document.getElementById('s-pred').style.color=isCl1?C.teal:C.coral;
+  const conf=Math.abs(p-0.5)*2;
+  const cTxt=conf<0.2?'Uncertain':conf<0.6?'Moderate':'High';
+  document.getElementById('s-conf').textContent=cTxt;
+  document.getElementById('s-conf').style.color=conf<0.2?C.amber:conf<0.6?C.acc2:C.teal;
+  drawSigCanvas(z,p);
+}
+function drawSigCanvas(zV,pV) {
+  const ctx=setup('sig-canvas',200); if(!ctx) return;
+  const {W,H}=ctx; const pad=44;
+  ctx.fillStyle=C.bg2; ctx.fillRect(0,0,W,H);
+  const tx=z=>pad+(z+8)/16*(W-2*pad);
+  const ty=p=>H-pad-p*(H-2*pad);
+  ctx.strokeStyle=C.border; ctx.lineWidth=0.5;
+  [0,0.25,0.5,0.75,1].forEach(p=>{ctx.beginPath();ctx.moveTo(pad,ty(p));ctx.lineTo(W-pad,ty(p));ctx.stroke();});
+  [-8,-4,0,4,8].forEach(z=>{ctx.beginPath();ctx.moveTo(tx(z),pad);ctx.lineTo(tx(z),H-pad);ctx.stroke();});
+  ctx.fillStyle=C.text; ctx.font='10px DM Mono';
+  ctx.textAlign='right'; [0,0.25,0.5,0.75,1].forEach(p=>{ctx.fillText(p.toFixed(2),pad-4,ty(p)+4);});
+  ctx.textAlign='center'; [-8,-4,0,4,8].forEach(z=>{ctx.fillText(z,tx(z),H-6);});
+  // threshold
+  ctx.strokeStyle='rgba(245,166,35,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(pad,ty(0.5)); ctx.lineTo(W-pad,ty(0.5)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=C.amber; ctx.font='10px DM Mono'; ctx.textAlign='left';
+  ctx.fillText('threshold = 0.5',W-pad-110,ty(0.5)-5);
+  // sigmoid curve
+  ctx.strokeStyle=C.acc2; ctx.lineWidth=2.5; ctx.beginPath();
+  for(let z=-8;z<=8;z+=0.08){const p=sig(z);z===-8?ctx.moveTo(tx(z),ty(p)):ctx.lineTo(tx(z),ty(p));}
+  ctx.stroke();
+  // current point
+  ctx.strokeStyle='rgba(45,212,164,0.4)'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(tx(zV),ty(pV)); ctx.lineTo(tx(zV),H-pad); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad,ty(pV)); ctx.lineTo(tx(zV),ty(pV)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=C.teal; ctx.beginPath(); ctx.arc(tx(zV),ty(pV),6.5,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(tx(zV),ty(pV),6.5,0,Math.PI*2); ctx.stroke();
+}
+
+/* ═══════════════════════════
+   SECTION 2 — K-MEANS
+═══════════════════════════ */
+let kmPts=[], kmCents=[], kmAssign=[], kmIter=0;
+const KMC=['#a594ff','#2dd4a4','#f5a623','#f06470','#4cde8a','#c084fc'];
+function genPoints() {
+  kmPts=[]; const k=parseInt(document.getElementById('k-sl').value);
+  for(let c=0;c<k;c++){
+    const cx=60+Math.random()*380, cy=50+Math.random()*180;
+    const n=18+Math.floor(Math.random()*14);
+    for(let i=0;i<n;i++) kmPts.push({x:cx+(Math.random()-.5)*80,y:cy+(Math.random()-.5)*70});
+  }
+  resetKMeans();
+}
+function resetKMeans(){kmCents=[];kmAssign=[];kmIter=0;drawKM();document.getElementById('km-status').textContent='Points generated. Click "Step →" or "Run to completion".';}
+function initCents(){const k=parseInt(document.getElementById('k-sl').value);kmCents=[...[...kmPts].sort(()=>Math.random()-.5)].slice(0,k).map(p=>({x:p.x,y:p.y}));}
+function assignPts(){kmAssign=kmPts.map(p=>{let best=0,bd=Infinity;kmCents.forEach((c,i)=>{const d=(p.x-c.x)**2+(p.y-c.y)**2;if(d<bd){bd=d;best=i;}});return best;});}
+function moveCents(){const k=parseInt(document.getElementById('k-sl').value);const nc=Array.from({length:k},()=>({x:0,y:0,n:0}));kmPts.forEach((p,i)=>{const c=kmAssign[i];nc[c].x+=p.x;nc[c].y+=p.y;nc[c].n++;});kmCents=nc.map((c,i)=>c.n>0?{x:c.x/c.n,y:c.y/c.n}:kmCents[i]);}
+function stepKMeans(){if(!kmPts.length){genPoints();return;}if(!kmCents.length){initCents();assignPts();}else{moveCents();assignPts();}kmIter++;drawKM();document.getElementById('km-status').textContent=`Iteration ${kmIter} — assigned points & moved centroids.`;}
+function runFullKMeans(){if(!kmPts.length){genPoints();return;}initCents();assignPts();for(let i=0;i<25;i++){moveCents();assignPts();}kmIter='✓';drawKM();document.getElementById('km-status').textContent='Converged! Centroids have stopped moving.';}
+function drawKM(){
+  const ctx=setup('km-canvas',240); if(!ctx) return;
+  const {W,H}=ctx;
+  ctx.fillStyle=C.bg2; ctx.fillRect(0,0,W,H);
+  kmPts.forEach((p,i)=>{
+    const col=kmAssign.length>i?KMC[kmAssign[i]]:C.text;
+    ctx.fillStyle=col+'90';
+    ctx.beginPath(); ctx.arc(p.x*W/500,p.y*H/260,4.5,0,Math.PI*2); ctx.fill();
+  });
+  kmCents.forEach((c,i)=>{
+    const x=c.x*W/500, y=c.y*H/260;
+    ctx.fillStyle=KMC[i]; ctx.strokeStyle='#fff'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,y-9); ctx.lineTo(x+8,y+6); ctx.lineTo(x-8,y+6); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  });
+}
+
+/* ═══════════════════════════
+   SECTION 3 — CONFUSION MATRIX
+═══════════════════════════ */
+function updateCM(){
+  const tp=+document.getElementById('cm-tp-sl').value;
+  const fp=+document.getElementById('cm-fp-sl').value;
+  const fn=+document.getElementById('cm-fn-sl').value;
+  const tn=+document.getElementById('cm-tn-sl').value;
+  ['tp','fp','fn','tn'].forEach(k=>{document.getElementById('cm-'+k+'-v').textContent={tp,fp,fn,tn}[k];});
+  const tot=tp+fp+fn+tn||1;
+  const acc=((tp+tn)/tot*100).toFixed(1)+'%';
+  const prec=tp/(tp+fp||1);
+  const rec=tp/(tp+fn||1);
+  const f1=2*prec*rec/(prec+rec||1);
+  document.getElementById('cm-acc').textContent=acc;
+  document.getElementById('cm-prec').textContent=prec.toFixed(3);
+  document.getElementById('cm-rec').textContent=rec.toFixed(3);
+  document.getElementById('cm-f1').textContent=f1.toFixed(3);
+  drawCMBar(tp,fp,fn,tn);
+}
+function drawCMBar(tp,fp,fn,tn){
+  const ctx=setup('cm-canvas',170); if(!ctx) return;
+  const {W,H}=ctx;
+  ctx.fillStyle=C.bg2; ctx.fillRect(0,0,W,H);
+  const total=tp+fp+fn+tn||1;
+  const bars=[{l:'TP',v:tp,c:C.green},{l:'TN',v:tn,c:C.teal},{l:'FP',v:fp,c:C.coral},{l:'FN',v:fn,c:C.amber}];
+  const pad=36, gap=12, bw=(W-2*pad-gap*3)/4, maxH=H-54;
+  bars.forEach((b,i)=>{
+    const bh=(b.v/total)*maxH;
+    const x=pad+i*(bw+gap);
+    ctx.fillStyle=b.c+'20'; ctx.fillRect(x,H-30-maxH,bw,maxH);
+    ctx.fillStyle=b.c; ctx.fillRect(x,H-30-bh,bw,bh);
+    ctx.fillStyle=C.text2; ctx.font='11px DM Mono'; ctx.textAlign='center';
+    ctx.fillText(b.l,x+bw/2,H-10);
+    ctx.fillStyle=b.c; ctx.font='12px DM Mono';
+    if(bh>0) ctx.fillText(b.v,x+bw/2,H-32-bh);
+  });
+}
+
+/* ═══════════════════════════
+   SECTION 4 — PRECISION/RECALL
+═══════════════════════════ */
+function updateThresh(){
+  const t=parseFloat(document.getElementById('thresh-sl').value);
+  document.getElementById('thresh-v').textContent=t.toFixed(2);
+  const p=Math.min(0.99,0.38+t*0.63);
+  const r=Math.max(0.04,1.02-t*0.96);
+  const f=2*p*r/(p+r||1);
+  document.getElementById('prf-p').textContent=p.toFixed(3);
+  document.getElementById('prf-r').textContent=r.toFixed(3);
+  document.getElementById('prf-f1').textContent=f.toFixed(3);
+  drawPRF(t);
+}
+function drawPRF(thresh){
+  const ctx=setup('prf-canvas',220); if(!ctx) return;
+  const {W,H}=ctx; const pad=44;
+  ctx.fillStyle=C.bg2; ctx.fillRect(0,0,W,H);
+  const tx=v=>pad+v*(W-2*pad);
+  const ty=v=>H-pad-v*(H-2*pad);
+  ctx.strokeStyle=C.border; ctx.lineWidth=0.5;
+  [0,.25,.5,.75,1].forEach(v=>{ctx.beginPath();ctx.moveTo(pad,ty(v));ctx.lineTo(W-pad,ty(v));ctx.stroke();ctx.beginPath();ctx.moveTo(tx(v),pad);ctx.lineTo(tx(v),H-pad);ctx.stroke();});
+  ctx.fillStyle=C.text; ctx.font='10px DM Mono';
+  ctx.textAlign='right';[0,.5,1].forEach(v=>ctx.fillText(v.toFixed(1),pad-4,ty(v)+4));
+  ctx.textAlign='center';[0,.25,.5,.75,1].forEach(v=>ctx.fillText(v.toFixed(2),tx(v),H-6));
+  ctx.fillStyle=C.text; ctx.textAlign='center'; ctx.fillText('Threshold',W/2,H-1);
+  const curves=[
+    [C.acc2,t=>Math.min(0.99,0.38+t*0.63),'Precision'],
+    [C.amber,t=>Math.max(0.04,1.02-t*0.96),'Recall'],
+    [C.green,t=>{const p=Math.min(0.99,0.38+t*0.63),r=Math.max(0.04,1.02-t*0.96);return 2*p*r/(p+r||1);},'F1']
+  ];
+  curves.forEach(([col,fn,name])=>{
+    ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.beginPath();
+    for(let i=0;i<=100;i++){const t=i/100,v=fn(t);i===0?ctx.moveTo(tx(t),ty(v)):ctx.lineTo(tx(t),ty(v));}
+    ctx.stroke();
+    ctx.fillStyle=col; ctx.font='10px DM Mono'; ctx.textAlign='left';
+    ctx.fillText(name,W-pad+4,ty(fn(1))+4);
+    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(tx(thresh),ty(fn(thresh)),5,0,Math.PI*2); ctx.fill();
+  });
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(tx(thresh),pad); ctx.lineTo(tx(thresh),H-pad); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+/* ═══════════════════════════
+   SECTION 5 — CROSS-VALIDATION
+═══════════════════════════ */
+let cvSc=[];
+function updateCVViz(){
+  const k=parseInt(document.getElementById('k-fold-sl').value);
+  document.getElementById('k-fold-v').textContent=k;
+  const n=10, wrap=document.getElementById('cv-viz');
+  wrap.innerHTML='';
+  for(let f=0;f<k;f++){
+    const row=document.createElement('div'); row.className='cv-fold';
+    const lbl=document.createElement('span'); lbl.className='cv-fold-label'; lbl.textContent='Fold '+(f+1);
+    row.appendChild(lbl);
+    const blocks=document.createElement('div'); blocks.className='cv-blocks';
+    const st=Math.floor(f/k*n), en=Math.floor((f+1)/k*n);
+    for(let i=0;i<n;i++){const b=document.createElement('div');b.className='cv-block '+(i>=st&&i<en?'cv-test':'cv-train');blocks.appendChild(b);}
+    row.appendChild(blocks); wrap.appendChild(row);
+  }
+}
+function runCVSim(){
+  const k=parseInt(document.getElementById('k-fold-sl').value);
+  cvSc=Array.from({length:k},()=>0.72+Math.random()*0.20);
+  const mean=cvSc.reduce((a,b)=>a+b)/k;
+  const std=Math.sqrt(cvSc.map(s=>(s-mean)**2).reduce((a,b)=>a+b)/k);
+  document.getElementById('cv-mean').textContent=(mean*100).toFixed(1)+'%';
+  document.getElementById('cv-std').textContent='±'+(std*100).toFixed(1)+'%';
+  const ci=1.96*std/Math.sqrt(k);
+  document.getElementById('cv-ci').textContent='['+((mean-ci)*100).toFixed(1)+'%, '+((mean+ci)*100).toFixed(1)+'%]';
+  document.getElementById('cv-scores').innerHTML=cvSc.map((s,i)=>`<span style="display:inline-block;font-family:'DM Mono',monospace;font-size:11px;padding:3px 8px;margin:2px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:${s>0.86?C.teal:s>0.78?C.acc2:C.amber}">Fold ${i+1}: ${(s*100).toFixed(1)}%</span>`).join('');
+}
+
+/* ═══════════════════════════
+   SECTION 6 — HYPERPARAMETER
+═══════════════════════════ */
+let hpData=[];
+const lrV=[0.001,0.01,0.05,0.1,0.3];
+const mdV=[2,4,6,8,10];
+function initHPGrid(){regenHPGrid();}
+function regenHPGrid(){
+  hpData=lrV.map(lr=>mdV.map(md=>{
+    const d=Math.abs(Math.log10(lr)-Math.log10(0.05))+Math.abs(md-6)/4;
+    return{lr,md,acc:Math.max(0.44,0.96-d*0.1+(Math.random()-.5)*0.07)};
+  }));
+  renderHP(null);
+}
+function renderHP(sel){
+  const wrap=document.getElementById('hp-wrap'); if(!wrap)return;
+  let best=null, bAcc=0;
+  hpData.forEach(row=>row.forEach(c=>{if(c.acc>bAcc){bAcc=c.acc;best=c;}}));
+  let html=`<div style="display:flex;gap:3px;margin-bottom:4px;padding-left:64px">`;
+  mdV.forEach(md=>{html+=`<div style="flex:1;text-align:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)">depth=${md}</div>`;});
+  html+='</div>';
+  hpData.forEach((row,ri)=>{
+    html+=`<div style="display:flex;gap:3px;margin-bottom:3px;align-items:center">`;
+    html+=`<div style="width:60px;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-align:right;padding-right:8px">lr=${lrV[ri]}</div>`;
+    row.forEach((cell,ci)=>{
+      const t=(cell.acc-0.44)/0.52;
+      const rC=Math.round(t*45+(1-t)*30), gC=Math.round(t*222+(1-t)*100), bC=Math.round(t*164+(1-t)*112);
+      const isBest=cell===best, isSel=sel&&sel.lr===cell.lr&&sel.md===cell.md;
+      html+=`<div style="flex:1;aspect-ratio:1;border-radius:6px;background:rgba(${rC},${gC},${bC},0.28);border:1px solid rgba(${rC},${gC},${bC},${isBest||isSel?0.9:0.35});display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:rgba(${rC},${gC},${bC},1);cursor:pointer;position:relative;${isBest?'outline:2px solid #2dd4a4;outline-offset:2px':''}" onclick="selectHP(${ri},${ci})">${(cell.acc*100).toFixed(0)}%${isBest?'<span style="position:absolute;top:-7px;right:-4px;font-size:9px">★</span>':''}</div>`;
+    });
+    html+='</div>';
+  });
+  html+=`<div style="display:flex;align-items:center;gap:8px;padding-left:64px;margin-top:8px;font-size:10px;font-family:'DM Mono',monospace;color:var(--text3)"><span>Low acc</span><div style="flex:1;height:5px;border-radius:2px;background:linear-gradient(90deg,rgba(30,100,112,0.5),rgba(45,222,164,0.8))"></div><span>High acc</span></div>`;
+  wrap.innerHTML=html;
+  if(best){document.getElementById('hp-lr').textContent=best.lr;document.getElementById('hp-md').textContent=best.md;document.getElementById('hp-acc').textContent=(best.acc*100).toFixed(1)+'%';}
+}
+function selectHP(ri,ci){
+  const cell=hpData[ri][ci];
+  document.getElementById('hp-lr').textContent=cell.lr;
+  document.getElementById('hp-md').textContent=cell.md;
+  document.getElementById('hp-acc').textContent=(cell.acc*100).toFixed(1)+'%';
+  renderHP(cell);
+}
+
+/* ─── BOOT ─── */
+window.addEventListener('load',()=>{initRegression();updateProgress();});
+window.addEventListener('resize',()=>{initSection(current);});
+</script>
+</body>
+</html>
