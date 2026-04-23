@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ML Learning Portal — Intern Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #080c14;
+  --bg2: #0d1220;
+  --bg3: #111827;
+  --card: #131b2e;
+  --card2: #1a2540;
+  --border: #1e2d4a;
+  --border2: #243557;
+  --neon: #00e5ff;
+  --neon2: #00ff99;
+  --accent: #ff6b35;
+  --accent2: #f7c59f;
+  --purple: #a78bfa;
+  --yellow: #fbbf24;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --code-bg: #0a0f1a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7;overflow-x:hidden;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:260px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+.main{margin-left:260px;flex:1;padding:0 0 80px;}
+
+/* SIDEBAR */
+.sidebar-header{padding:28px 24px 20px;border-bottom:1px solid var(--border);}
+.sidebar-logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--neon);letter-spacing:3px;text-transform:uppercase;}
+.sidebar-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-top:4px;line-height:1.2;}
+.sidebar-sub{font-size:11px;color:var(--text3);margin-top:6px;font-family:'Space Mono',monospace;}
+.nav-section{padding:8px 0;}
+.nav-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:2px;text-transform:uppercase;padding:12px 24px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 24px;cursor:pointer;color:var(--text2);font-size:13.5px;font-family:'DM Sans',sans-serif;border-left:3px solid transparent;transition:all .2s;text-decoration:none;}
+.nav-item:hover{color:var(--text);background:var(--card);border-left-color:var(--border2);}
+.nav-item.active{color:var(--neon);background:rgba(0,229,255,.06);border-left-color:var(--neon);}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);flex-shrink:0;transition:background .2s;}
+.nav-item.active .nav-dot{background:var(--neon);box-shadow:0 0 8px var(--neon);}
+.nav-item:hover .nav-dot{background:var(--text2);}
+.progress-bar-container{padding:20px 24px;border-top:1px solid var(--border);margin-top:auto;}
+.progress-label{font-size:11px;color:var(--text3);margin-bottom:8px;font-family:'Space Mono',monospace;}
+.progress-track{height:4px;background:var(--border);border-radius:2px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--neon),var(--neon2));border-radius:2px;transition:width .4s;}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border-bottom:1px solid var(--border);padding:64px 64px 56px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(0,229,255,.06) 0%,transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:-30%;left:20%;width:400px;height:400px;background:radial-gradient(circle,rgba(0,255,153,.04) 0%,transparent 70%);pointer-events:none;}
+.hero-tag{display:inline-block;font-family:'Space Mono',monospace;font-size:11px;color:var(--neon);border:1px solid rgba(0,229,255,.3);padding:4px 12px;border-radius:2px;margin-bottom:16px;letter-spacing:1px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:48px;font-weight:800;line-height:1.1;margin-bottom:16px;}
+.hero h1 span{background:linear-gradient(135deg,var(--neon),var(--neon2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:16px;color:var(--text2);max-width:600px;line-height:1.8;}
+.hero-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px;}
+.chip{font-size:12px;font-family:'Space Mono',monospace;padding:5px 14px;border-radius:20px;border:1px solid var(--border2);color:var(--text2);}
+.chip.c1{border-color:rgba(0,229,255,.4);color:var(--neon);}
+.chip.c2{border-color:rgba(0,255,153,.4);color:var(--neon2);}
+.chip.c3{border-color:rgba(255,107,53,.4);color:var(--accent);}
+.chip.c4{border-color:rgba(167,139,250,.4);color:var(--purple);}
+.chip.c5{border-color:rgba(251,191,36,.4);color:var(--yellow);}
+
+/* SECTIONS */
+.section{padding:60px 64px;border-bottom:1px solid var(--border);}
+.section:last-child{border-bottom:none;}
+.sec-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:40px;}
+.sec-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.sec-icon.spark{background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.25);}
+.sec-icon.dim{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.25);}
+.sec-icon.feat{background:rgba(0,255,153,.12);border:1px solid rgba(0,255,153,.25);}
+.sec-icon.boost{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);}
+.sec-icon.tree{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.25);}
+.sec-icon.forest{background:rgba(100,200,100,.12);border:1px solid rgba(100,200,100,.25);}
+.sec-meta{}
+.sec-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.tag-spark{color:var(--accent);}
+.tag-dim{color:var(--purple);}
+.tag-feat{color:var(--neon2);}
+.tag-boost{color:var(--yellow);}
+.tag-tree{color:var(--neon);}
+.tag-forest{color:#4ade80;}
+.sec-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1.1;margin-bottom:8px;}
+.sec-desc{color:var(--text2);font-size:14.5px;max-width:700px;}
+
+/* CONTENT GRID */
+.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;}
+.content-grid.thirds{grid-template-columns:1fr 1fr 1fr;}
+.content-grid.wide{grid-template-columns:1.5fr 1fr;}
+.content-grid.full{grid-template-columns:1fr;}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;}
+.card.neon-border{border-color:rgba(0,229,255,.2);}
+.card.green-border{border-color:rgba(0,255,153,.2);}
+.card.orange-border{border-color:rgba(255,107,53,.2);}
+.card.purple-border{border-color:rgba(167,139,250,.2);}
+.card.yellow-border{border-color:rgba(251,191,36,.2);}
+.card h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:10px;}
+.card p{font-size:13.5px;color:var(--text2);line-height:1.7;}
+.card ul{font-size:13.5px;color:var(--text2);padding-left:16px;}
+.card ul li{margin-bottom:6px;}
+.card-label{font-size:10px;font-family:'Space Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+
+/* EXAMPLE BOX */
+.example-box{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--neon2);border-radius:0 10px 10px 0;padding:16px 20px;margin:16px 0;}
+.example-box .ex-label{font-size:10px;font-family:'Space Mono',monospace;color:var(--neon2);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.example-box p{font-size:13.5px;color:var(--text2);}
+
+/* FORMULA BOX */
+.formula-box{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px 24px;margin:16px 0;text-align:center;}
+.formula-box .f-label{font-size:10px;font-family:'Space Mono',monospace;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;text-align:left;}
+.formula{font-family:'Space Mono',monospace;font-size:15px;color:var(--accent2);letter-spacing:.5px;}
+.formula .var{color:var(--neon);}
+.formula .sym{color:var(--purple);}
+.formula .num{color:var(--yellow);}
+
+/* CODE BLOCK */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:16px 0;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);}
+.code-lang{font-size:10px;font-family:'Space Mono',monospace;color:var(--neon);letter-spacing:2px;text-transform:uppercase;}
+.code-dots{display:flex;gap:6px;}
+.code-dot{width:10px;height:10px;border-radius:50%;}
+.code-dot:nth-child(1){background:#ff5f57;}
+.code-dot:nth-child(2){background:#febc2e;}
+.code-dot:nth-child(3){background:#28c840;}
+.code-block{padding:20px;overflow-x:auto;}
+.code-block pre{font-family:'Space Mono',monospace;font-size:12px;line-height:1.8;white-space:pre;}
+.kw{color:#ff79c6;}.fn{color:#50fa7b;}.str{color:#f1fa8c;}.cmt{color:var(--text3);font-style:italic;}.num2{color:#bd93f9;}.cls{color:#8be9fd;}.op{color:#ff79c6;}.param{color:#ffb86c;}
+
+/* DIAGRAM */
+.diagram-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;overflow:hidden;}
+.diagram-wrap h4{font-family:'Syne',sans-serif;font-size:14px;color:var(--text2);margin-bottom:20px;text-align:left;}
+
+/* TABS */
+.tab-container{margin:16px 0;}
+.tab-headers{display:flex;border-bottom:1px solid var(--border);gap:0;}
+.tab-btn{font-family:'Space Mono',monospace;font-size:12px;padding:10px 20px;cursor:pointer;color:var(--text3);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;letter-spacing:.5px;}
+.tab-btn.active{color:var(--neon);border-bottom-color:var(--neon);}
+.tab-btn:hover{color:var(--text);}
+.tab-content{display:none;padding:20px 0;}
+.tab-content.active{display:block;}
+
+/* INTERACTIVE TREE */
+.tree-demo{background:var(--code-bg);border:1px solid var(--border);border-radius:12px;padding:28px;}
+.tree-demo h4{font-family:'Syne',sans-serif;font-size:16px;margin-bottom:6px;}
+.tree-demo p{font-size:13px;color:var(--text2);margin-bottom:24px;}
+.tree-controls{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;}
+.tree-q{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);margin-bottom:12px;}
+.tree-btn{padding:9px 20px;border-radius:8px;border:1px solid var(--border2);background:var(--card2);color:var(--text);cursor:pointer;font-family:'Space Mono',monospace;font-size:12px;transition:all .2s;}
+.tree-btn:hover{border-color:var(--neon);color:var(--neon);}
+.tree-result{background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-top:16px;display:none;}
+.tree-result.show{display:block;}
+.tree-path{font-size:12px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:8px;}
+.tree-outcome{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+.tree-outcome.yes{color:var(--neon2);}
+.tree-outcome.no{color:var(--accent);}
+.reset-btn{margin-top:12px;padding:7px 16px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-size:12px;font-family:'Space Mono',monospace;}
+.reset-btn:hover{color:var(--text);border-color:var(--text3);}
+
+/* STEP BOX */
+.step-list{list-style:none;padding:0;}
+.step-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);}
+.step-item:last-child{border-bottom:none;}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.sn1{background:rgba(0,229,255,.12);color:var(--neon);border:1px solid rgba(0,229,255,.3);}
+.sn2{background:rgba(0,255,153,.12);color:var(--neon2);border:1px solid rgba(0,255,153,.3);}
+.sn3{background:rgba(255,107,53,.12);color:var(--accent);border:1px solid rgba(255,107,53,.3);}
+.sn4{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.3);}
+.sn5{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.3);}
+.step-text h4{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+.step-text p{font-size:13px;color:var(--text2);}
+
+/* BADGE */
+.badge{display:inline-block;font-family:'Space Mono',monospace;font-size:10px;padding:3px 9px;border-radius:3px;margin-left:8px;}
+.badge-easy{background:rgba(0,255,153,.1);color:var(--neon2);border:1px solid rgba(0,255,153,.2);}
+.badge-med{background:rgba(251,191,36,.1);color:var(--yellow);border:1px solid rgba(251,191,36,.2);}
+
+/* COMPARISON TABLE */
+.comp-table{width:100%;border-collapse:collapse;font-size:13px;}
+.comp-table th{background:var(--card2);padding:12px 16px;text-align:left;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;border:1px solid var(--border);}
+.comp-table td{padding:11px 16px;border:1px solid var(--border);color:var(--text2);}
+.comp-table tr:hover td{background:rgba(255,255,255,.02);}
+.comp-table td:first-child{color:var(--text);font-weight:500;}
+
+/* BOOST ANIMATION */
+.boost-bars{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.boost-bar-row{display:flex;align-items:center;gap:12px;}
+.boost-bar-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--text2);width:80px;flex-shrink:0;}
+.boost-bar-track{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden;}
+.boost-bar-fill{height:100%;border-radius:5px;transition:width 1s ease;}
+.b1{background:linear-gradient(90deg,#ff6b35,#f7c59f);width:0;}
+.b2{background:linear-gradient(90deg,#ff6b35,#fbbf24);width:0;}
+.b3{background:linear-gradient(90deg,#fbbf24,#a78bfa);width:0;}
+.b4{background:linear-gradient(90deg,#a78bfa,#00e5ff);width:0;}
+.b5{background:linear-gradient(90deg,#00e5ff,#00ff99);width:0;}
+.boost-bar-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--text3);width:40px;text-align:right;}
+
+/* SPARK ARCH */
+.arch-nodes{display:flex;justify-content:space-around;align-items:flex-start;padding:20px 0;position:relative;}
+.arch-nodes::before{content:'';position:absolute;top:50%;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);}
+.arch-node{display:flex;flex-direction:column;align-items:center;gap:8px;z-index:1;}
+.arch-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid;}
+.arch-circle.driver{background:rgba(255,107,53,.15);border-color:rgba(255,107,53,.5);}
+.arch-circle.cluster{background:rgba(0,229,255,.15);border-color:rgba(0,229,255,.5);}
+.arch-circle.worker{background:rgba(0,255,153,.15);border-color:rgba(0,255,153,.5);}
+.arch-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--text2);text-align:center;letter-spacing:.5px;}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.6;}}
+@keyframes slideRight{from{width:0;}to{}}
+.fade-in{animation:fadeIn .5s ease both;}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .content-grid,.content-grid.thirds,.content-grid.wide{grid-template-columns:1fr;}
+  .hero,.section{padding:40px 32px;}
+}
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .main{margin-left:0;}
+  .hero,.section{padding:32px 20px;}
+  .hero h1{font-size:32px;}
+}
+
+/* RANDOM FOREST VIZ */
+.forest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.mini-tree{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
+.mini-tree-title{font-family:'Space Mono',monospace;font-size:10px;color:var(--text3);margin-bottom:10px;letter-spacing:1px;}
+.vote-bar{display:flex;height:24px;border-radius:4px;overflow:hidden;margin-top:8px;}
+.vote-yes{background:linear-gradient(90deg,var(--neon2),#4ade80);display:flex;align-items:center;justify-content:center;font-size:10px;color:#000;font-weight:700;font-family:'Space Mono',monospace;}
+.vote-no{background:linear-gradient(90deg,#ef4444,#f97316);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;font-family:'Space Mono',monospace;}
+.final-vote{background:linear-gradient(135deg,rgba(0,255,153,.12),rgba(0,229,255,.08));border:1px solid rgba(0,255,153,.3);border-radius:10px;padding:16px;text-align:center;margin-top:16px;}
+.final-vote-label{font-size:11px;font-family:'Space Mono',monospace;color:var(--text3);margin-bottom:6px;letter-spacing:1px;}
+.final-vote-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--neon2);}
+
+/* TOOLTIP */
+.tip{position:relative;display:inline-block;border-bottom:1px dashed var(--text3);cursor:help;}
+.tip:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);color:var(--text);font-size:12px;padding:6px 12px;border-radius:6px;white-space:nowrap;z-index:999;font-family:'DM Sans',sans-serif;}
+
+/* GLOW */
+.glow-neon{text-shadow:0 0 20px rgba(0,229,255,.5);}
+.glow-green{text-shadow:0 0 20px rgba(0,255,153,.5);}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">ML Academy</div>
+    <div class="sidebar-title">Data Science<br/>Intern Guide</div>
+    <div class="sidebar-sub">// 6 core modules</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Modules</div>
+    <a class="nav-item active" href="#spark" onclick="setActive(this)"><span class="nav-dot"></span>Apache Spark</a>
+    <a class="nav-item" href="#dimred" onclick="setActive(this)"><span class="nav-dot"></span>Dimensionality Reduction</a>
+    <a class="nav-item" href="#feateng" onclick="setActive(this)"><span class="nav-dot"></span>Feature Engineering</a>
+    <a class="nav-item" href="#gboost" onclick="setActive(this)"><span class="nav-dot"></span>Gradient Boosting</a>
+    <a class="nav-item" href="#dtree" onclick="setActive(this)"><span class="nav-dot"></span>Decision Trees</a>
+    <a class="nav-item" href="#rforest" onclick="setActive(this)"><span class="nav-dot"></span>Random Forest</a>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-label">// session progress</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+<!-- HERO -->
+<div class="hero fade-in">
+  <div class="hero-tag">INTERN LEARNING SESSION</div>
+  <h1>Machine Learning<br/><span>Fundamentals</span></h1>
+  <p>A comprehensive, beginner-friendly guide covering distributed computing and core ML algorithms — with real-world examples, formulas, and hands-on Python code.</p>
+  <div class="hero-chips">
+    <span class="chip c1">Apache Spark</span>
+    <span class="chip c4">Dimensionality Reduction</span>
+    <span class="chip c2">Feature Engineering</span>
+    <span class="chip c5">Gradient Boosting</span>
+    <span class="chip c1">Decision Trees</span>
+    <span class="chip c2">Random Forest</span>
+  </div>
+</div>
+
+<!-- ───────────────────────────── SPARK ───────────────────────────── -->
+<section class="section" id="spark">
+  <div class="sec-header">
+    <div class="sec-icon spark">⚡</div>
+    <div class="sec-meta">
+      <div class="sec-tag tag-spark">Module 01</div>
+      <div class="sec-title">Apache Spark</div>
+      <div class="sec-desc">A lightning-fast, distributed data processing engine designed to handle massive datasets across clusters of computers.</div>
+    </div>
+  </div>
+
+  <div class="content-grid wide">
+    <div class="card orange-border">
+      <div class="card-label">What is Spark?</div>
+      <h3>Big Data Processing Engine <span class="badge badge-easy">BEGINNER</span></h3>
+      <p>Imagine you have a <strong>1 TB log file</strong> and your laptop would take 8 hours to process it. Apache Spark splits that file across 100 machines, each processing a small chunk simultaneously — finishing the job in <strong>5 minutes</strong>.</p>
+      <p style="margin-top:10px;">Spark is 100× faster than Hadoop MapReduce for in-memory operations because it keeps data <strong>in RAM</strong> instead of writing to disk after every step.</p>
+      <div class="example-box">
+        <div class="ex-label">🌍 Real World Example</div>
+        <p><strong>Netflix</strong> uses Spark to analyze billions of viewing events daily — processing what you watched, paused, or rewound — to power their recommendation engine in near-real-time.</p>
+      </div>
+    </div>
+    <div>
+      <div class="diagram-wrap">
+        <h4>Spark Cluster Architecture</h4>
+        <div class="arch-nodes">
+          <div class="arch-node">
+            <div class="arch-circle driver">🧠</div>
+            <div class="arch-label">DRIVER<br/>Program</div>
+          </div>
+          <div class="arch-node">
+            <div class="arch-circle cluster">⚙️</div>
+            <div class="arch-label">CLUSTER<br/>Manager</div>
+          </div>
+          <div class="arch-node" style="gap:6px;">
+            <div style="display:flex;gap:8px;">
+              <div class="arch-circle worker" style="width:40px;height:40px;font-size:14px;">W</div>
+              <div class="arch-circle worker" style="width:40px;height:40px;font-size:14px;">W</div>
+              <div class="arch-circle worker" style="width:40px;height:40px;font-size:14px;">W</div>
+            </div>
+            <div class="arch-label">WORKER<br/>Nodes</div>
+          </div>
+        </div>
+        <svg width="100%" height="50" viewBox="0 0 400 50" style="margin-top:8px;">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#1e2d4a"/>
+            </marker>
+          </defs>
+          <line x1="80" y1="25" x2="180" y2="25" stroke="#1e2d4a" stroke-width="1.5" marker-end="url(#arr)"/>
+          <line x1="220" y1="25" x2="310" y2="25" stroke="#1e2d4a" stroke-width="1.5" marker-end="url(#arr)"/>
+          <text x="120" y="18" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">submits jobs</text>
+          <text x="265" y="18" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">allocates tasks</text>
+        </svg>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-label">Key Concept</div>
+        <h3>RDD vs DataFrame</h3>
+        <table class="comp-table" style="width:100%;margin-top:8px;">
+          <tr><th>RDD</th><th>DataFrame</th></tr>
+          <tr><td>Low-level API</td><td>High-level API</td></tr>
+          <tr><td>No schema</td><td>Has schema (columns)</td></tr>
+          <tr><td>Manual optimization</td><td>Auto-optimized</td></tr>
+          <tr><td>Like a Python list</td><td>Like a SQL table</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-label">Core Concept</div>
+      <h3>Lazy Evaluation ⏳</h3>
+      <p>Spark doesn't execute your code immediately. It builds a <strong>Directed Acyclic Graph (DAG)</strong> of operations and only executes when you call an <em>action</em> like <code style="font-family:Space Mono;font-size:12px;color:var(--neon);">.collect()</code> or <code style="font-family:Space Mono;font-size:12px;color:var(--neon);">.count()</code>.</p>
+      <div style="margin-top:14px;">
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num sn1">T</div>
+            <div class="step-text"><h4>Transformations</h4><p><code style="font-family:Space Mono;font-size:11px;color:var(--purple);">filter(), map(), select(), groupBy()</code> — lazy, return new RDD/DF</p></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num sn3">A</div>
+            <div class="step-text"><h4>Actions</h4><p><code style="font-family:Space Mono;font-size:11px;color:var(--accent);">collect(), count(), show(), save()</code> — trigger execution</p></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Spark Ecosystem</div>
+      <h3>Spark Components 🧩</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">💡</div>
+          <div style="font-family:Space Mono;font-size:11px;color:var(--neon);font-weight:700;">Spark Core</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">RDDs, task scheduling</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">🗄️</div>
+          <div style="font-family:Space Mono;font-size:11px;color:var(--neon2);font-weight:700;">Spark SQL</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">DataFrames + SQL</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">🌊</div>
+          <div style="font-family:Space Mono;font-size:11px;color:var(--purple);font-weight:700;">Streaming</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">Real-time data</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">🤖</div>
+          <div style="font-family:Space Mono;font-size:11px;color:var(--yellow);font-weight:700;">MLlib</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;">Distributed ML</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-container">
+    <div class="tab-headers">
+      <button class="tab-btn active" onclick="switchTab(this,'spark','basics')">Basic Operations</button>
+      <button class="tab-btn" onclick="switchTab(this,'spark','sql')">Spark SQL</button>
+      <button class="tab-btn" onclick="switchTab(this,'spark','mllib')">MLlib Example</button>
+    </div>
+    <div id="spark-basics" class="tab-content active">
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — PySpark Basics</div></div>
+        <div class="code-block"><pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> <span class="cls">SparkSession</span>
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col, avg, count
+
+<span class="cmt"># 1. Create a Spark session (entry point to everything)</span>
+spark = <span class="cls">SparkSession</span>.<span class="fn">builder</span> \
+    .<span class="fn">appName</span>(<span class="str">"MyFirstSparkJob"</span>) \
+    .<span class="fn">getOrCreate</span>()
+
+<span class="cmt"># 2. Load data (Spark reads CSV lazily — nothing executes yet!)</span>
+df = spark.<span class="fn">read</span>.<span class="fn">csv</span>(<span class="str">"sales_data.csv"</span>, header=<span class="kw">True</span>, inferSchema=<span class="kw">True</span>)
+
+<span class="cmt"># 3. Transformations (lazy — building the DAG)</span>
+big_sales = df.<span class="fn">filter</span>(col(<span class="str">"amount"</span>) > <span class="num2">1000</span>)             <span class="cmt"># Filter rows</span>
+by_region = big_sales.<span class="fn">groupBy</span>(<span class="str">"region"</span>)                <span class="cmt"># Group</span>
+summary  = by_region.<span class="fn">agg</span>(                               <span class="cmt"># Aggregate</span>
+    <span class="fn">avg</span>(<span class="str">"amount"</span>).<span class="fn">alias</span>(<span class="str">"avg_sale"</span>),
+    <span class="fn">count</span>(<span class="str">"*"</span>).<span class="fn">alias</span>(<span class="str">"total_orders"</span>)
+)
+
+<span class="cmt"># 4. Action (NOW Spark executes the entire DAG!)</span>
+summary.<span class="fn">show</span>()
+
+<span class="cmt"># Output:
+# +--------+----------+------------+
+# | region | avg_sale | total_orders|
+# +--------+----------+------------+
+# |  North |   1850.5 |         432|
+# |  South |   2103.2 |         298|
+# +--------+----------+------------+</span>
+
+<span class="cmt"># 5. Always stop the session when done</span>
+spark.<span class="fn">stop</span>()</pre></div>
+      </div>
+    </div>
+    <div id="spark-sql" class="tab-content">
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — Spark SQL</div></div>
+        <div class="code-block"><pre><span class="cmt"># Register DataFrame as a SQL temp view</span>
+df.<span class="fn">createOrReplaceTempView</span>(<span class="str">"sales"</span>)
+
+<span class="cmt"># Run SQL directly on distributed data!</span>
+result = spark.<span class="fn">sql</span>(<span class="str">"""
+    SELECT region,
+           AVG(amount) AS avg_sale,
+           COUNT(*) AS total_orders
+    FROM sales
+    WHERE amount > 1000
+      AND year = 2024
+    GROUP BY region
+    ORDER BY avg_sale DESC
+    LIMIT 10
+"""</span>)
+
+result.<span class="fn">show</span>()
+
+<span class="cmt"># Spark SQL is identical to standard SQL!
+# Perfect for analysts who know SQL but not Scala/Java.</span>
+
+<span class="cmt"># You can also mix SQL and DataFrame APIs:</span>
+top_regions = spark.<span class="fn">sql</span>(<span class="str">"SELECT region FROM sales GROUP BY region"</span>)
+top_regions.<span class="fn">filter</span>(col(<span class="str">"region"</span>) != <span class="str">"Unknown"</span>).<span class="fn">show</span>()</pre></div>
+      </div>
+    </div>
+    <div id="spark-mllib" class="tab-content">
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — MLlib Pipeline</div></div>
+        <div class="code-block"><pre><span class="kw">from</span> pyspark.ml <span class="kw">import</span> <span class="cls">Pipeline</span>
+<span class="kw">from</span> pyspark.ml.feature <span class="kw">import</span> <span class="cls">VectorAssembler</span>, <span class="cls">StandardScaler</span>
+<span class="kw">from</span> pyspark.ml.classification <span class="kw">import</span> <span class="cls">LogisticRegression</span>
+<span class="kw">from</span> pyspark.ml.evaluation <span class="kw">import</span> <span class="cls">BinaryClassificationEvaluator</span>
+
+<span class="cmt"># Combine feature columns into a single vector</span>
+assembler = <span class="cls">VectorAssembler</span>(
+    inputCols=[<span class="str">"age"</span>, <span class="str">"income"</span>, <span class="str">"credit_score"</span>],
+    outputCol=<span class="str">"raw_features"</span>
+)
+
+<span class="cmt"># Scale features to zero mean, unit variance</span>
+scaler = <span class="cls">StandardScaler</span>(
+    inputCol=<span class="str">"raw_features"</span>,
+    outputCol=<span class="str">"features"</span>
+)
+
+<span class="cmt"># Logistic regression model</span>
+lr = <span class="cls">LogisticRegression</span>(labelCol=<span class="str">"loan_approved"</span>, maxIter=<span class="num2">100</span>)
+
+<span class="cmt"># Build a Pipeline — chain steps together</span>
+pipeline = <span class="cls">Pipeline</span>(stages=[assembler, scaler, lr])
+
+<span class="cmt"># Train / test split</span>
+train_df, test_df = df.<span class="fn">randomSplit</span>([<span class="num2">0.8</span>, <span class="num2">0.2</span>], seed=<span class="num2">42</span>)
+
+<span class="cmt"># Fit on training data (executes the full pipeline)</span>
+model = pipeline.<span class="fn">fit</span>(train_df)
+
+<span class="cmt"># Evaluate on test data</span>
+predictions = model.<span class="fn">transform</span>(test_df)
+evaluator = <span class="cls">BinaryClassificationEvaluator</span>(labelCol=<span class="str">"loan_approved"</span>)
+auc = evaluator.<span class="fn">evaluate</span>(predictions)
+<span class="fn">print</span>(<span class="str">f"AUC: <span class="param">{auc:.3f}</span>"</span>)  <span class="cmt"># AUC: 0.872</span></pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── DIMENSIONALITY REDUCTION ───────────────────────────── -->
+<section class="section" id="dimred">
+  <div class="sec-header">
+    <div class="sec-icon dim">🔻</div>
+    <div class="sec-meta">
+      <div class="sec-tag tag-dim">Module 02</div>
+      <div class="sec-title">Dimensionality Reduction</div>
+      <div class="sec-desc">Techniques to reduce the number of features in a dataset while preserving the most important information.</div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card purple-border">
+      <div class="card-label">The Core Problem</div>
+      <h3>Curse of Dimensionality 😱</h3>
+      <p>Imagine a dataset with <strong>500 features</strong>. Most of those features are redundant or irrelevant. Too many dimensions causes:</p>
+      <ul style="margin-top:10px;">
+        <li>Models overfit on noise</li>
+        <li>Training takes forever</li>
+        <li>Data points become equidistant — distance metrics break!</li>
+        <li>Visualizing data becomes impossible</li>
+      </ul>
+      <div class="example-box">
+        <div class="ex-label">🌍 Real World Example</div>
+        <p><strong>Medical imaging:</strong> An MRI scan has millions of pixels (features). PCA compresses it to a few hundred components that capture 95% of variation — making classification tractable.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Techniques Overview</div>
+      <h3>Methods at a Glance</h3>
+      <table class="comp-table" style="margin-top:10px;">
+        <tr><th>Method</th><th>Type</th><th>Best For</th></tr>
+        <tr><td>PCA</td><td>Linear</td><td>Numeric data, preprocessing</td></tr>
+        <tr><td>t-SNE</td><td>Non-linear</td><td>Visualization (2D/3D)</td></tr>
+        <tr><td>UMAP</td><td>Non-linear</td><td>Large-scale visualization</td></tr>
+        <tr><td>LDA</td><td>Supervised</td><td>Classification, class separation</td></tr>
+        <tr><td>Autoencoder</td><td>Neural</td><td>Images, complex patterns</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="content-grid full">
+    <div class="card">
+      <div class="card-label">Principal Component Analysis — PCA</div>
+      <h3>How PCA Works — Step by Step</h3>
+      <ul class="step-list" style="margin-top:14px;">
+        <li class="step-item">
+          <div class="step-num sn1">1</div>
+          <div class="step-text"><h4>Standardize the data</h4><p>Subtract the mean and divide by standard deviation so all features are on the same scale.</p></div>
+        </li>
+        <li class="step-item">
+          <div class="step-num sn2">2</div>
+          <div class="step-text"><h4>Compute Covariance Matrix</h4><p>Understand how features vary together. If height and weight increase together — they're correlated.</p></div>
+        </li>
+        <li class="step-item">
+          <div class="step-num sn3">3</div>
+          <div class="step-text"><h4>Find Eigenvectors & Eigenvalues</h4><p>Eigenvectors are the new axes (Principal Components). Eigenvalues tell you how much variance each axis captures.</p></div>
+        </li>
+        <li class="step-item">
+          <div class="step-num sn4">4</div>
+          <div class="step-text"><h4>Project onto top K components</h4><p>Keep only the K components with the highest eigenvalues — you've reduced dimensions!</p></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div>
+      <div class="formula-box">
+        <div class="f-label">Covariance Matrix</div>
+        <div class="formula"><span class="var">Σ</span> <span class="sym">=</span> <span class="num">1/(n−1)</span> <span class="sym">·</span> <span class="var">Xᵀ</span><span class="var">X</span></div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+        <div class="f-label">Eigenvalue Decomposition</div>
+        <div class="formula"><span class="var">Σ</span><span class="var">v</span> <span class="sym">=</span> <span class="var">λ</span><span class="var">v</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:Space Mono;">v = eigenvector (principal component direction)<br/>λ = eigenvalue (variance explained)</div>
+        </div>
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px;">
+        <div class="f-label">Explained Variance Ratio</div>
+        <div class="formula"><span class="var">EVR</span> <span class="sym">=</span> <span class="var">λᵢ</span> <span class="sym">/</span> <span class="sym">Σ</span><span class="var">λⱼ</span></div>
+        </div>
+      </div>
+      <div class="diagram-wrap" style="margin-top:16px;">
+        <h4>Variance Explained by Components</h4>
+        <div id="scree-chart">
+          <svg width="100%" height="160" viewBox="0 0 320 160">
+            <defs>
+              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#a78bfa"/>
+                <stop offset="100%" stop-color="#7c3aed"/>
+              </linearGradient>
+            </defs>
+            <!-- axes -->
+            <line x1="40" y1="10" x2="40" y2="130" stroke="#1e2d4a" stroke-width="1"/>
+            <line x1="40" y1="130" x2="310" y2="130" stroke="#1e2d4a" stroke-width="1"/>
+            <!-- bars (variance explained) -->
+            <rect x="55" y="30" width="30" height="100" fill="url(#barGrad)" rx="3"/>
+            <rect x="100" y="65" width="30" height="65" fill="url(#barGrad)" rx="3" opacity=".85"/>
+            <rect x="145" y="88" width="30" height="42" fill="url(#barGrad)" rx="3" opacity=".7"/>
+            <rect x="190" y="105" width="30" height="25" fill="url(#barGrad)" rx="3" opacity=".55"/>
+            <rect x="235" y="115" width="30" height="15" fill="url(#barGrad)" rx="3" opacity=".4"/>
+            <!-- cumulative line -->
+            <polyline points="70,30 115,58 160,78 205,95 250,108" stroke="#00e5ff" stroke-width="2" fill="none" stroke-dasharray="4 2"/>
+            <!-- labels -->
+            <text x="70" y="25" fill="#a78bfa" font-size="10" text-anchor="middle" font-family="Space Mono">38%</text>
+            <text x="115" y="60" fill="#a78bfa" font-size="10" text-anchor="middle" font-family="Space Mono">24%</text>
+            <text x="160" y="83" fill="#a78bfa" font-size="10" text-anchor="middle" font-family="Space Mono">15%</text>
+            <text x="205" y="100" fill="#a78bfa" font-size="10" text-anchor="middle" font-family="Space Mono">9%</text>
+            <text x="250" y="110" fill="#a78bfa" font-size="10" text-anchor="middle" font-family="Space Mono">5%</text>
+            <!-- x labels -->
+            <text x="70" y="145" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">PC1</text>
+            <text x="115" y="145" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">PC2</text>
+            <text x="160" y="145" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">PC3</text>
+            <text x="205" y="145" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">PC4</text>
+            <text x="250" y="145" fill="#64748b" font-size="9" text-anchor="middle" font-family="Space Mono">PC5</text>
+            <!-- y axis labels -->
+            <text x="35" y="133" fill="#64748b" font-size="9" text-anchor="end" font-family="Space Mono">0%</text>
+            <text x="35" y="80" fill="#64748b" font-size="9" text-anchor="end" font-family="Space Mono">50%</text>
+            <text x="35" y="30" fill="#64748b" font-size="9" text-anchor="end" font-family="Space Mono">100%</text>
+            <text x="295" y="55" fill="#00e5ff" font-size="9" font-family="Space Mono">cumul.</text>
+          </svg>
+        </div>
+        <p style="font-size:11px;color:var(--text3);font-family:Space Mono;margin-top:4px;">PC1+PC2 explain 62% of variance — often enough!</p>
+      </div>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — PCA + t-SNE</div></div>
+      <div class="code-block"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cls">StandardScaler</span>
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> <span class="cls">PCA</span>
+<span class="kw">from</span> sklearn.manifold <span class="kw">import</span> <span class="cls">TSNE</span>
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cmt"># Imagine 500 features of customer data</span>
+X = np.random.<span class="fn">randn</span>(<span class="num2">1000</span>, <span class="num2">500</span>)
+
+<span class="cmt"># Step 1: Standardize</span>
+scaler = <span class="cls">StandardScaler</span>()
+X_scaled = scaler.<span class="fn">fit_transform</span>(X)
+
+<span class="cmt"># Step 2: PCA — reduce to 50 dimensions</span>
+pca = <span class="cls">PCA</span>(n_components=<span class="num2">50</span>, random_state=<span class="num2">42</span>)
+X_pca = pca.<span class="fn">fit_transform</span>(X_scaled)
+
+<span class="cmt"># How much variance do we keep?</span>
+var_kept = pca.explained_variance_ratio_.<span class="fn">sum</span>()
+<span class="fn">print</span>(<span class="str">f"Variance retained: <span class="param">{var_kept:.1%}</span>"</span>)
+<span class="cmt"># Variance retained: 92.3%</span>
+
+<span class="cmt"># Step 3: t-SNE — reduce to 2D for visualization</span>
+tsne = <span class="cls">TSNE</span>(n_components=<span class="num2">2</span>, perplexity=<span class="num2">30</span>, n_iter=<span class="num2">300</span>)
+X_2d = tsne.<span class="fn">fit_transform</span>(X_pca)
+
+<span class="cmt"># Plot</span>
+plt.<span class="fn">figure</span>(figsize=(<span class="num2">10</span>, <span class="num2">8</span>))
+plt.<span class="fn">scatter</span>(X_2d[:, <span class="num2">0</span>], X_2d[:, <span class="num2">1</span>], 
+           c=labels, cmap=<span class="str">'tab10'</span>, alpha=<span class="num2">0.7</span>)
+plt.<span class="fn">title</span>(<span class="str">'Customer Segments Visualized (t-SNE)'</span>)
+plt.<span class="fn">colorbar</span>(label=<span class="str">'Cluster'</span>)
+plt.<span class="fn">savefig</span>(<span class="str">'tsne_plot.png'</span>)
+
+<span class="cmt"># Rule of thumb: Use PCA first to speed up t-SNE</span>
+<span class="cmt"># t-SNE on 50 dims is WAY faster than on 500 dims!</span></pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── FEATURE ENGINEERING ───────────────────────────── -->
+<section class="section" id="feateng">
+  <div class="sec-header">
+    <div class="sec-icon feat">🔧</div>
+    <div class="sec-meta">
+      <div class="sec-tag tag-feat">Module 03</div>
+      <div class="sec-title">Feature Engineering</div>
+      <div class="sec-desc">The art of transforming raw data into meaningful inputs that help ML models learn better and faster.</div>
+    </div>
+  </div>
+
+  <div class="card green-border" style="margin-bottom:24px;">
+    <div class="card-label">Why it matters</div>
+    <h3>Garbage In, Garbage Out 🗑️→🤖</h3>
+    <p>"Feature engineering is the most important factor in model performance — more than algorithm choice." — <em style="color:var(--text3);">Andrew Ng</em></p>
+    <div class="example-box">
+      <div class="ex-label">🌍 Real World Example</div>
+      <p><strong>Uber Surge Pricing:</strong> Raw data is GPS coordinates + timestamps. Feature engineers extract: <strong>hour of day</strong>, <strong>day of week</strong>, <strong>distance to nearest event venue</strong>, <strong>weather conditions</strong>, <strong>historical demand for that block</strong> — features that actually explain surge pricing.</p>
+    </div>
+  </div>
+
+  <div class="content-grid thirds">
+    <div class="card">
+      <div class="card-label">Technique 01</div>
+      <h3>Scaling 📏</h3>
+      <p>Bring all features to the same range so no single feature dominates.</p>
+      <div class="formula-box" style="margin-top:12px;text-align:left;">
+        <div class="f-label">Min-Max Normalization</div>
+        <div class="formula" style="font-size:13px;"><span class="var">x′</span> <span class="sym">=</span> (<span class="var">x</span> <span class="sym">−</span> <span class="var">x_min</span>) <span class="sym">/</span> (<span class="var">x_max</span> <span class="sym">−</span> <span class="var">x_min</span>)</div>
+      </div>
+      <div class="formula-box" style="text-align:left;">
+        <div class="f-label">Z-Score Standardization</div>
+        <div class="formula" style="font-size:13px;"><span class="var">x′</span> <span class="sym">=</span> (<span class="var">x</span> <span class="sym">−</span> <span class="var">μ</span>) <span class="sym">/</span> <span class="var">σ</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Technique 02</div>
+      <h3>Encoding 🏷️</h3>
+      <p>Convert categorical text to numbers that models understand.</p>
+      <div style="margin-top:12px;">
+        <div style="font-size:12px;font-family:Space Mono;color:var(--neon2);margin-bottom:6px;">One-Hot Encoding:</div>
+        <div style="background:var(--bg2);border-radius:6px;padding:10px;font-family:Space Mono;font-size:11px;color:var(--text2);">
+          "Red"   → [1, 0, 0]<br/>
+          "Blue"  → [0, 1, 0]<br/>
+          "Green" → [0, 0, 1]
+        </div>
+        <div style="font-size:12px;font-family:Space Mono;color:var(--yellow);margin:10px 0 6px;">Label Encoding:</div>
+        <div style="background:var(--bg2);border-radius:6px;padding:10px;font-family:Space Mono;font-size:11px;color:var(--text2);">
+          "Low"    → 0<br/>
+          "Medium" → 1<br/>
+          "High"   → 2
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Technique 03</div>
+      <h3>Feature Creation ✨</h3>
+      <p>Create new features by combining existing ones.</p>
+      <div style="margin-top:12px;">
+        <div style="background:var(--bg2);border-radius:6px;padding:12px;font-size:12px;color:var(--text2);">
+          <div style="color:var(--purple);font-family:Space Mono;font-size:11px;margin-bottom:8px;">EXAMPLES:</div>
+          <div style="margin-bottom:6px;">📅 <code style="font-family:Space Mono;font-size:11px;color:var(--neon);">birth_date</code> → <code style="font-family:Space Mono;font-size:11px;color:var(--neon2);">age</code></div>
+          <div style="margin-bottom:6px;">🏠 <code style="font-family:Space Mono;font-size:11px;color:var(--neon);">price / sqft</code> → <code style="font-family:Space Mono;font-size:11px;color:var(--neon2);">price_per_sqft</code></div>
+          <div style="margin-bottom:6px;">⏱️ <code style="font-family:Space Mono;font-size:11px;color:var(--neon);">timestamp</code> → <code style="font-family:Space Mono;font-size:11px;color:var(--neon2);">hour, weekday</code></div>
+          <div>📍 lat/lon → <code style="font-family:Space Mono;font-size:11px;color:var(--neon2);">distance_to_CBD</code></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-label">Technique 04</div>
+        <h3>Handling Missing Values 🕳️</h3>
+        <table class="comp-table" style="margin-top:10px;">
+          <tr><th>Strategy</th><th>When to Use</th></tr>
+          <tr><td>Drop rows/cols</td><td>&gt;40% missing, not important</td></tr>
+          <tr><td>Mean/Median imputation</td><td>Numeric, not too skewed</td></tr>
+          <tr><td>Mode imputation</td><td>Categorical features</td></tr>
+          <tr><td>Predictive imputation</td><td>Important feature, low missingness</td></tr>
+          <tr><td>Add "is_missing" flag</td><td>Missingness itself is informative!</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-label">Technique 05 — Advanced</div>
+        <h3>Feature Selection 🎯</h3>
+        <ul style="margin-top:10px;">
+          <li><strong style="color:var(--neon);">Correlation filter:</strong> Remove features correlated &gt;0.95</li>
+          <li style="margin-top:8px;"><strong style="color:var(--neon2);">Feature importance:</strong> Use tree-based models to rank</li>
+          <li style="margin-top:8px;"><strong style="color:var(--purple);">LASSO regularization:</strong> Shrinks useless feature coefficients to 0</li>
+          <li style="margin-top:8px;"><strong style="color:var(--yellow);">Recursive Feature Elimination (RFE):</strong> Iteratively removes least important</li>
+        </ul>
+      </div>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — Feature Engineering Pipeline</div></div>
+      <div class="code-block"><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> <span class="cls">LabelEncoder</span>, <span class="cls">MinMaxScaler</span>
+<span class="kw">from</span> sklearn.impute <span class="kw">import</span> <span class="cls">SimpleImputer</span>
+
+<span class="cmt"># Sample data: house price prediction</span>
+df = pd.<span class="fn">DataFrame</span>({
+    <span class="str">'area'</span>:       [<span class="num2">1200</span>, <span class="num2">900</span>, <span class="num2">1500</span>, <span class="num2">None</span>, <span class="num2">2000</span>],
+    <span class="str">'bedrooms'</span>:   [<span class="num2">3</span>, <span class="num2">2</span>, <span class="num2">4</span>, <span class="num2">3</span>, <span class="num2">5</span>],
+    <span class="str">'neighborhood'</span>:[<span class="str">'A'</span>,<span class="str">'B'</span>,<span class="str">'A'</span>,<span class="str">'C'</span>,<span class="str">'B'</span>],
+    <span class="str">'built_year'</span>: [<span class="num2">2010</span>, <span class="num2">1995</span>, <span class="num2">2018</span>, <span class="num2">2005</span>, <span class="num2">2022</span>]
+})
+
+<span class="cmt"># ── FEATURE CREATION ──────────────────────────</span>
+<span class="cmt"># Age of house (more interpretable than year)</span>
+df[<span class="str">'house_age'</span>] = <span class="num2">2024</span> - df[<span class="str">'built_year'</span>]
+
+<span class="cmt"># Is it a large house? (binary feature)</span>
+df[<span class="str">'is_large'</span>] = (df[<span class="str">'area'</span>] > <span class="num2">1400</span>).<span class="fn">astype</span>(<span class="num2">int</span>)
+
+<span class="cmt"># ── HANDLE MISSING VALUES ──────────────────────</span>
+imputer = <span class="cls">SimpleImputer</span>(strategy=<span class="str">'median'</span>)
+df[<span class="str">'area'</span>] = imputer.<span class="fn">fit_transform</span>(df[[<span class="str">'area'</span>]])
+
+<span class="cmt"># Flag missing area (was it missing for a reason?)</span>
+df[<span class="str">'area_was_missing'</span>] = df[<span class="str">'area'</span>].<span class="fn">isna</span>().<span class="fn">astype</span>(<span class="num2">int</span>)
+
+<span class="cmt"># ── ENCODE CATEGORICAL ─────────────────────────</span>
+df = pd.<span class="fn">get_dummies</span>(df, columns=[<span class="str">'neighborhood'</span>],
+                     prefix=<span class="str">'nbhd'</span>, drop_first=<span class="kw">True</span>)
+
+<span class="cmt"># ── SCALE NUMERIC FEATURES ────────────────────</span>
+scaler = <span class="cls">MinMaxScaler</span>()
+num_cols = [<span class="str">'area'</span>, <span class="str">'house_age'</span>, <span class="str">'bedrooms'</span>]
+df[num_cols] = scaler.<span class="fn">fit_transform</span>(df[num_cols])
+
+<span class="fn">print</span>(df.<span class="fn">head</span>())
+<span class="fn">print</span>(<span class="str">f"Features: <span class="param">{list(df.columns)}</span>"</span>)</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── GRADIENT BOOSTING ───────────────────────────── -->
+<section class="section" id="gboost">
+  <div class="sec-header">
+    <div class="sec-icon boost">🚀</div>
+    <div class="sec-meta">
+      <div class="sec-tag tag-boost">Module 04</div>
+      <div class="sec-title">Gradient Boosting</div>
+      <div class="sec-desc">An ensemble method that builds models sequentially — each new model corrects the errors of its predecessor.</div>
+    </div>
+  </div>
+
+  <div class="content-grid wide">
+    <div class="card yellow-border">
+      <div class="card-label">The Core Idea</div>
+      <h3>Learning from Mistakes 🎯</h3>
+      <p>Boosting is like a <strong>team of experts</strong> where each expert specializes in the cases the previous expert got wrong.</p>
+      <div style="margin-top:14px;">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;">
+          <div style="width:36px;height:36px;border-radius:6px;background:rgba(255,107,53,.2);border:1px solid rgba(255,107,53,.4);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🌱</div>
+          <div><strong style="font-size:13px;">Tree 1</strong> makes predictions → some correct, some wrong<br/><span style="font-size:12px;color:var(--text3);">accuracy: ~65%</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;">
+          <div style="width:36px;height:36px;border-radius:6px;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🌿</div>
+          <div><strong style="font-size:13px;">Tree 2</strong> focuses on Tree 1's errors<br/><span style="font-size:12px;color:var(--text3);">cumulative accuracy: ~78%</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div style="width:36px;height:36px;border-radius:6px;background:rgba(0,255,153,.2);border:1px solid rgba(0,255,153,.4);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">🌳</div>
+          <div><strong style="font-size:13px;">Tree N</strong> keeps improving iteratively<br/><span style="font-size:12px;color:var(--text3);">cumulative accuracy: ~93%</span></div>
+        </div>
+      </div>
+      <div class="example-box">
+        <div class="ex-label">🌍 Real World Example</div>
+        <p><strong>Kaggle competitions:</strong> XGBoost (a gradient boosting variant) has won more competitions than any other algorithm. Used by <strong>Airbnb</strong> for price recommendations and <strong>Zillow</strong> for house price estimates.</p>
+      </div>
+    </div>
+    <div>
+      <div class="diagram-wrap">
+        <h4>Boosting Accuracy Growth</h4>
+        <div class="boost-bars" id="boostBars">
+          <div class="boost-bar-row"><div class="boost-bar-label">Tree 1</div><div class="boost-bar-track"><div class="boost-bar-fill b1" data-width="58"></div></div><div class="boost-bar-val">58%</div></div>
+          <div class="boost-bar-row"><div class="boost-bar-label">+ Tree 2</div><div class="boost-bar-track"><div class="boost-bar-fill b2" data-width="69"></div></div><div class="boost-bar-val">69%</div></div>
+          <div class="boost-bar-row"><div class="boost-bar-label">+ Tree 3</div><div class="boost-bar-track"><div class="boost-bar-fill b3" data-width="78"></div></div><div class="boost-bar-val">78%</div></div>
+          <div class="boost-bar-row"><div class="boost-bar-label">+ Tree 10</div><div class="boost-bar-track"><div class="boost-bar-fill b4" data-width="88"></div></div><div class="boost-bar-val">88%</div></div>
+          <div class="boost-bar-row"><div class="boost-bar-label">+ Tree 100</div><div class="boost-bar-track"><div class="boost-bar-fill b5" data-width="95"></div></div><div class="boost-bar-val">95%</div></div>
+        </div>
+        <button onclick="animateBars()" style="margin-top:12px;padding:7px 16px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--yellow);border-radius:6px;cursor:pointer;font-family:Space Mono;font-size:11px;">▶ Run Animation</button>
+      </div>
+      <div class="formula-box" style="margin-top:16px;">
+        <div class="f-label">Gradient Boosting Update Rule</div>
+        <div class="formula" style="font-size:13px;"><span class="var">F_m</span>(<span class="var">x</span>) <span class="sym">=</span> <span class="var">F_{m-1}</span>(<span class="var">x</span>) <span class="sym">+</span> <span class="var">η</span> <span class="sym">·</span> <span class="var">h_m</span>(<span class="var">x</span>)</div>
+        <div style="font-size:11px;color:var(--text3);font-family:Space Mono;margin-top:8px;">
+          F_m = model at step m<br/>
+          η = learning rate (controls step size)<br/>
+          h_m = new weak learner fitted to residuals
+        </div>
+        <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+        <div class="f-label">Pseudo-Residuals (Gradient)</div>
+        <div class="formula" style="font-size:13px;"><span class="var">r_i</span> <span class="sym">=</span> <span class="sym">−</span> [<span class="sym">∂</span><span class="var">L</span>(<span class="var">y_i</span>, <span class="var">F(x_i)</span>) <span class="sym">/</span> <span class="sym">∂</span><span class="var">F(x_i)</span>]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-container">
+    <div class="tab-headers">
+      <button class="tab-btn active" onclick="switchTab(this,'gb','xgb')">XGBoost</button>
+      <button class="tab-btn" onclick="switchTab(this,'gb','lgbm')">LightGBM</button>
+      <button class="tab-btn" onclick="switchTab(this,'gb','compare')">Algorithm Comparison</button>
+    </div>
+    <div id="gb-xgb" class="tab-content active">
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — XGBoost</div></div>
+        <div class="code-block"><pre><span class="kw">import</span> xgboost <span class="kw">as</span> xgb
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, <span class="cls">GridSearchCV</span>
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score, classification_report
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+
+<span class="cmt"># Load breast cancer dataset (binary classification)</span>
+data = <span class="fn">load_breast_cancer</span>()
+X, y = data.data, data.target
+
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y, test_size=<span class="num2">0.2</span>, random_state=<span class="num2">42</span>
+)
+
+<span class="cmt"># Create and train XGBoost model</span>
+model = xgb.<span class="cls">XGBClassifier</span>(
+    n_estimators=<span class="num2">200</span>,       <span class="cmt"># number of trees</span>
+    max_depth=<span class="num2">4</span>,             <span class="cmt"># max tree depth</span>
+    learning_rate=<span class="num2">0.05</span>,      <span class="cmt"># η — smaller = more robust</span>
+    subsample=<span class="num2">0.8</span>,           <span class="cmt"># use 80% of rows per tree</span>
+    colsample_bytree=<span class="num2">0.8</span>,    <span class="cmt"># use 80% of features per tree</span>
+    use_label_encoder=<span class="kw">False</span>,
+    eval_metric=<span class="str">'logloss'</span>,
+    random_state=<span class="num2">42</span>
+)
+
+model.<span class="fn">fit</span>(X_train, y_train,
+          eval_set=[(X_test, y_test)],
+          verbose=<span class="num2">50</span>)
+
+<span class="cmt"># Evaluate</span>
+y_pred = model.<span class="fn">predict</span>(X_test)
+<span class="fn">print</span>(<span class="str">f"Accuracy: <span class="param">{accuracy_score(y_test, y_pred):.3f}</span>"</span>)  <span class="cmt"># 0.974</span>
+
+<span class="cmt"># Feature importance (VERY useful!)</span>
+importance = pd.<span class="cls">Series</span>(
+    model.feature_importances_,
+    index=data.feature_names
+).<span class="fn">sort_values</span>(ascending=<span class="kw">False</span>)
+<span class="fn">print</span>(importance.head(<span class="num2">5</span>))</pre></div>
+      </div>
+    </div>
+    <div id="gb-lgbm" class="tab-content">
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — LightGBM</div></div>
+        <div class="code-block"><pre><span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+<span class="cmt"># LightGBM is XGBoost's faster cousin
+# Key difference: grows trees LEAF-WISE (not level-wise)
+# Better for large datasets (millions of rows)</span>
+
+model = lgb.<span class="cls">LGBMClassifier</span>(
+    n_estimators=<span class="num2">500</span>,
+    max_depth=<span class="num2">-1</span>,              <span class="cmt"># -1 means unlimited</span>
+    learning_rate=<span class="num2">0.03</span>,
+    num_leaves=<span class="num2">31</span>,             <span class="cmt"># main complexity control</span>
+    min_child_samples=<span class="num2">20</span>,      <span class="cmt"># minimum samples per leaf</span>
+    subsample=<span class="num2">0.8</span>,
+    colsample_bytree=<span class="num2">0.7</span>,
+    reg_alpha=<span class="num2">0.1</span>,             <span class="cmt"># L1 regularization</span>
+    reg_lambda=<span class="num2">0.1</span>,            <span class="cmt"># L2 regularization</span>
+    random_state=<span class="num2">42</span>,
+    verbose=<span class="num2">-1</span>
+)
+
+<span class="cmt"># Callbacks for early stopping</span>
+callbacks = [
+    lgb.<span class="fn">early_stopping</span>(stopping_rounds=<span class="num2">50</span>),
+    lgb.<span class="fn">log_evaluation</span>(period=<span class="num2">100</span>)
+]
+
+model.<span class="fn">fit</span>(X_train, y_train,
+          eval_set=[(X_test, y_test)],
+          callbacks=callbacks)
+
+<span class="fn">print</span>(<span class="str">f"Best iteration: <span class="param">{model.best_iteration_}</span>"</span>)
+<span class="fn">print</span>(<span class="str">f"Accuracy: <span class="param">{model.score(X_test, y_test):.3f}</span>"</span>)</pre></div>
+      </div>
+    </div>
+    <div id="gb-compare" class="tab-content">
+      <div class="card">
+        <table class="comp-table">
+          <tr><th>Property</th><th style="color:var(--yellow);">XGBoost</th><th style="color:var(--neon2);">LightGBM</th><th style="color:var(--purple);">CatBoost</th></tr>
+          <tr><td>Speed</td><td>Medium</td><td>Very Fast ⚡</td><td>Slow on start</td></tr>
+          <tr><td>Memory</td><td>Medium</td><td>Low 💾</td><td>Medium</td></tr>
+          <tr><td>Categorical</td><td>Manual encoding</td><td>Some support</td><td>Native ✅</td></tr>
+          <tr><td>Large data</td><td>Good</td><td>Excellent</td><td>Good</td></tr>
+          <tr><td>Tuning effort</td><td>Medium</td><td>Medium</td><td>Low</td></tr>
+          <tr><td>Best for</td><td>Kaggle baseline</td><td>Production speed</td><td>Lots of categories</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── DECISION TREES ───────────────────────────── -->
+<section class="section" id="dtree">
+  <div class="sec-header">
+    <div class="sec-icon tree">🌲</div>
+    <div class="sec-meta">
+      <div class="sec-tag tag-tree">Module 05</div>
+      <div class="sec-title">Decision Trees</div>
+      <div class="sec-desc">Flowchart-like models that split data by asking a series of questions — intuitive, interpretable, and powerful.</div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card neon-border">
+      <div class="card-label">How it works</div>
+      <h3>Asking the Right Questions ❓</h3>
+      <p>A decision tree learns to ask the <strong>most informative questions</strong> about your features to separate classes as clearly as possible.</p>
+      <div style="margin-top:14px;">
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-num sn1">1</div>
+            <div class="step-text"><h4>Select best split</h4><p>Find the feature + threshold that best separates the data (using Gini or Entropy)</p></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num sn2">2</div>
+            <div class="step-text"><h4>Split the node</h4><p>Divide data into two (or more) groups based on that feature</p></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num sn3">3</div>
+            <div class="step-text"><h4>Repeat recursively</h4><p>Continue splitting each child node until a stopping condition is met</p></div>
+          </li>
+          <li class="step-item">
+            <div class="step-num sn4">4</div>
+            <div class="step-text"><h4>Assign leaf labels</h4><p>Each leaf node predicts the majority class of its samples</p></div>
+          </li>
+        </ul>
+      </div>
+      <div class="example-box">
+        <div class="ex-label">🌍 Real World Example</div>
+        <p><strong>Loan approval:</strong> Banks use decision trees to create rule-based systems — "If credit score &lt;580 AND debt ratio &gt; 0.5 THEN decline." Easy to explain to regulators.</p>
+      </div>
+    </div>
+    <div>
+      <div class="diagram-wrap">
+        <h4>Decision Tree Structure</h4>
+        <svg width="100%" height="220" viewBox="0 0 380 220">
+          <!-- Root Node -->
+          <rect x="130" y="8" width="120" height="38" rx="6" fill="#1a2540" stroke="#00e5ff" stroke-width="1.5"/>
+          <text x="190" y="24" fill="#00e5ff" font-size="11" text-anchor="middle" font-family="Space Mono">Feature A</text>
+          <text x="190" y="38" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Space Mono">≤ 2.5?</text>
+          <!-- Left branch -->
+          <line x1="160" y1="46" x2="100" y2="90" stroke="#1e2d4a" stroke-width="1.5"/>
+          <text x="118" y="76" fill="#64748b" font-size="9" font-family="Space Mono">YES</text>
+          <!-- Right branch -->
+          <line x1="220" y1="46" x2="280" y2="90" stroke="#1e2d4a" stroke-width="1.5"/>
+          <text x="258" y="76" fill="#64748b" font-size="9" font-family="Space Mono">NO</text>
+          <!-- Left Internal Node -->
+          <rect x="55" y="90" width="95" height="36" rx="6" fill="#1a2540" stroke="#a78bfa" stroke-width="1.5"/>
+          <text x="102" y="105" fill="#a78bfa" font-size="10" text-anchor="middle" font-family="Space Mono">Feature B</text>
+          <text x="102" y="119" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Space Mono">≤ 1.8?</text>
+          <!-- Right Internal Node -->
+          <rect x="235" y="90" width="95" height="36" rx="6" fill="#1a2540" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="282" y="105" fill="#fbbf24" font-size="10" text-anchor="middle" font-family="Space Mono">Feature C</text>
+          <text x="282" y="119" fill="#94a3b8" font-size="9" text-anchor="middle" font-family="Space Mono">≤ 0.5?</text>
+          <!-- Leaves from left -->
+          <line x1="80" y1="126" x2="50" y2="168" stroke="#1e2d4a" stroke-width="1.5"/>
+          <line x1="120" y1="126" x2="150" y2="168" stroke="#1e2d4a" stroke-width="1.5"/>
+          <text x="58" y="156" fill="#64748b" font-size="8" font-family="Space Mono">YES</text>
+          <text x="130" y="156" fill="#64748b" font-size="8" font-family="Space Mono">NO</text>
+          <rect x="15" y="168" width="70" height="32" rx="6" fill="rgba(0,255,153,.15)" stroke="rgba(0,255,153,.5)" stroke-width="1.5"/>
+          <text x="50" y="185" fill="#00ff99" font-size="11" text-anchor="middle" font-family="Syne" font-weight="700">CLASS A</text>
+          <rect x="115" y="168" width="70" height="32" rx="6" fill="rgba(255,107,53,.15)" stroke="rgba(255,107,53,.5)" stroke-width="1.5"/>
+          <text x="150" y="185" fill="#ff6b35" font-size="11" text-anchor="middle" font-family="Syne" font-weight="700">CLASS B</text>
+          <!-- Leaves from right -->
+          <line x1="258" y1="126" x2="230" y2="168" stroke="#1e2d4a" stroke-width="1.5"/>
+          <line x1="305" y1="126" x2="333" y2="168" stroke="#1e2d4a" stroke-width="1.5"/>
+          <text x="232" y="156" fill="#64748b" font-size="8" font-family="Space Mono">YES</text>
+          <text x="312" y="156" fill="#64748b" font-size="8" font-family="Space Mono">NO</text>
+          <rect x="195" y="168" width="70" height="32" rx="6" fill="rgba(0,255,153,.15)" stroke="rgba(0,255,153,.5)" stroke-width="1.5"/>
+          <text x="230" y="185" fill="#00ff99" font-size="11" text-anchor="middle" font-family="Syne" font-weight="700">CLASS A</text>
+          <rect x="300" y="168" width="70" height="32" rx="6" fill="rgba(167,139,250,.15)" stroke="rgba(167,139,250,.5)" stroke-width="1.5"/>
+          <text x="335" y="185" fill="#a78bfa" font-size="11" text-anchor="middle" font-family="Syne" font-weight="700">CLASS C</text>
+          <!-- Legend -->
+          <rect x="10" y="205" width="12" height="12" rx="2" fill="rgba(0,229,255,.5)"/>
+          <text x="26" y="215" fill="#64748b" font-size="9" font-family="Space Mono">Internal node</text>
+          <rect x="120" y="205" width="12" height="12" rx="2" fill="rgba(0,255,153,.5)"/>
+          <text x="136" y="215" fill="#64748b" font-size="9" font-family="Space Mono">Leaf (prediction)</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE TREE DEMO -->
+  <div class="tree-demo" id="treeDemoArea">
+    <h4>🎮 Interactive Demo: "Should I go to the gym today?"</h4>
+    <p>Walk through a decision tree by answering questions step-by-step.</p>
+    <div id="treeState"></div>
+  </div>
+
+  <div class="content-grid" style="margin-top:24px;">
+    <div>
+      <div class="formula-box">
+        <div class="f-label">Gini Impurity</div>
+        <div class="formula"><span class="var">Gini</span> <span class="sym">=</span> <span class="num">1</span> <span class="sym">−</span> <span class="sym">Σ</span> <span class="var">pᵢ²</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:Space Mono;">pᵢ = proportion of class i at a node<br/>Range: [0, 0.5]. Lower = purer node</div>
+        <div style="margin-top:12px;padding:10px;background:var(--bg);border-radius:6px;font-size:12px;font-family:Space Mono;color:var(--text2);">
+          Example: node has [70 cats, 30 dogs]<br/>
+          <span style="color:var(--neon);">Gini = 1 − (0.7² + 0.3²) = 1 − 0.58 = 0.42</span>
+        </div>
+      </div>
+      <div class="formula-box" style="margin-top:16px;">
+        <div class="f-label">Entropy (Information Gain)</div>
+        <div class="formula"><span class="var">H</span> <span class="sym">=</span> <span class="sym">−</span> <span class="sym">Σ</span> <span class="var">pᵢ</span> <span class="sym">·</span> <span class="fn">log₂</span>(<span class="var">pᵢ</span>)</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:8px;font-family:Space Mono;">Information Gain = H(parent) − Σ weighted H(children)<br/>Pick the split with the HIGHEST information gain.</div>
+      </div>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — Decision Tree</div></div>
+      <div class="code-block"><pre><span class="kw">from</span> sklearn.tree <span class="kw">import</span> <span class="cls">DecisionTreeClassifier</span>, export_text
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> plot_tree
+
+<span class="cmt"># Load iris (3-class flower classification)</span>
+iris = <span class="fn">load_iris</span>()
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    iris.data, iris.target, test_size=<span class="num2">0.25</span>, random_state=<span class="num2">42</span>
+)
+
+<span class="cmt"># Train decision tree</span>
+clf = <span class="cls">DecisionTreeClassifier</span>(
+    criterion=<span class="str">'gini'</span>,  <span class="cmt"># or 'entropy'</span>
+    max_depth=<span class="num2">4</span>,       <span class="cmt"># prevent overfitting!</span>
+    min_samples_leaf=<span class="num2">5</span>,<span class="cmt"># at least 5 samples per leaf</span>
+    random_state=<span class="num2">42</span>
+)
+clf.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="fn">print</span>(<span class="str">f"Accuracy: <span class="param">{clf.score(X_test, y_test):.3f}</span>"</span>) <span class="cmt"># 0.947</span>
+
+<span class="cmt"># View the rules in text form!</span>
+rules = <span class="fn">export_text</span>(clf, feature_names=iris.feature_names)
+<span class="fn">print</span>(rules)
+
+<span class="cmt"># Visualize the tree</span>
+fig, ax = plt.<span class="fn">subplots</span>(figsize=(<span class="num2">20</span>, <span class="num2">8</span>))
+<span class="fn">plot_tree</span>(clf, feature_names=iris.feature_names,
+          class_names=iris.target_names,
+          filled=<span class="kw">True</span>, rounded=<span class="kw">True</span>, ax=ax)
+plt.<span class="fn">savefig</span>(<span class="str">'decision_tree.png'</span>, dpi=<span class="num2">150</span>, bbox_inches=<span class="str">'tight'</span>)</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── RANDOM FOREST ───────────────────────────── -->
+<section class="section" id="rforest">
+  <div class="sec-header">
+    <div class="sec-icon forest">🌳</div>
+    <div class="sec-meta">
+      <div class="sec-tag tag-forest">Module 06</div>
+      <div class="sec-title">Random Forest</div>
+      <div class="sec-desc">An ensemble of many decision trees — combines wisdom from hundreds of trees to make better, more stable predictions.</div>
+    </div>
+  </div>
+
+  <div class="content-grid wide">
+    <div class="card" style="border-color:rgba(74,222,128,.2);">
+      <div class="card-label">The Core Idea</div>
+      <h3>Wisdom of the Crowd 🗳️</h3>
+      <p>One doctor's diagnosis might be wrong. But if you ask <strong>500 doctors</strong> and take the majority vote — you're likely right. That's Random Forest.</p>
+      <div style="margin-top:14px;">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:20px;">🎲</div>
+            <div><strong style="font-size:13px;">Bootstrap Sampling</strong><p style="font-size:12px;color:var(--text2);margin-top:2px;">Each tree trains on a random 63% subset of data (with replacement) — called <em>bagging</em></p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:20px;">🔀</div>
+            <div><strong style="font-size:13px;">Feature Randomness</strong><p style="font-size:12px;color:var(--text2);margin-top:2px;">At each split, only consider √p random features (where p = total features) — prevents correlation between trees</p></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:20px;">🗳️</div>
+            <div><strong style="font-size:13px;">Majority Vote</strong><p style="font-size:12px;color:var(--text2);margin-top:2px;">For classification: majority vote. For regression: average of all tree predictions.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="example-box">
+        <div class="ex-label">🌍 Real World Example</div>
+        <p><strong>Fraud Detection at PayPal:</strong> Analyzes 200+ features per transaction. Random Forest handles missing data, mixed types, and outliers robustly — flagging suspicious transactions in milliseconds.</p>
+      </div>
+    </div>
+    <div>
+      <div class="diagram-wrap" style="margin-bottom:16px;">
+        <h4>Random Forest — Voting Visualization</h4>
+        <div class="forest-grid" id="forestViz">
+          <div class="mini-tree">
+            <div class="mini-tree-title">TREE 1</div>
+            <svg width="80" height="50" viewBox="0 0 80 50">
+              <line x1="40" y1="5" x2="20" y2="25" stroke="#1e2d4a" stroke-width="1.5"/>
+              <line x1="40" y1="5" x2="60" y2="25" stroke="#1e2d4a" stroke-width="1.5"/>
+              <circle cx="40" cy="5" r="5" fill="#00e5ff" opacity=".7"/>
+              <circle cx="20" cy="25" r="5" fill="#00ff99" opacity=".7"/>
+              <circle cx="60" cy="25" r="5" fill="#ff6b35" opacity=".7"/>
+              <line x1="20" y1="30" x2="10" y2="45" stroke="#1e2d4a" stroke-width="1.5"/>
+              <line x1="20" y1="30" x2="30" y2="45" stroke="#1e2d4a" stroke-width="1.5"/>
+              <circle cx="10" cy="45" r="4" fill="#00ff99" opacity=".8"/>
+              <circle cx="30" cy="45" r="4" fill="#ff6b35" opacity=".8"/>
+            </svg>
+            <div class="vote-bar"><div class="vote-yes" style="width:70%">YES</div><div class="vote-no" style="width:30%">NO</div></div>
+          </div>
+          <div class="mini-tree">
+            <div class="mini-tree-title">TREE 2</div>
+            <svg width="80" height="50" viewBox="0 0 80 50">
+              <line x1="40" y1="5" x2="25" y2="25" stroke="#1e2d4a" stroke-width="1.5"/>
+              <line x1="40" y1="5" x2="55" y2="25" stroke="#1e2d4a" stroke-width="1.5"/>
+              <circle cx="40" cy="5" r="5" fill="#a78bfa" opacity=".7"/>
+              <circle cx="25" cy="25" r="5" fill="#00ff99" opacity=".7"/>
+              <circle cx="55" cy="25" r="5" fill="#00ff99" opacity=".7"/>
+              <line x1="55" y1="30" x2="45" y2="45" stroke="#1e2d4a" stroke-width="1.5"/>
+              <line x1="55" y1="30" x2="65" y2="45" stroke="#1e2d4a" stroke-width="1.5"/>
+              <circle cx="45" cy="45" r="4" fill="#00ff99" opacity=".8"/>
+              <circle cx="65" cy="45" r="4" fill="#ff6b35" opacity=".8"/>
+            </svg>
+            <div class="vote-bar"><div class="vote-yes" style="width:60%">YES</div><div class="vote-no" style="width:40%">NO</div></div>
+          </div>
+          <div class="mini-tree">
+            <div class="mini-tree-title">TREE 3</div>
+            <svg width="80" height="50" viewBox="0 0 80 50">
+              <line x1="40" y1="5" x2="20" y2="25" stroke="#1e2d4a" stroke-width="1.5"/>
+              <line x1="40" y1="5" x2="60" y2="25" stroke="#1e2d4a" stroke-width="1.5"/>
+              <circle cx="40" cy="5" r="5" fill="#fbbf24" opacity=".7"/>
+              <circle cx="20" cy="25" r="5" fill="#ff6b35" opacity=".7"/>
+              <circle cx="60" cy="25" r="5" fill="#00ff99" opacity=".7"/>
+              <line x1="60" y1="30" x2="50" y2="45" stroke="#1e2d4a" stroke-width="1.5"/>
+              <line x1="60" y1="30" x2="70" y2="45" stroke="#1e2d4a" stroke-width="1.5"/>
+              <circle cx="50" cy="45" r="4" fill="#00ff99" opacity=".8"/>
+              <circle cx="70" cy="45" r="4" fill="#00ff99" opacity=".8"/>
+            </svg>
+            <div class="vote-bar"><div class="vote-yes" style="width:75%">YES</div><div class="vote-no" style="width:25%">NO</div></div>
+          </div>
+        </div>
+        <div class="final-vote">
+          <div class="final-vote-label">// FINAL VOTE (majority = YES)</div>
+          <div class="final-vote-val">✅ Prediction: YES</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:4px;font-family:Space Mono;">3/3 trees voted YES — confidence: 68%</div>
+        </div>
+      </div>
+      <div class="formula-box">
+        <div class="f-label">Random Forest Prediction</div>
+        <div class="formula" style="font-size:13px;"><span class="var">ŷ</span> <span class="sym">=</span> <span class="fn">majority_vote</span>{ <span class="var">T_1</span>(<span class="var">x</span>), <span class="var">T_2</span>(<span class="var">x</span>), <span class="sym">...</span>, <span class="var">T_N</span>(<span class="var">x</span>) }</div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+        <div class="f-label">Feature Selection at Each Split</div>
+        <div class="formula" style="font-size:13px;"><span class="var">m</span> <span class="sym">=</span> <span class="fn">√</span><span class="var">p</span> <span class="cmt" style="font-size:11px;"> (classification)</span></div>
+        <div class="formula" style="font-size:13px;margin-top:6px;"><span class="var">m</span> <span class="sym">=</span> <span class="var">p</span> <span class="sym">/</span> <span class="num">3</span> <span class="cmt" style="font-size:11px;"> (regression)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div class="card">
+      <div class="card-label">DT vs RF Comparison</div>
+      <h3>Why is Random Forest Better?</h3>
+      <table class="comp-table" style="margin-top:12px;">
+        <tr><th>Property</th><th style="color:var(--neon);">Decision Tree</th><th style="color:var(--neon2);">Random Forest</th></tr>
+        <tr><td>Overfitting</td><td>❌ High</td><td>✅ Low</td></tr>
+        <tr><td>Accuracy</td><td>Medium</td><td>High</td></tr>
+        <tr><td>Interpretability</td><td>✅ Very High</td><td>⚠️ Medium</td></tr>
+        <tr><td>Training speed</td><td>✅ Fast</td><td>⚠️ Slower</td></tr>
+        <tr><td>Feature importance</td><td>Yes</td><td>✅ Better</td></tr>
+        <tr><td>Handles noise</td><td>Poor</td><td>✅ Excellent</td></tr>
+      </table>
+    </div>
+    <div class="code-wrap">
+      <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><div class="code-lang">Python — Random Forest</div></div>
+      <div class="code-block"><pre><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> <span class="cls">RandomForestClassifier</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, <span class="cls">cross_val_score</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+data = <span class="fn">load_breast_cancer</span>()
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    data.data, data.target, test_size=<span class="num2">0.2</span>, random_state=<span class="num2">42</span>
+)
+
+<span class="cmt"># Random Forest with 500 trees</span>
+rf = <span class="cls">RandomForestClassifier</span>(
+    n_estimators=<span class="num2">500</span>,       <span class="cmt"># 500 decision trees</span>
+    max_depth=<span class="num2">None</span>,          <span class="cmt"># trees grow fully</span>
+    max_features=<span class="str">'sqrt'</span>,    <span class="cmt"># √p features per split</span>
+    min_samples_leaf=<span class="num2">1</span>,
+    bootstrap=<span class="kw">True</span>,          <span class="cmt"># enable bagging</span>
+    oob_score=<span class="kw">True</span>,           <span class="cmt"># out-of-bag validation!</span>
+    n_jobs=<span class="num2">-1</span>,               <span class="cmt"># use all CPU cores</span>
+    random_state=<span class="num2">42</span>
+)
+
+rf.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="fn">print</span>(<span class="str">f"Test Accuracy:  <span class="param">{rf.score(X_test, y_test):.3f}</span>"</span>)  <span class="cmt"># 0.965</span>
+<span class="fn">print</span>(<span class="str">f"OOB Accuracy:   <span class="param">{rf.oob_score_:.3f}</span>"</span>)          <span class="cmt"># 0.961</span>
+
+<span class="cmt"># Cross-validation (more robust estimate)</span>
+cv_scores = <span class="fn">cross_val_score</span>(rf, data.data, data.target,
+                              cv=<span class="num2">5</span>, scoring=<span class="str">'accuracy'</span>)
+<span class="fn">print</span>(<span class="str">f"CV: <span class="param">{cv_scores.mean():.3f}</span> ± <span class="param">{cv_scores.std():.3f}</span>"</span>) <span class="cmt"># 0.962 ± 0.011</span>
+
+<span class="cmt"># Feature importance ranking</span>
+feat_imp = pd.<span class="cls">Series</span>(
+    rf.feature_importances_,
+    index=data.feature_names
+).<span class="fn">sort_values</span>(ascending=<span class="kw">False</span>)
+
+<span class="fn">print</span>(<span class="str">"\nTop 5 most important features:"</span>)
+<span class="fn">print</span>(feat_imp.head(<span class="num2">5</span>))
+<span class="cmt"># worst concave points     0.162
+# mean concave points      0.138
+# worst perimeter          0.115
+# worst radius             0.097
+# mean concavity           0.089</span></pre></div>
+    </div>
+  </div>
+
+  <!-- QUICK SUMMARY CARD -->
+  <div class="card" style="margin-top:24px;background:linear-gradient(135deg,rgba(0,229,255,.04),rgba(0,255,153,.04));border-color:rgba(0,255,153,.2);">
+    <div class="card-label">Session Summary</div>
+    <h3>🎓 What You've Learned Today</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px;">
+      <div style="padding:14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:20px;margin-bottom:6px;">⚡</div>
+        <div style="font-family:Syne;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px;">Apache Spark</div>
+        <div style="font-size:12px;color:var(--text3);">Distributed computing, RDDs, DataFrames, lazy evaluation, MLlib</div>
+      </div>
+      <div style="padding:14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:20px;margin-bottom:6px;">🔻</div>
+        <div style="font-family:Syne;font-size:13px;font-weight:700;color:var(--purple);margin-bottom:4px;">Dim. Reduction</div>
+        <div style="font-size:12px;color:var(--text3);">PCA, t-SNE, eigenvalues, explained variance, curse of dimensionality</div>
+      </div>
+      <div style="padding:14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:20px;margin-bottom:6px;">🔧</div>
+        <div style="font-family:Syne;font-size:13px;font-weight:700;color:var(--neon2);margin-bottom:4px;">Feature Engineering</div>
+        <div style="font-size:12px;color:var(--text3);">Scaling, encoding, imputation, feature creation, selection</div>
+      </div>
+      <div style="padding:14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:20px;margin-bottom:6px;">🚀</div>
+        <div style="font-family:Syne;font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:4px;">Gradient Boosting</div>
+        <div style="font-size:12px;color:var(--text3);">XGBoost, LightGBM, residuals, learning rate, sequential trees</div>
+      </div>
+      <div style="padding:14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:20px;margin-bottom:6px;">🌲</div>
+        <div style="font-family:Syne;font-size:13px;font-weight:700;color:var(--neon);margin-bottom:4px;">Decision Trees</div>
+        <div style="font-size:12px;color:var(--text3);">Gini, entropy, information gain, pruning, overfitting</div>
+      </div>
+      <div style="padding:14px;background:var(--bg2);border-radius:8px;border:1px solid var(--border);">
+        <div style="font-size:20px;margin-bottom:6px;">🌳</div>
+        <div style="font-family:Syne;font-size:13px;font-weight:700;color:#4ade80;margin-bottom:4px;">Random Forest</div>
+        <div style="font-size:12px;color:var(--text3);">Bagging, feature randomness, OOB score, majority vote, feature importance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end .main -->
+
+<script>
+// ── NAV ACTIVE STATE ──
+function setActive(el) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  updateProgress();
+}
+
+// ── SCROLL SPY ──
+const sections = ['spark','dimred','feateng','gboost','dtree','rforest'];
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && window.scrollY >= el.offsetTop - 120) current = id;
+  });
+  if(current) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.getAttribute('href') === '#' + current);
+    });
+    updateProgress();
+  }
+});
+
+function updateProgress() {
+  const active = document.querySelector('.nav-item.active');
+  if(!active) return;
+  const idx = sections.indexOf(active.getAttribute('href').slice(1));
+  const pct = Math.round(((idx + 1) / sections.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ── TABS ──
+function switchTab(btn, group, id) {
+  const container = btn.closest('.tab-container');
+  container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(group + '-' + id).classList.add('active');
+}
+
+// ── BOOST BARS ANIMATION ──
+function animateBars() {
+  const bars = document.querySelectorAll('.boost-bar-fill');
+  bars.forEach(b => { b.style.width = '0%'; });
+  setTimeout(() => {
+    bars.forEach(b => {
+      const w = b.getAttribute('data-width');
+      b.style.width = w + '%';
+    });
+  }, 100);
+}
+
+// Auto-animate boost bars on scroll
+let barsAnimated = false;
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting && !barsAnimated) {
+      barsAnimated = true;
+      setTimeout(animateBars, 300);
+    }
+  });
+}, { threshold: 0.3 });
+const boostEl = document.getElementById('boostBars');
+if(boostEl) observer.observe(boostEl);
+
+// ── INTERACTIVE DECISION TREE ──
+const tree = {
+  q: "Are you feeling tired or exhausted? 🥱",
+  yes: {
+    q: "Did you sleep less than 6 hours last night? 😴",
+    yes: {
+      result: "no",
+      msg: "Rest today 🛌",
+      reason: "You're sleep-deprived. Recovery > training today."
+    },
+    no: {
+      q: "Is your tiredness moderate (not extreme)? 🤔",
+      yes: { result: "yes", msg: "Light workout ✅", reason: "A light session can actually boost your energy!" },
+      no: { result: "no", msg: "Skip today ❌", reason: "Listen to your body — extreme fatigue means rest." }
+    }
+  },
+  no: {
+    q: "Did you work out yesterday with heavy intensity? 💪",
+    yes: {
+      q: "Is it a different muscle group today? 🏋️",
+      yes: { result: "yes", msg: "Go for it! ✅", reason: "Different muscle groups — no recovery conflict." },
+      no: { result: "no", msg: "Rest day 🧘", reason: "Same muscles need 48h recovery after heavy training." }
+    },
+    no: { result: "yes", msg: "Absolutely! 🚀", reason: "You're fresh and ready — perfect conditions to train!" }
+  }
+};
+
+let currentNode = tree;
+let pathTaken = [];
+
+function renderTree() {
+  const area = document.getElementById('treeState');
+  if(currentNode.result) {
+    area.innerHTML = `
+      <div style="font-size:13px;font-family:Space Mono;color:var(--text3);margin-bottom:6px;">PATH: ${pathTaken.join(' → ')}</div>
+      <div class="tree-result show">
+        <div class="tree-path">🏁 Decision reached</div>
+        <div class="tree-outcome ${currentNode.result}">${currentNode.msg}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:8px;">${currentNode.reason}</div>
+      </div>
+      <button class="reset-btn" onclick="resetTree()">↺ Start over</button>
+    `;
+    return;
+  }
+  area.innerHTML = `
+    <div class="tree-q">${currentNode.q}</div>
+    <div class="tree-controls">
+      <button class="tree-btn" onclick="answerTree('yes')">✅ Yes</button>
+      <button class="tree-btn" onclick="answerTree('no')">❌ No</button>
+    </div>
+    ${pathTaken.length > 0 ? `<div style="font-size:11px;font-family:Space Mono;color:var(--text3);">PATH: ${pathTaken.join(' → ')}</div>` : ''}
+  `;
+}
+
+function answerTree(ans) {
+  pathTaken.push(ans.toUpperCase());
+  currentNode = currentNode[ans];
+  renderTree();
+}
+
+function resetTree() {
+  currentNode = tree;
+  pathTaken = [];
+  renderTree();
+}
+
+renderTree();
+</script>
+</body>
+</html>
