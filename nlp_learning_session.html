@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLP with Transformers — Intern Learning Session</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --teal: #00d4aa;
+  --teal-dim: #00d4aa22;
+  --amber: #ffb830;
+  --amber-dim: #ffb83022;
+  --purple: #a78bfa;
+  --purple-dim: #a78bfa22;
+  --coral: #f97583;
+  --text: #e6edf3;
+  --text-muted: #8b949e;
+  --text-dim: #484f58;
+  --code-bg: #0d1117;
+  --radius: 10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;line-height:1.7;display:flex;min-height:100vh}
+
+/* ── Sidebar ── */
+#sidebar{width:260px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:100;overflow-y:auto}
+.sidebar-header{padding:24px 20px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sidebar-logo svg{width:28px;height:28px}
+.sidebar-title{font-size:13px;font-weight:700;letter-spacing:.5px;color:var(--teal);text-transform:uppercase}
+.sidebar-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+nav{padding:16px 12px;flex:1}
+.nav-section{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;padding:8px 8px 4px;margin-top:8px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;color:var(--text-muted);text-decoration:none;font-size:13px;font-weight:500;transition:all .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left}
+.nav-link:hover{color:var(--text);background:var(--surface2)}
+.nav-link.active{color:var(--teal);background:var(--teal-dim)}
+.nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sidebar-footer{padding:16px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-dim)}
+
+/* ── Main content ── */
+#main{margin-left:260px;flex:1;min-height:100vh}
+.section{padding:60px 48px;border-bottom:1px solid var(--border);scroll-margin-top:0}
+.section:last-child{border-bottom:none}
+
+/* ── Section headers ── */
+.section-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:4px 10px;border-radius:20px;margin-bottom:16px}
+.badge-teal{color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal)33}
+.badge-amber{color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber)33}
+.badge-purple{color:var(--purple);background:var(--purple-dim);border:1px solid var(--purple)33}
+.badge-coral{color:var(--coral);background:#f9758322;border:1px solid var(--coral)33}
+h1.section-title{font-size:32px;font-weight:700;line-height:1.2;margin-bottom:12px;letter-spacing:-.5px}
+.section-desc{font-size:16px;color:var(--text-muted);max-width:700px;margin-bottom:36px;line-height:1.7}
+h2{font-size:20px;font-weight:600;margin:36px 0 12px;letter-spacing:-.3px}
+h3{font-size:16px;font-weight:600;margin:24px 0 8px;color:var(--text)}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:16px 0}
+.card-grid{display:grid;gap:16px;margin:16px 0}
+.card-grid-2{grid-template-columns:1fr 1fr}
+.card-grid-3{grid-template-columns:1fr 1fr 1fr}
+.card-accent-teal{border-color:var(--teal)55;background:linear-gradient(135deg,var(--teal-dim),var(--surface))}
+.card-accent-amber{border-color:var(--amber)55;background:linear-gradient(135deg,var(--amber-dim),var(--surface))}
+.card-accent-purple{border-color:var(--purple)55;background:linear-gradient(135deg,var(--purple-dim),var(--surface))}
+
+/* ── Code blocks ── */
+.code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:16px 0;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7}
+.code-header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.code-lang{font-size:11px;font-weight:600;color:var(--teal);letter-spacing:.5px}
+.code-dots{display:flex;gap:6px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.code-body{padding:20px;overflow-x:auto;white-space:pre}
+.k{color:#ff7b72}.kn{color:#ff7b72}.s{color:#a5d6ff}.s2{color:#a5d6ff}.n{color:var(--text)}.c1{color:var(--text-dim)}.nc{color:#ffa657}.nf{color:#d2a8ff}.nb{color:#79c0ff}.mi{color:#79c0ff}.mf{color:#79c0ff}.o{color:var(--text-muted)}.p{color:var(--text-muted)}.se{color:#ffa657}
+
+/* ── Formula box ── */
+.formula-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin:16px 0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:14px;position:relative;overflow:hidden}
+.formula-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),var(--purple))}
+.formula-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.formula-main{font-size:18px;color:var(--teal);font-weight:500;letter-spacing:.5px}
+.formula-explain{margin-top:16px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.formula-term{text-align:center}
+.formula-term code{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--amber);display:block}
+.formula-term span{font-size:11px;color:var(--text-muted)}
+
+/* ── Real-world example callout ── */
+.rw-box{border-left:3px solid var(--teal);background:var(--teal-dim);border-radius:0 var(--radius) var(--radius) 0;padding:16px 20px;margin:16px 0}
+.rw-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+.rw-box p{font-size:14px;color:var(--text-muted)}
+
+/* ── Interactive widgets ── */
+.widget{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin:20px 0}
+.widget-title{font-size:13px;font-weight:600;color:var(--amber);letter-spacing:.3px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+label{font-size:13px;color:var(--text-muted);display:block;margin-bottom:4px}
+input[type=text],textarea,select{background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;padding:8px 12px;width:100%;outline:none;transition:border-color .15s}
+input[type=text]:focus,textarea:focus{border-color:var(--teal)88}
+textarea{resize:vertical;min-height:70px;line-height:1.5}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.btn{background:var(--teal);color:#000;border:none;border-radius:7px;padding:9px 18px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:#00bfa0;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--teal);border:1px solid var(--teal)55}
+.btn-outline:hover{background:var(--teal-dim)}
+.result-box{background:var(--code-bg);border:1px solid var(--border);border-radius:7px;padding:14px 16px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;white-space:pre-wrap;color:var(--teal);min-height:40px}
+
+/* ── Pipeline flowchart (SVG wrapping) ── */
+.svg-wrap{margin:24px 0;overflow-x:auto}
+svg{max-width:100%;height:auto}
+
+/* ── Word embedding plot ── */
+#embeddingCanvas{border-radius:var(--radius);border:1px solid var(--border)}
+
+/* ── Attention demo ── */
+.attn-matrix{display:grid;gap:3px;margin:16px 0}
+.attn-cell{border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:500;height:34px;transition:all .3s}
+.attn-token-label{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;height:34px;padding-right:8px;white-space:nowrap}
+.attn-col-label{font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center;padding-bottom:6px;white-space:nowrap}
+
+/* ── Pipeline steps ── */
+.pipeline-steps{display:flex;gap:0;margin:20px 0;overflow-x:auto}
+.pipe-step{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;width:160px;position:relative}
+.pipe-step+.pipe-step::before{content:'→';position:absolute;left:-20px;top:50%;transform:translateY(-50%);color:var(--teal);font-size:18px;font-weight:700;pointer-events:none}
+.pipe-step-num{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.8px;margin-bottom:4px}
+.pipe-step-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.pipe-step-desc{font-size:11px;color:var(--text-muted);line-height:1.5}
+
+/* ── Tab system ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto}
+.tab{padding:10px 18px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;border:none;background:none}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab:hover{color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ── Tag chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{font-size:12px;padding:4px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace}
+.chip-teal{color:var(--teal);background:var(--teal-dim);border:1px solid var(--teal)44}
+.chip-amber{color:var(--amber);background:var(--amber-dim);border:1px solid var(--amber)44}
+.chip-purple{color:var(--purple);background:var(--purple-dim);border:1px solid var(--purple)44}
+
+/* ── Progress bar ── */
+.progress-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+.progress-label{font-size:12px;width:100px;color:var(--text-muted);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.progress-bar{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--teal),var(--purple));transition:width .6s}
+.progress-val{font-size:12px;color:var(--text-muted);width:40px;text-align:right;font-family:'JetBrains Mono',monospace}
+
+/* ── Stat cards ── */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.stat-card{background:var(--surface2);border-radius:var(--radius);padding:16px;text-align:center}
+.stat-num{font-size:28px;font-weight:700;color:var(--teal);font-family:'JetBrains Mono',monospace}
+.stat-lab{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* ── Transformer arch ── */
+.arch-wrap{display:flex;justify-content:center;margin:24px 0}
+
+/* ── Hero banner ── */
+#hero{background:linear-gradient(135deg,var(--surface) 0%,#0d1117 100%);padding:80px 48px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+#hero::before{content:'';position:absolute;top:-50%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,var(--teal)08,transparent 60%);pointer-events:none}
+#hero::after{content:'';position:absolute;bottom:-30%;left:20%;width:400px;height:400px;background:radial-gradient(circle,var(--purple)08,transparent 60%);pointer-events:none}
+.hero-badge{display:inline-block;background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal)44;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;letter-spacing:.5px;margin-bottom:20px}
+.hero-title{font-size:48px;font-weight:700;line-height:1.1;letter-spacing:-1px;max-width:700px;margin-bottom:16px}
+.hero-title span{background:linear-gradient(135deg,var(--teal),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:17px;color:var(--text-muted);max-width:580px;margin-bottom:32px}
+.hero-tags{display:flex;flex-wrap:wrap;gap:10px}
+.hero-tag{font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:5px 12px;color:var(--text-muted)}
+.toc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:40px}
+.toc-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.toc-item:hover{border-color:var(--teal)66;background:var(--teal-dim)}
+.toc-item-num{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:.8px;font-family:'JetBrains Mono',monospace}
+.toc-item-title{font-size:13px;font-weight:600;color:var(--text);margin-top:2px}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+@media(max-width:900px){#sidebar{display:none}#main{margin-left:0}.card-grid-2,.card-grid-3{grid-template-columns:1fr}.section{padding:40px 24px}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════ SIDEBAR ══════════════════════════════════ -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="7" fill="#00d4aa22"/>
+        <path d="M7 14L11 10L15 14L19 10" stroke="#00d4aa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M7 18L11 14L15 18L19 14" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="sidebar-title">NLP Lab</span>
+    </div>
+    <div class="sidebar-sub">Intern Learning Session · 2025</div>
+  </div>
+  <nav>
+    <div class="nav-section">Getting Started</div>
+    <button class="nav-link active" onclick="scrollTo('hero')"><span class="nav-dot" style="background:#00d4aa"></span>Overview</button>
+
+    <div class="nav-section">Core Concepts</div>
+    <button class="nav-link" onclick="scrollTo('nlp-pipeline')"><span class="nav-dot" style="background:#00d4aa"></span>NLP Pipeline</button>
+    <button class="nav-link" onclick="scrollTo('preprocessing')"><span class="nav-dot" style="background:#ffb830"></span>Text Preprocessing</button>
+    <button class="nav-link" onclick="scrollTo('tfidf')"><span class="nav-dot" style="background:#a78bfa"></span>TF-IDF</button>
+
+    <div class="nav-section">Representations</div>
+    <button class="nav-link" onclick="scrollTo('embeddings')"><span class="nav-dot" style="background:#00d4aa"></span>Word Embeddings</button>
+    <button class="nav-link" onclick="scrollTo('classification')"><span class="nav-dot" style="background:#f97583"></span>Text Classification</button>
+
+    <div class="nav-section">Deep Learning</div>
+    <button class="nav-link" onclick="scrollTo('transformers')"><span class="nav-dot" style="background:#a78bfa"></span>Transformers</button>
+    <button class="nav-link" onclick="scrollTo('attention')"><span class="nav-dot" style="background:#ffb830"></span>Attention Mechanism</button>
+    <button class="nav-link" onclick="scrollTo('bert-practice')"><span class="nav-dot" style="background:#00d4aa"></span>BERT in Practice</button>
+  </nav>
+  <div class="sidebar-footer">🐍 Python 3.x · scikit-learn · HuggingFace</div>
+</aside>
+
+<!-- ══════════════════════════════════ MAIN ══════════════════════════════════ -->
+<main id="main">
+
+<!-- ────────────── HERO ────────────── -->
+<section id="hero">
+  <div class="hero-badge">🎓 Beginner-Friendly Session</div>
+  <h1 class="hero-title">Natural Language<br><span>Processing with</span><br>Transformers</h1>
+  <p class="hero-desc">From raw text to intelligent models. Learn how machines understand human language — step by step, with real examples and working Python code.</p>
+  <div class="hero-tags">
+    <span class="hero-tag">📦 NLTK</span>
+    <span class="hero-tag">🔬 scikit-learn</span>
+    <span class="hero-tag">🤗 HuggingFace</span>
+    <span class="hero-tag">🔥 PyTorch</span>
+    <span class="hero-tag">📊 Visualized</span>
+  </div>
+
+  <div class="toc-grid">
+    <a class="toc-item" onclick="scrollTo('nlp-pipeline')"><div class="toc-item-num">01</div><div class="toc-item-title">NLP Pipeline</div></a>
+    <a class="toc-item" onclick="scrollTo('preprocessing')"><div class="toc-item-num">02</div><div class="toc-item-title">Text Preprocessing</div></a>
+    <a class="toc-item" onclick="scrollTo('tfidf')"><div class="toc-item-num">03</div><div class="toc-item-title">TF-IDF</div></a>
+    <a class="toc-item" onclick="scrollTo('embeddings')"><div class="toc-item-num">04</div><div class="toc-item-title">Word Embeddings</div></a>
+    <a class="toc-item" onclick="scrollTo('classification')"><div class="toc-item-num">05</div><div class="toc-item-title">Text Classification</div></a>
+    <a class="toc-item" onclick="scrollTo('transformers')"><div class="toc-item-num">06</div><div class="toc-item-title">Transformers & BERT</div></a>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 1: NLP PIPELINE ────────────── -->
+<section class="section" id="nlp-pipeline">
+  <div class="section-badge badge-teal">📌 Module 01</div>
+  <h1 class="section-title">The NLP Pipeline</h1>
+  <p class="section-desc">Every NLP system follows a similar journey: raw text goes in, and structured understanding comes out. Think of it like an assembly line for language.</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>When you type a message to a Gmail Smart Reply or Google Assistant, your raw text travels through exactly this pipeline — cleaned, tokenized, represented numerically — before a model generates a response.</p>
+  </div>
+
+  <!-- SVG Pipeline Diagram -->
+  <h2>End-to-End NLP Pipeline</h2>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 900 460" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" stroke="#00d4aa" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+        <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" stroke="#a78bfa" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- Raw Text -->
+      <rect x="20" y="30" width="130" height="70" rx="10" fill="#161b22" stroke="#00d4aa" stroke-width="1.5"/>
+      <text x="85" y="58" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">RAW TEXT</text>
+      <text x="85" y="78" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">"Hello World! NLP"</text>
+      <text x="85" y="94" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">is amazing 🙌"</text>
+
+      <!-- Arrow 1 -->
+      <line x1="152" y1="65" x2="178" y2="65" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Tokenization -->
+      <rect x="180" y="30" width="130" height="70" rx="10" fill="#161b22" stroke="#ffb830" stroke-width="1.5"/>
+      <text x="245" y="53" text-anchor="middle" fill="#ffb830" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">TOKENIZE</text>
+      <text x="245" y="70" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">["Hello","World",</text>
+      <text x="245" y="84" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">"NLP","is","amazing"]</text>
+      <text x="245" y="96" text-anchor="middle" fill="#30363d" font-family="Plus Jakarta Sans,sans-serif" font-size="9">Split by spaces/rules</text>
+
+      <!-- Arrow 2 -->
+      <line x1="312" y1="65" x2="338" y2="65" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Normalize -->
+      <rect x="340" y="30" width="130" height="70" rx="10" fill="#161b22" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="405" y="53" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">NORMALIZE</text>
+      <text x="405" y="70" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">lowercase, remove</text>
+      <text x="405" y="84" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">punctuation, emoji</text>
+      <text x="405" y="96" text-anchor="middle" fill="#30363d" font-family="Plus Jakarta Sans,sans-serif" font-size="9">["hello","world","nlp"]</text>
+
+      <!-- Arrow 3 -->
+      <line x1="472" y1="65" x2="498" y2="65" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Stop Words -->
+      <rect x="500" y="30" width="130" height="70" rx="10" fill="#161b22" stroke="#f97583" stroke-width="1.5"/>
+      <text x="565" y="48" text-anchor="middle" fill="#f97583" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">STOP WORDS</text>
+      <text x="565" y="63" text-anchor="middle" fill="#f97583" font-family="JetBrains Mono,monospace" font-size="9">remove</text>
+      <text x="565" y="78" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">["hello","world",</text>
+      <text x="565" y="92" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">"nlp","amazing"]</text>
+
+      <!-- Arrow 4 -->
+      <line x1="632" y1="65" x2="658" y2="65" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Stemming/Lemma -->
+      <rect x="660" y="30" width="130" height="70" rx="10" fill="#161b22" stroke="#00d4aa" stroke-width="1.5"/>
+      <text x="725" y="48" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">STEM/LEMMA</text>
+      <text x="725" y="63" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">running→run</text>
+      <text x="725" y="78" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">amazing→amaz</text>
+      <text x="725" y="92" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">Root word forms</text>
+
+      <!-- Second row: Feature Engineering -->
+      <text x="450" y="145" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="11" font-weight="600">▼ Feature Engineering</text>
+
+      <!-- Bag of Words -->
+      <rect x="20" y="165" width="170" height="75" rx="10" fill="#161b22" stroke="#ffb830" stroke-width="1.5"/>
+      <text x="105" y="185" text-anchor="middle" fill="#ffb830" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">BAG OF WORDS</text>
+      <text x="105" y="202" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">word count vectors</text>
+      <text x="105" y="218" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">{hello:1, nlp:2, ...}</text>
+      <text x="105" y="233" text-anchor="middle" fill="#30363d" font-family="Plus Jakarta Sans,sans-serif" font-size="9">simple, loses order</text>
+
+      <!-- TF-IDF -->
+      <rect x="210" y="165" width="170" height="75" rx="10" fill="#161b22" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="295" y="185" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">TF-IDF</text>
+      <text x="295" y="202" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">weighted importance</text>
+      <text x="295" y="218" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">tf(w)*idf(w)</text>
+      <text x="295" y="233" text-anchor="middle" fill="#30363d" font-family="Plus Jakarta Sans,sans-serif" font-size="9">better than raw counts</text>
+
+      <!-- Word Embeddings -->
+      <rect x="400" y="165" width="170" height="75" rx="10" fill="#161b22" stroke="#00d4aa" stroke-width="1.5"/>
+      <text x="485" y="185" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">EMBEDDINGS</text>
+      <text x="485" y="202" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">dense vector space</text>
+      <text x="485" y="218" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">[0.2, -0.5, 0.8, ...]</text>
+      <text x="485" y="233" text-anchor="middle" fill="#30363d" font-family="Plus Jakarta Sans,sans-serif" font-size="9">captures semantics</text>
+
+      <!-- Transformers -->
+      <rect x="590" y="165" width="190" height="75" rx="10" fill="#161b22" stroke="#f97583" stroke-width="1.5"/>
+      <text x="685" y="185" text-anchor="middle" fill="#f97583" font-family="JetBrains Mono,monospace" font-size="10" font-weight="600">TRANSFORMERS</text>
+      <text x="685" y="202" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">contextual embeddings</text>
+      <text x="685" y="218" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">BERT, GPT, T5...</text>
+      <text x="685" y="233" text-anchor="middle" fill="#30363d" font-family="Plus Jakarta Sans,sans-serif" font-size="9">state-of-the-art</text>
+
+      <!-- Down arrows from Stem to feature row -->
+      <line x1="245" y1="102" x2="245" y2="145" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="245" y1="145" x2="105" y2="163" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="245" y1="145" x2="295" y2="163" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="245" y1="145" x2="485" y2="163" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+      <line x1="245" y1="145" x2="685" y2="163" stroke="#30363d" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+      <!-- Third row: Models -->
+      <text x="450" y="285" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="11" font-weight="600">▼ Model Training</text>
+
+      <rect x="80" y="300" width="740" height="50" rx="10" fill="#161b22" stroke="#00d4aa" stroke-width="1" stroke-dasharray="6,3"/>
+      <text x="450" y="323" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">ML / Deep Learning Model</text>
+      <text x="450" y="340" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Naive Bayes · Logistic Regression · SVM · LSTM · BERT · GPT</text>
+
+      <!-- Final output -->
+      <rect x="200" y="390" width="500" height="50" rx="10" fill="#00d4aa22" stroke="#00d4aa" stroke-width="1.5"/>
+      <text x="450" y="413" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">🎯 OUTPUT</text>
+      <text x="450" y="430" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Sentiment · Category · Named Entities · Translation · Summary · Answer</text>
+
+      <line x1="450" y1="352" x2="450" y2="388" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+    </svg>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card card-accent-teal">
+      <div class="chip chip-teal" style="margin-bottom:10px">NLP Task</div>
+      <h3 style="color:var(--teal);font-size:14px">Sentiment Analysis</h3>
+      <p style="font-size:12px;color:var(--text-muted)">Detect positive/negative/neutral tone.<br><strong style="color:var(--text)">Used by:</strong> Twitter, Amazon reviews</p>
+    </div>
+    <div class="card card-accent-amber">
+      <div class="chip chip-amber" style="margin-bottom:10px">NLP Task</div>
+      <h3 style="color:var(--amber);font-size:14px">Named Entity Recognition</h3>
+      <p style="font-size:12px;color:var(--text-muted)">Find people, places, dates in text.<br><strong style="color:var(--text)">Used by:</strong> Google Search, LinkedIn</p>
+    </div>
+    <div class="card card-accent-purple">
+      <div class="chip chip-purple" style="margin-bottom:10px">NLP Task</div>
+      <h3 style="color:var(--purple);font-size:14px">Machine Translation</h3>
+      <p style="font-size:12px;color:var(--text-muted)">Translate between languages automatically.<br><strong style="color:var(--text)">Used by:</strong> Google Translate, DeepL</p>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 2: TEXT PREPROCESSING ────────────── -->
+<section class="section" id="preprocessing">
+  <div class="section-badge badge-amber">📌 Module 02</div>
+  <h1 class="section-title">Text Preprocessing</h1>
+  <p class="section-desc">Before feeding text into any model, we need to clean and standardize it. Garbage in = garbage out — this step is critical!</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>Imagine training a spam detector on emails. Without preprocessing, "FREE!!!" and "free" are treated as different words — but they mean the same thing. Preprocessing fixes this.</p>
+  </div>
+
+  <div class="tabs" id="prep-tabs">
+    <button class="tab active" onclick="switchTab('prep','tokenization')">Tokenization</button>
+    <button class="tab" onclick="switchTab('prep','stopwords')">Stop Words</button>
+    <button class="tab" onclick="switchTab('prep','stemming')">Stemming & Lemmatization</button>
+    <button class="tab" onclick="switchTab('prep','pos')">POS Tagging</button>
+  </div>
+
+  <div class="tab-content active" id="prep-tokenization">
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Tokenization splits text into individual units (tokens). Think of it like cutting a sentence into individual LEGO bricks before building something.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">import</span> <span class="n">nltk</span>
+<span class="kn">from</span> <span class="n">nltk.tokenize</span> <span class="kn">import</span> <span class="n">word_tokenize</span><span class="p">,</span> <span class="n">sent_tokenize</span>
+
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s">'punkt'</span><span class="p">)</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">"Hello World! NLP is amazing. Let's learn together."</span>
+
+<span class="c1"># Word tokenization</span>
+<span class="n">words</span> <span class="o">=</span> <span class="n">word_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>
+<span class="c1"># ['Hello', 'World', '!', 'NLP', 'is', 'amazing', '.', "Let's", 'learn', 'together', '.']</span>
+
+<span class="c1"># Sentence tokenization</span>
+<span class="n">sentences</span> <span class="o">=</span> <span class="n">sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sentences</span><span class="p">)</span>
+<span class="c1"># ['Hello World! NLP is amazing.', "Let's learn together."]</span>
+
+<span class="c1"># Using spaCy (production-grade)</span>
+<span class="kn">import</span> <span class="n">spacy</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">"en_core_web_sm"</span><span class="p">)</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">([</span><span class="n">token</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">token</span> <span class="o">in</span> <span class="n">doc</span><span class="p">])</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="prep-stopwords">
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Stop words are common words (like "is", "the", "a") that carry little meaning. Removing them reduces noise and speeds up processing.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">from</span> <span class="n">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="n">nltk.tokenize</span> <span class="kn">import</span> <span class="n">word_tokenize</span>
+<span class="kn">import</span> <span class="n">re</span>
+
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s">'stopwords'</span><span class="p">)</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">"The cat sat on the mat and it was very comfortable"</span>
+
+<span class="c1"># Get English stop words</span>
+<span class="n">stop_words</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s">'english'</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Stop words sample: {list(stop_words)[:10]}"</span><span class="p">)</span>
+
+<span class="c1"># Clean and remove stop words</span>
+<span class="n">text_clean</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'[^a-zA-Z\s]'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+<span class="n">tokens</span> <span class="o">=</span> <span class="n">word_tokenize</span><span class="p">(</span><span class="n">text_clean</span><span class="p">)</span>
+<span class="n">filtered</span> <span class="o">=</span> <span class="p">[</span><span class="n">w</span> <span class="k">for</span> <span class="n">w</span> <span class="o">in</span> <span class="n">tokens</span> <span class="k">if</span> <span class="n">w</span> <span class="o">not</span> <span class="o">in</span> <span class="n">stop_words</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Before: {tokens}"</span><span class="p">)</span>
+<span class="c1"># ['the', 'cat', 'sat', 'on', 'the', 'mat', 'and', 'it', 'was', 'very', 'comfortable']</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s">f"After:  {filtered}"</span><span class="p">)</span>
+<span class="c1"># ['cat', 'sat', 'mat', 'comfortable']   ← much cleaner!</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="prep-stemming">
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px"><strong style="color:var(--text)">Stemming</strong> chops words to their root (sometimes rough). <strong style="color:var(--text)">Lemmatization</strong> uses grammar rules to find the true base form. Lemmatization is slower but more accurate.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">from</span> <span class="n">nltk.stem</span> <span class="kn">import</span> <span class="n">PorterStemmer</span><span class="p">,</span> <span class="n">SnowballStemmer</span>
+<span class="kn">from</span> <span class="n">nltk.stem</span> <span class="kn">import</span> <span class="n">WordNetLemmatizer</span>
+
+<span class="n">ps</span> <span class="o">=</span> <span class="n">PorterStemmer</span><span class="p">()</span>
+<span class="n">lemmatizer</span> <span class="o">=</span> <span class="n">WordNetLemmatizer</span><span class="p">()</span>
+
+<span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="s">"running"</span><span class="p">,</span> <span class="s">"studies"</span><span class="p">,</span> <span class="s">"better"</span><span class="p">,</span> <span class="s">"flies"</span><span class="p">,</span> <span class="s">"caring"</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s">f"{'Word':<12} {'Stem':<12} {'Lemma'}"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"-" * 36</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">word</span> <span class="o">in</span> <span class="n">words</span><span class="p">:</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+    <span class="n">lemma</span> <span class="o">=</span> <span class="n">lemmatizer</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="s">'v'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">f"{word:<12} {stem:<12} {lemma}"</span><span class="p">)</span>
+
+<span class="c1"># Word         Stem         Lemma</span>
+<span class="c1"># ------------------------------------</span>
+<span class="c1"># running      run          run</span>
+<span class="c1"># studies      studi        study       ← stem is messy!</span>
+<span class="c1"># better       better       be          ← lemma is smarter</span>
+<span class="c1"># flies        fli          fly</span>
+<span class="c1"># caring       care         care</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="prep-pos">
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Part-of-Speech (POS) tagging labels each word as noun, verb, adjective, etc. This helps with understanding sentence structure and named entity recognition.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">import</span> <span class="n">spacy</span>
+
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">"en_core_web_sm"</span><span class="p">)</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="s">"Apple was founded by Steve Jobs in California."</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s">f"{'Token':<12} {'POS':<8} {'Dependency':<12} {'NER'}"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"-" * 46</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">token</span> <span class="o">in</span> <span class="n">doc</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">f"{token.text:<12} {token.pos_:<8} {token.dep_:<12} {token.ent_type_ or '-'}"</span><span class="p">)</span>
+
+<span class="c1"># Token        POS      Dependency   NER</span>
+<span class="c1"># Apple        PROPN    nsubj        ORG       ← Named Entity!</span>
+<span class="c1"># was          AUX      auxpass      -</span>
+<span class="c1"># founded      VERB     ROOT         -</span>
+<span class="c1"># Steve Jobs   PROPN    agent        PERSON    ← Named Entity!</span>
+<span class="c1"># California   PROPN    pobj         GPE       ← Location!</span>
+
+<span class="c1"># Visualize entities</span>
+<span class="k">for</span> <span class="n">ent</span> <span class="o">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">ents</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">f"Entity: {ent.text:15} → Type: {ent.label_}"</span><span class="p">)</span></div>
+    </div>
+  </div>
+
+  <!-- Interactive preprocessing demo -->
+  <div class="widget" style="margin-top:24px">
+    <div class="widget-title">⚡ Interactive Preprocessor — Try It!</div>
+    <label>Enter some text:</label>
+    <textarea id="prepInput" placeholder="e.g. The quick brown foxes are running and jumping happily!!">The quick brown foxes are running and jumping happily over the lazy dogs!!</textarea>
+    <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+      <button class="btn" onclick="runPreprocess()">▶ Preprocess</button>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text-muted)"><input type="checkbox" id="chkStopwords" checked> Remove stop words</label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text-muted)"><input type="checkbox" id="chkStem" checked> Stemming</label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--text-muted)"><input type="checkbox" id="chkLower" checked> Lowercase</label>
+    </div>
+    <div class="result-box" id="prepResult">Press ▶ Preprocess to see the result…</div>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 3: TF-IDF ────────────── -->
+<section class="section" id="tfidf">
+  <div class="section-badge badge-purple">📌 Module 03</div>
+  <h1 class="section-title">TF-IDF</h1>
+  <p class="section-desc">Term Frequency–Inverse Document Frequency is a way to measure how important a word is in a document relative to a collection of documents. It's the backbone of search engines!</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>When you Google "python programming", Google uses TF-IDF (and more) to rank which pages are most relevant. Words like "python" that appear frequently in a document but rarely across all pages get a high TF-IDF score — making it relevant.</p>
+  </div>
+
+  <h2>The Math Behind TF-IDF</h2>
+
+  <div class="formula-box">
+    <div class="formula-label">Step 1: Term Frequency (TF)</div>
+    <div class="formula-main">TF(t, d) = count(t in d) / total_words(d)</div>
+    <div class="formula-explain">
+      <div class="formula-term"><code>t</code><span>term (word)</span></div>
+      <div class="formula-term"><code>d</code><span>document</span></div>
+      <div class="formula-term"><code>count(t in d)</code><span>times word appears</span></div>
+      <div class="formula-term"><code>total_words(d)</code><span>total words in doc</span></div>
+    </div>
+  </div>
+
+  <div class="formula-box" style="margin-top:12px">
+    <div class="formula-label">Step 2: Inverse Document Frequency (IDF)</div>
+    <div class="formula-main">IDF(t, D) = log( N / df(t) )</div>
+    <div class="formula-explain">
+      <div class="formula-term"><code>N</code><span>total documents</span></div>
+      <div class="formula-term"><code>df(t)</code><span>docs containing term t</span></div>
+      <div class="formula-term"><code>log()</code><span>dampens large values</span></div>
+    </div>
+  </div>
+
+  <div class="formula-box" style="margin-top:12px;border-color:var(--amber)55">
+    <div class="formula-label">Final Score</div>
+    <div class="formula-main" style="color:var(--amber)">TF-IDF(t, d, D) = TF(t, d) × IDF(t, D)</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:10px">High score = word is important in THIS doc but rare across all docs</p>
+  </div>
+
+  <div class="code-block" style="margin-top:24px">
+    <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+    <div class="code-body"><span class="kn">from</span> <span class="n">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+<span class="kn">import</span> <span class="n">pandas</span> <span class="kn">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="n">numpy</span> <span class="kn">as</span> <span class="n">np</span>
+
+<span class="c1"># Example corpus (collection of documents)</span>
+<span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">"the cat sat on the mat"</span><span class="p">,</span>
+    <span class="s">"the dog sat on the log"</span><span class="p">,</span>
+    <span class="s">"cats and dogs are great pets"</span><span class="p">,</span>
+    <span class="s">"the cat chased the dog around"</span>
+<span class="p">]</span>
+
+<span class="c1"># Create TF-IDF matrix</span>
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">(</span>
+    <span class="n">stop_words</span><span class="o">=</span><span class="s">'english'</span><span class="p">,</span>     <span class="c1"># remove common words</span>
+    <span class="n">max_features</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>           <span class="c1"># keep top 10 words</span>
+    <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>        <span class="c1"># unigrams + bigrams</span>
+    <span class="n">smooth_idf</span><span class="o">=</span><span class="kc">True</span>           <span class="c1"># avoid division by zero</span>
+<span class="p">)</span>
+
+<span class="n">tfidf_matrix</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+
+<span class="c1"># Display as DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="n">tfidf_matrix</span><span class="o">.</span><span class="n">toarray</span><span class="p">().</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">columns</span><span class="o">=</span><span class="n">feature_names</span><span class="p">,</span>
+    <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s">f"Doc {i+1}"</span> <span class="k">for</span> <span class="n">i</span> <span class="o">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">corpus</span><span class="p">))]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+
+<span class="c1"># Get top words for document 1</span>
+<span class="n">doc_idx</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">tfidf_matrix</span><span class="p">[</span><span class="n">doc_idx</span><span class="p">].</span><span class="n">toarray</span><span class="p">()[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">top</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Top words in Doc 1: {top[:3]}"</span><span class="p">)</span>
+<span class="c1"># Top words in Doc 1: [('mat', 0.635), ('cat', 0.523), ('sat', 0.412)]</span></div>
+  </div>
+
+  <!-- Interactive TF-IDF Calculator -->
+  <div class="widget">
+    <div class="widget-title">🧮 Interactive TF-IDF Calculator</div>
+    <div style="display:grid;gap:12px">
+      <div>
+        <label>Document 1:</label>
+        <input type="text" id="d1" value="the cat sat on the mat">
+      </div>
+      <div>
+        <label>Document 2:</label>
+        <input type="text" id="d2" value="the dog sat on the log">
+      </div>
+      <div>
+        <label>Document 3:</label>
+        <input type="text" id="d3" value="cats and dogs are great friends">
+      </div>
+      <div>
+        <label>Query word (calculate TF-IDF for this word):</label>
+        <input type="text" id="queryWord" value="cat">
+      </div>
+    </div>
+    <button class="btn" style="margin-top:14px" onclick="calcTFIDF()">▶ Calculate TF-IDF</button>
+    <div class="result-box" id="tfidfResult">Press ▶ Calculate to see TF-IDF scores…</div>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 4: WORD EMBEDDINGS ────────────── -->
+<section class="section" id="embeddings">
+  <div class="section-badge badge-teal">📌 Module 04</div>
+  <h1 class="section-title">Word Embeddings</h1>
+  <p class="section-desc">Instead of counting words, embeddings represent each word as a dense vector of numbers — capturing semantic meaning. Similar words end up close together in vector space.</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>In a word embedding model: <strong style="color:var(--teal)">king - man + woman ≈ queen</strong>. That's the magic — these vectors capture relationships and analogies that simple counting can't. Spotify uses embeddings to understand song similarity for recommendations!</p>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <h3 style="color:var(--teal)">One-Hot Encoding (old way)</h3>
+      <div class="code-block" style="margin-top:8px">
+        <div class="code-body" style="padding:12px;font-size:11px">cat   → [1, 0, 0, 0, 0, ...]  (sparse)
+dog   → [0, 1, 0, 0, 0, ...]
+kitty → [0, 0, 1, 0, 0, ...]
+<span class="c1"># "cat" and "kitty" look completely
+# different — loses all meaning!</span></div>
+      </div>
+    </div>
+    <div class="card card-accent-teal">
+      <h3 style="color:var(--teal)">Word Embeddings (new way)</h3>
+      <div class="code-block" style="margin-top:8px">
+        <div class="code-body" style="padding:12px;font-size:11px">cat   → [0.23, -0.51, 0.89, 0.12]
+dog   → [0.21, -0.48, 0.87, 0.08]
+kitty → [0.24, -0.53, 0.91, 0.11]
+<span class="c1"># cat and kitty are CLOSE in space!
+# Similarity preserved ✓</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Word2Vec — How It Works</h2>
+  <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Word2Vec trains a neural network to predict surrounding words (CBOW) or predict a word from its context (Skip-gram). The hidden layer weights become the embeddings.</p>
+
+  <!-- Embedding visualization -->
+  <div class="widget">
+    <div class="widget-title">📊 2D Word Embedding Space (Interactive)</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px">Words with similar meaning cluster together in high-dimensional space. Below is a 2D approximation using PCA visualization.</p>
+    <canvas id="embeddingCanvas" width="700" height="340"></canvas>
+    <div style="margin-top:10px;display:flex;gap:16px;font-size:11px;flex-wrap:wrap">
+      <span style="color:#00d4aa">● Animals</span>
+      <span style="color:#ffb830">● Royalty</span>
+      <span style="color:#a78bfa">● Tech</span>
+      <span style="color:#f97583">● Food</span>
+    </div>
+  </div>
+
+  <h2>Cosine Similarity — Measuring Word Closeness</h2>
+  <div class="formula-box">
+    <div class="formula-label">Cosine Similarity Formula</div>
+    <div class="formula-main">sim(A, B) = (A · B) / (||A|| × ||B||)</div>
+    <div class="formula-explain">
+      <div class="formula-term"><code>A · B</code><span>dot product</span></div>
+      <div class="formula-term"><code>||A||</code><span>magnitude of A</span></div>
+      <div class="formula-term"><code>range: [-1, 1]</code><span>1 = identical</span></div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+    <div class="code-body"><span class="kn">from</span> <span class="n">gensim.models</span> <span class="kn">import</span> <span class="n">Word2Vec</span>
+<span class="kn">from</span> <span class="n">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">cosine_similarity</span>
+<span class="kn">import</span> <span class="n">numpy</span> <span class="kn">as</span> <span class="n">np</span>
+
+<span class="c1"># Train Word2Vec on sentences</span>
+<span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="s">"the"</span><span class="p">,</span> <span class="s">"cat"</span><span class="p">,</span> <span class="s">"sat"</span><span class="p">,</span> <span class="s">"on"</span><span class="p">,</span> <span class="s">"the"</span><span class="p">,</span> <span class="s">"mat"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s">"the"</span><span class="p">,</span> <span class="s">"king"</span><span class="p">,</span> <span class="s">"is"</span><span class="p">,</span> <span class="s">"a"</span><span class="p">,</span> <span class="s">"man"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s">"the"</span><span class="p">,</span> <span class="s">"queen"</span><span class="p">,</span> <span class="s">"is"</span><span class="p">,</span> <span class="s">"a"</span><span class="p">,</span> <span class="s">"woman"</span><span class="p">],</span>
+    <span class="p">[</span><span class="s">"cats"</span><span class="p">,</span> <span class="s">"and"</span><span class="p">,</span> <span class="s">"dogs"</span><span class="p">,</span> <span class="s">"are"</span><span class="p">,</span> <span class="s">"pets"</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Word2Vec</span><span class="p">(</span>
+    <span class="n">sentences</span><span class="p">,</span>
+    <span class="n">vector_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>    <span class="c1"># dimension of embedding</span>
+    <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>           <span class="c1"># context window size</span>
+    <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>        <span class="c1"># minimum word frequency</span>
+    <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>          <span class="c1"># parallel training</span>
+    <span class="n">sg</span><span class="o">=</span><span class="mi">1</span>               <span class="c1"># Skip-gram (1) or CBOW (0)</span>
+<span class="p">)</span>
+
+<span class="c1"># Find similar words</span>
+<span class="n">similar</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">wv</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Words similar to 'cat': {similar}"</span><span class="p">)</span>
+
+<span class="c1"># Word analogies: king - man + woman = ?</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">wv</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span>
+    <span class="n">positive</span><span class="o">=</span><span class="p">[</span><span class="s">'king'</span><span class="p">,</span> <span class="s">'woman'</span><span class="p">],</span>
+    <span class="n">negative</span><span class="o">=</span><span class="p">[</span><span class="s">'man'</span><span class="p">],</span> <span class="n">topn</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"king - man + woman = {result[0][0]}"</span><span class="p">)</span>
+<span class="c1"># king - man + woman = queen  🎉</span>
+
+<span class="c1"># Cosine similarity between two words</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">wv</span><span class="o">.</span><span class="n">similarity</span><span class="p">(</span><span class="s">'cat'</span><span class="p">,</span> <span class="s">'dog'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Similarity(cat, dog) = {sim:.3f}"</span><span class="p">)</span>  <span class="c1"># ~0.85</span>
+
+<span class="c1"># Use pre-trained GloVe/Word2Vec (practical)</span>
+<span class="kn">import</span> <span class="n">gensim.downloader</span>
+<span class="n">pretrained</span> <span class="o">=</span> <span class="n">gensim</span><span class="o">.</span><span class="n">downloader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">'word2vec-google-news-300'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pretrained</span><span class="o">.</span><span class="n">most_similar</span><span class="p">(</span><span class="s">'python'</span><span class="p">,</span> <span class="n">topn</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span></div>
+  </div>
+
+  <!-- Cosine similarity calculator -->
+  <div class="widget">
+    <div class="widget-title">🔍 Cosine Similarity Calculator</div>
+    <div class="card-grid card-grid-2">
+      <div>
+        <label>Vector A (comma-separated):</label>
+        <input type="text" id="vecA" value="0.9, 0.2, 0.5, 0.1">
+      </div>
+      <div>
+        <label>Vector B (comma-separated):</label>
+        <input type="text" id="vecB" value="0.8, 0.3, 0.4, 0.2">
+      </div>
+    </div>
+    <button class="btn" style="margin-top:12px" onclick="calcCosine()">▶ Calculate Similarity</button>
+    <div class="result-box" id="cosineResult">Press ▶ Calculate to see the result…</div>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 5: TEXT CLASSIFICATION ────────────── -->
+<section class="section" id="classification">
+  <div class="section-badge badge-coral">📌 Module 05</div>
+  <h1 class="section-title">Text Classification</h1>
+  <p class="section-desc">Text classification assigns a category to a piece of text. It powers spam detection, content moderation, customer support routing, and much more.</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>Gmail's spam filter is a text classifier. It reads your email content, checks patterns it has learned from millions of labeled spam/not-spam emails, and assigns a label. That's exactly what we're about to build!</p>
+  </div>
+
+  <h2>3 Approaches — Simple to Powerful</h2>
+
+  <div class="tabs" id="clf-tabs">
+    <button class="tab active" onclick="switchTab('clf','naivebayes')">Naive Bayes</button>
+    <button class="tab" onclick="switchTab('clf','logreg')">Logistic Regression</button>
+    <button class="tab" onclick="switchTab('clf','pipeline')">Full ML Pipeline</button>
+  </div>
+
+  <div class="tab-content active" id="clf-naivebayes">
+    <div class="rw-box" style="border-color:var(--amber)">
+      <div class="rw-label" style="color:var(--amber)">💡 Intuition</div>
+      <p>Naive Bayes asks: "Given this word, which class is more probable?" It uses Bayes' theorem and assumes all words are independent (the "naive" part). Despite this simplification, it works surprisingly well for text!</p>
+    </div>
+    <div class="formula-box">
+      <div class="formula-label">Bayes' Theorem for Classification</div>
+      <div class="formula-main">P(class | text) ∝ P(class) × ∏ P(word | class)</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">from</span> <span class="n">sklearn.naive_bayes</span> <span class="kn">import</span> <span class="n">MultinomialNB</span>
+<span class="kn">from</span> <span class="n">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+<span class="kn">from</span> <span class="n">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span>
+
+<span class="c1"># Dataset: email spam detection</span>
+<span class="n">texts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">"Win FREE money now! Click here!"</span><span class="p">,</span>
+    <span class="s">"Hey can we meet tomorrow for lunch?"</span><span class="p">,</span>
+    <span class="s">"URGENT: Claim your lottery prize"</span><span class="p">,</span>
+    <span class="s">"Please review the attached report"</span><span class="p">,</span>
+    <span class="s">"Buy cheap medications online now"</span><span class="p">,</span>
+    <span class="s">"Team meeting at 3pm in room 201"</span><span class="p">,</span>
+    <span class="s">"You've been selected! Cash waiting"</span><span class="p">,</span>
+    <span class="s">"Can you send me the project files?"</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s">"spam"</span><span class="p">,</span><span class="s">"ham"</span><span class="p">,</span><span class="s">"spam"</span><span class="p">,</span><span class="s">"ham"</span><span class="p">,</span><span class="s">"spam"</span><span class="p">,</span><span class="s">"ham"</span><span class="p">,</span><span class="s">"spam"</span><span class="p">,</span><span class="s">"ham"</span><span class="p">]</span>
+
+<span class="c1"># Split data</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">texts</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="c1"># Vectorize text</span>
+<span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">()</span>
+<span class="n">X_train_vec</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test_vec</span>  <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="c1"># Train Naive Bayes</span>
+<span class="n">clf</span> <span class="o">=</span> <span class="n">MultinomialNB</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># alpha = Laplace smoothing</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_vec</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Predict & evaluate</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test_vec</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
+
+<span class="c1"># Predict new text</span>
+<span class="n">new_text</span> <span class="o">=</span> <span class="p">[</span><span class="s">"CONGRATULATIONS you won a prize!"</span><span class="p">]</span>
+<span class="n">pred</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">new_text</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Prediction: {pred[0]}"</span><span class="p">)</span>  <span class="c1"># → spam</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="clf-logreg">
+    <div class="rw-box" style="border-color:var(--purple)">
+      <div class="rw-label" style="color:var(--purple)">💡 Intuition</div>
+      <p>Logistic Regression learns a weight for each word feature. It's like saying "the word 'free' contributes +2.5 toward SPAM, while 'meeting' contributes -1.8". These weights are learned from training data.</p>
+    </div>
+    <div class="formula-box">
+      <div class="formula-label">Sigmoid Function (maps to 0-1 probability)</div>
+      <div class="formula-main">σ(z) = 1 / (1 + e^(-z))   where z = w·x + b</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">from</span> <span class="n">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="n">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+<span class="kn">import</span> <span class="n">numpy</span> <span class="kn">as</span> <span class="n">np</span>
+
+<span class="c1"># After vectorizing (same as above), train LogReg</span>
+<span class="n">clf</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span>
+    <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>           <span class="c1"># regularization (smaller = stronger)</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>   <span class="c1"># iterations for optimizer</span>
+    <span class="n">solver</span><span class="o">=</span><span class="s">'lbfgs'</span>   <span class="c1"># optimization algorithm</span>
+<span class="p">)</span>
+<span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_vec</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Get probability estimates (more useful than just labels)</span>
+<span class="n">probs</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test_vec</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">prob</span> <span class="o">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">f"'{text[:30]}...' → spam: {prob[1]:.1%}"</span><span class="p">)</span>
+
+<span class="c1"># Inspect most influential words</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">()</span>
+<span class="n">coefs</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">top_spam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">coefs</span><span class="p">)[</span><span class="o">-</span><span class="mi">5</span><span class="p">:]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">"Top SPAM words:"</span><span class="p">,</span> <span class="n">feature_names</span><span class="p">[</span><span class="n">top_spam</span><span class="p">])</span>
+<span class="c1"># ['free', 'win', 'prize', 'click', 'cash']</span></div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="clf-pipeline">
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">A proper ML pipeline chains preprocessing, vectorization, and classification into a single reusable object. This prevents data leakage and makes deployment clean.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">PYTHON — Full Production Pipeline</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+      <div class="code-body"><span class="kn">from</span> <span class="n">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="n">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span>
+<span class="kn">from</span> <span class="n">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="n">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span><span class="p">,</span> <span class="n">GridSearchCV</span>
+<span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">confusion_matrix</span>
+<span class="kn">import</span> <span class="n">joblib</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 1. Build pipeline
+# ──────────────────────────────────────────</span>
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+    <span class="p">(</span><span class="s">'tfidf'</span><span class="p">,</span> <span class="n">TfidfVectorizer</span><span class="p">(</span>
+        <span class="n">stop_words</span><span class="o">=</span><span class="s">'english'</span><span class="p">,</span>
+        <span class="n">ngram_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">max_features</span><span class="o">=</span><span class="mi">50000</span>
+    <span class="p">)),</span>
+    <span class="p">(</span><span class="s">'clf'</span><span class="p">,</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">))</span>
+<span class="p">])</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 2. Hyperparameter tuning with GridSearch
+# ──────────────────────────────────────────</span>
+<span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'tfidf__max_features'</span><span class="p">:</span> <span class="p">[</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">50000</span><span class="p">],</span>
+    <span class="s">'tfidf__ngram_range'</span><span class="p">:</span>  <span class="p">[(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)],</span>
+    <span class="s">'clf__C'</span><span class="p">:</span>              <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">],</span>
+<span class="p">}</span>
+<span class="n">grid_search</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
+    <span class="n">pipeline</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s">'f1_macro'</span>
+<span class="p">)</span>
+<span class="n">grid_search</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Best params: {grid_search.best_params_}"</span><span class="p">)</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 3. Evaluate
+# ──────────────────────────────────────────</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">grid_search</span><span class="o">.</span><span class="n">best_estimator_</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">best</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">))</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 4. Save and load model (production!)
+# ──────────────────────────────────────────</span>
+<span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="s">'spam_classifier.pkl'</span><span class="p">)</span>
+<span class="n">loaded_model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s">'spam_classifier.pkl'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">loaded_model</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s">"Congratulations! You won a prize"</span><span class="p">]))</span></div>
+    </div>
+  </div>
+
+  <!-- Live spam classifier widget -->
+  <div class="widget" style="margin-top:24px">
+    <div class="widget-title">🛡️ Live Spam Classifier — Try It!</div>
+    <label>Enter a message to classify:</label>
+    <textarea id="spamInput" placeholder="Type an email message…">Congratulations! You've been selected to receive $1000 FREE. Click here NOW to claim your prize money!</textarea>
+    <button class="btn" style="margin-top:12px" onclick="classifySpam()">▶ Classify Message</button>
+    <div id="spamResult" style="margin-top:14px;display:none">
+      <div id="spamVerdict" style="font-size:22px;font-weight:700;margin-bottom:8px"></div>
+      <div id="spamBars"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ────────────── SECTION 6: TRANSFORMERS ────────────── -->
+<section class="section" id="transformers">
+  <div class="section-badge badge-purple">📌 Module 06</div>
+  <h1 class="section-title">Transformers Architecture</h1>
+  <p class="section-desc">Transformers revolutionized NLP in 2017 (Vaswani et al., "Attention is All You Need"). They process all words simultaneously — not one at a time like RNNs — making them vastly more powerful and parallelizable.</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>GPT-4, Claude, Gemini, BERT, T5 — every major AI language model today is built on the Transformer architecture. When you chat with an AI assistant, you're seeing the Transformer in action!</p>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">2017</div><div class="stat-lab">Year introduced</div></div>
+    <div class="stat-card"><div class="stat-num">175B</div><div class="stat-lab">GPT-3 parameters</div></div>
+    <div class="stat-card"><div class="stat-num">∞</div><div class="stat-lab">Tasks it can do</div></div>
+  </div>
+
+  <!-- Transformer Architecture SVG -->
+  <h2>Architecture Overview</h2>
+  <div class="svg-wrap">
+    <svg viewBox="0 0 900 580" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Encoder side -->
+      <rect x="30" y="20" width="370" height="540" rx="14" stroke="#00d4aa" stroke-width="1" stroke-dasharray="6,4" fill="#00d4aa08"/>
+      <text x="215" y="48" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700">ENCODER</text>
+
+      <!-- Decoder side -->
+      <rect x="510" y="20" width="370" height="540" rx="14" stroke="#a78bfa" stroke-width="1" stroke-dasharray="6,4" fill="#a78bfa08"/>
+      <text x="695" y="48" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="12" font-weight="700">DECODER</text>
+
+      <!-- Encoder: Input embedding -->
+      <rect x="60" y="470" width="310" height="45" rx="8" fill="#161b22" stroke="#ffb830" stroke-width="1.5"/>
+      <text x="215" y="497" text-anchor="middle" fill="#ffb830" font-family="Plus Jakarta Sans,sans-serif" font-size="12" font-weight="600">Input Embedding + Positional Encoding</text>
+
+      <!-- Encoder: Multi-head attention -->
+      <rect x="60" y="390" width="310" height="50" rx="8" fill="#161b22" stroke="#00d4aa" stroke-width="1.5"/>
+      <text x="215" y="412" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">Multi-Head Self-Attention</text>
+      <text x="215" y="429" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Q · K^T / √d_k → softmax → × V</text>
+
+      <!-- Encoder: Add & Norm -->
+      <rect x="60" y="340" width="310" height="35" rx="8" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+      <text x="215" y="362" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="11">Add &amp; Layer Norm</text>
+
+      <!-- Encoder: FFN -->
+      <rect x="60" y="270" width="310" height="50" rx="8" fill="#161b22" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="215" y="293" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">Feed-Forward Network</text>
+      <text x="215" y="310" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Linear → ReLU → Linear</text>
+
+      <!-- Encoder: Add & Norm 2 -->
+      <rect x="60" y="220" width="310" height="35" rx="8" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+      <text x="215" y="242" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="11">Add &amp; Layer Norm</text>
+
+      <!-- Encoder stack indicator -->
+      <rect x="60" y="180" width="310" height="28" rx="6" fill="#00d4aa11" stroke="#00d4aa44" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="215" y="198" text-anchor="middle" fill="#00d4aa" font-family="Plus Jakarta Sans,sans-serif" font-size="10">× N layers (BERT=12, large=24)</text>
+
+      <!-- Encoder output -->
+      <rect x="90" y="80" width="250" height="40" rx="8" fill="#161b22" stroke="#00d4aa" stroke-width="1"/>
+      <text x="215" y="104" text-anchor="middle" fill="#00d4aa" font-family="Plus Jakarta Sans,sans-serif" font-size="11" font-weight="600">Contextual Representations</text>
+
+      <!-- Arrows encoder -->
+      <line x1="215" y1="468" x2="215" y2="442" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="215" y1="390" x2="215" y2="377" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="215" y1="340" x2="215" y2="322" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="215" y1="270" x2="215" y2="257" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="215" y1="220" x2="215" y2="210" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="215" y1="180" x2="215" y2="122" stroke="#00d4aa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Decoder: Target embedding -->
+      <rect x="540" y="470" width="310" height="45" rx="8" fill="#161b22" stroke="#ffb830" stroke-width="1.5"/>
+      <text x="695" y="497" text-anchor="middle" fill="#ffb830" font-family="Plus Jakarta Sans,sans-serif" font-size="12" font-weight="600">Output Embedding + Positional Encoding</text>
+
+      <!-- Decoder: Masked attention -->
+      <rect x="540" y="395" width="310" height="50" rx="8" fill="#161b22" stroke="#f97583" stroke-width="1.5"/>
+      <text x="695" y="417" text-anchor="middle" fill="#f97583" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">Masked Multi-Head Attention</text>
+      <text x="695" y="434" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Prevents future-token peeking</text>
+
+      <!-- Decoder: Add & Norm 1 -->
+      <rect x="540" y="345" width="310" height="35" rx="8" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+      <text x="695" y="367" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="11">Add &amp; Layer Norm</text>
+
+      <!-- Decoder: Cross-attention -->
+      <rect x="540" y="270" width="310" height="55" rx="8" fill="#161b22" stroke="#00d4aa" stroke-width="1.5"/>
+      <text x="695" y="293" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">Cross-Attention</text>
+      <text x="695" y="308" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Q from decoder, K,V from encoder</text>
+      <text x="695" y="320" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="9">← connects encoder and decoder</text>
+
+      <!-- Decoder: Add & Norm 2 -->
+      <rect x="540" y="220" width="310" height="35" rx="8" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+      <text x="695" y="242" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="11">Add &amp; Layer Norm</text>
+
+      <!-- Decoder: FFN -->
+      <rect x="540" y="168" width="310" height="38" rx="8" fill="#161b22" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="695" y="191" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">Feed-Forward Network</text>
+
+      <!-- Output -->
+      <rect x="600" y="70" width="190" height="70" rx="8" fill="#a78bfa22" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="695" y="97" text-anchor="middle" fill="#a78bfa" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600">Linear + Softmax</text>
+      <text x="695" y="114" text-anchor="middle" fill="#8b949e" font-family="Plus Jakarta Sans,sans-serif" font-size="10">Output Probabilities</text>
+      <text x="695" y="130" text-anchor="middle" fill="#00d4aa" font-family="JetBrains Mono,monospace" font-size="10">→ next token prediction</text>
+
+      <!-- Arrows decoder -->
+      <line x1="695" y1="468" x2="695" y2="447" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="695" y1="395" x2="695" y2="382" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="695" y1="345" x2="695" y2="327" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="695" y1="270" x2="695" y2="257" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="695" y1="220" x2="695" y2="208" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+      <line x1="695" y1="168" x2="695" y2="142" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arr)"/>
+
+      <!-- Cross-attention arrow from encoder to decoder -->
+      <path d="M 372 100 C 440 100, 440 300, 538 300" stroke="#00d4aa" stroke-width="1.5" stroke-dasharray="5,3" fill="none"/>
+      <circle cx="370" cy="100" r="4" fill="#00d4aa"/>
+      <text x="430" y="90" text-anchor="middle" fill="#00d4aa" font-family="Plus Jakarta Sans,sans-serif" font-size="9">K, V</text>
+    </svg>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card card-accent-teal">
+      <h3 style="color:var(--teal);font-size:14px">Encoder-only</h3>
+      <div class="chips"><span class="chip chip-teal">BERT</span><span class="chip chip-teal">RoBERTa</span></div>
+      <p style="font-size:12px;color:var(--text-muted)">Best for classification, NER, sentiment. Reads text in both directions.</p>
+    </div>
+    <div class="card card-accent-purple">
+      <h3 style="color:var(--purple);font-size:14px">Decoder-only</h3>
+      <div class="chips"><span class="chip chip-purple">GPT-4</span><span class="chip chip-purple">Claude</span></div>
+      <p style="font-size:12px;color:var(--text-muted)">Best for generation. Predicts next token left-to-right.</p>
+    </div>
+    <div class="card card-accent-amber">
+      <h3 style="color:var(--amber);font-size:14px">Encoder-Decoder</h3>
+      <div class="chips"><span class="chip chip-amber">T5</span><span class="chip chip-amber">BART</span></div>
+      <p style="font-size:12px;color:var(--text-muted)">Best for translation, summarization. Has both parts.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 7: ATTENTION ────────────── -->
+<section class="section" id="attention">
+  <div class="section-badge badge-amber">📌 Module 07</div>
+  <h1 class="section-title">Attention Mechanism</h1>
+  <p class="section-desc">Attention allows the model to "look at" all other words when processing a word. It learns WHICH words to focus on — this is the core innovation of Transformers.</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Analogy</div>
+    <p>When you read "The animal didn't cross the street because <em>it</em> was too tired", you know "it" refers to "animal". Attention lets the model make this connection automatically!</p>
+  </div>
+
+  <h2>The Math: Query, Key, Value</h2>
+  <div class="formula-box">
+    <div class="formula-label">Scaled Dot-Product Attention</div>
+    <div class="formula-main">Attention(Q, K, V) = softmax( Q·Kᵀ / √d_k ) · V</div>
+    <div class="formula-explain">
+      <div class="formula-term"><code>Q (Query)</code><span>"What am I looking for?"</span></div>
+      <div class="formula-term"><code>K (Key)</code><span>"What do I have?"</span></div>
+      <div class="formula-term"><code>V (Value)</code><span>"What do I return?"</span></div>
+      <div class="formula-term"><code>√d_k</code><span>scaling factor</span></div>
+    </div>
+  </div>
+
+  <!-- Attention heatmap -->
+  <h2>Attention Heatmap — Interactive</h2>
+  <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">Click on a word to see which words it "attends to" most. Brighter = higher attention weight.</p>
+
+  <div class="widget">
+    <div class="widget-title">🔥 Attention Weights Visualizer</div>
+    <div id="attnViz"></div>
+  </div>
+
+  <div class="code-block" style="margin-top:24px">
+    <div class="code-header"><span class="code-lang">PYTHON — Attention from Scratch</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+    <div class="code-body"><span class="kn">import</span> <span class="n">numpy</span> <span class="kn">as</span> <span class="n">np</span>
+
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">e_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">e_x</span> <span class="o">/</span> <span class="n">e_x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">scaled_dot_product_attention</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">):</span>
+    <span class="n">d_k</span> <span class="o">=</span> <span class="n">Q</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Compute attention scores</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">d_k</span><span class="p">)</span>
+    <span class="c1"># Convert to probabilities</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">softmax</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="o">in</span> <span class="n">scores</span><span class="p">])</span>
+    <span class="c1"># Weighted sum of values</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">weights</span>
+
+<span class="c1"># Example: 4 tokens, 8-dimensional embeddings</span>
+<span class="n">seq_len</span><span class="p">,</span> <span class="n">d_model</span><span class="p">,</span> <span class="n">d_k</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+
+<span class="c1"># Weight matrices (learned during training)</span>
+<span class="n">W_Q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span>
+<span class="n">W_K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span>
+<span class="n">W_V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">d_model</span><span class="p">,</span> <span class="n">d_k</span><span class="p">)</span>
+
+<span class="c1"># Compute Q, K, V projections</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">W_Q</span>
+<span class="n">K</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">W_K</span>
+<span class="n">V</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">W_V</span>
+
+<span class="n">output</span><span class="p">,</span> <span class="n">attn_weights</span> <span class="o">=</span> <span class="n">scaled_dot_product_attention</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Attention weights:\n{attn_weights.round(3)}"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s">f"Output shape: {output.shape}"</span><span class="p">)</span></div>
+  </div>
+</section>
+
+<!-- ────────────── SECTION 8: BERT IN PRACTICE ────────────── -->
+<section class="section" id="bert-practice">
+  <div class="section-badge badge-teal">📌 Module 08</div>
+  <h1 class="section-title">BERT & HuggingFace in Practice</h1>
+  <p class="section-desc">BERT (Bidirectional Encoder Representations from Transformers) is pre-trained on 3.3 billion words. You can fine-tune it for your specific task in minutes — not months!</p>
+
+  <div class="rw-box">
+    <div class="rw-label">🌍 Real World Example</div>
+    <p>Google uses BERT in its search engine to understand search queries better. A query like "can you get medicine for someone pharmacy" — BERT understands "for someone" is the key context, not just keyword matching.</p>
+  </div>
+
+  <h2>BERT Fine-Tuning Pipeline</h2>
+  <!-- BERT pipeline visual -->
+  <div class="pipeline-steps" style="gap:22px;flex-wrap:wrap">
+    <div class="pipe-step" style="border-color:var(--amber)">
+      <div class="pipe-step-num">STEP 1</div>
+      <div class="pipe-step-name" style="color:var(--amber)">Pre-trained BERT</div>
+      <div class="pipe-step-desc">Load model trained on billions of words. All language knowledge is already there.</div>
+    </div>
+    <div class="pipe-step" style="border-color:var(--teal)">
+      <div class="pipe-step-num">STEP 2</div>
+      <div class="pipe-step-name" style="color:var(--teal)">Tokenize Data</div>
+      <div class="pipe-step-desc">Use BERT's special tokenizer (WordPiece). Handles [CLS] and [SEP] tokens.</div>
+    </div>
+    <div class="pipe-step" style="border-color:var(--purple)">
+      <div class="pipe-step-num">STEP 3</div>
+      <div class="pipe-step-name" style="color:var(--purple)">Add Classifier</div>
+      <div class="pipe-step-desc">Add a linear layer on top of [CLS] token representation.</div>
+    </div>
+    <div class="pipe-step" style="border-color:var(--coral)">
+      <div class="pipe-step-num">STEP 4</div>
+      <div class="pipe-step-name" style="color:var(--coral)">Fine-tune</div>
+      <div class="pipe-step-desc">Train on your labeled data for 2-4 epochs with low learning rate.</div>
+    </div>
+    <div class="pipe-step" style="border-color:var(--teal)">
+      <div class="pipe-step-num">STEP 5</div>
+      <div class="pipe-step-name" style="color:var(--teal)">Deploy!</div>
+      <div class="pipe-step-desc">Export model, build inference endpoint. Serve predictions.</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">PYTHON — BERT Sentiment Classifier (HuggingFace)</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+    <div class="code-body"><span class="kn">from</span> <span class="n">transformers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BertTokenizer</span><span class="p">,</span>
+    <span class="n">BertForSequenceClassification</span><span class="p">,</span>
+    <span class="n">Trainer</span><span class="p">,</span>
+    <span class="n">TrainingArguments</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="n">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">import</span> <span class="n">torch</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 1. Load Pre-trained BERT
+# ──────────────────────────────────────────</span>
+<span class="n">MODEL_NAME</span> <span class="o">=</span> <span class="s">"bert-base-uncased"</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">BertTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">MODEL_NAME</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">BertForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="n">MODEL_NAME</span><span class="p">,</span>
+    <span class="n">num_labels</span><span class="o">=</span><span class="mi">2</span>     <span class="c1"># positive / negative</span>
+<span class="p">)</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 2. Load & Tokenize Dataset
+# ──────────────────────────────────────────</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s">"imdb"</span><span class="p">)</span>  <span class="c1"># 50k movie reviews</span>
+
+<span class="k">def</span> <span class="nf">tokenize_fn</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tokenizer</span><span class="p">(</span>
+        <span class="n">batch</span><span class="p">[</span><span class="s">"text"</span><span class="p">],</span>
+        <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">padding</span><span class="o">=</span><span class="s">"max_length"</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">512</span>
+    <span class="p">)</span>
+
+<span class="n">tokenized</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_fn</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 3. Training Arguments
+# ──────────────────────────────────────────</span>
+<span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s">"./results"</span><span class="p">,</span>
+    <span class="n">num_train_epochs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">per_device_eval_batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">,</span>       <span class="c1"># small LR for fine-tuning!</span>
+    <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+    <span class="n">evaluation_strategy</span><span class="o">=</span><span class="s">"epoch"</span><span class="p">,</span>
+    <span class="n">save_strategy</span><span class="o">=</span><span class="s">"epoch"</span><span class="p">,</span>
+    <span class="n">load_best_model_at_end</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">report_to</span><span class="o">=</span><span class="s">"none"</span>
+<span class="p">)</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 4. Train!
+# ──────────────────────────────────────────</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">tokenized</span><span class="p">[</span><span class="s">"train"</span><span class="p">],</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">tokenized</span><span class="p">[</span><span class="s">"test"</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>  <span class="c1"># ~93% accuracy on IMDB!</span>
+
+<span class="c1"># ──────────────────────────────────────────
+# 5. Quick inference with pipeline API
+# ──────────────────────────────────────────</span>
+<span class="kn">from</span> <span class="n">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="n">sentiment</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span>
+    <span class="s">"sentiment-analysis"</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s">"distilbert-base-uncased-finetuned-sst-2-english"</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">sentiment</span><span class="p">([</span>
+    <span class="s">"This movie was absolutely fantastic!"</span><span class="p">,</span>
+    <span class="s">"What a waste of two hours."</span><span class="p">,</span>
+    <span class="s">"It was okay, not great not bad."</span>
+<span class="p">])</span>
+<span class="k">for</span> <span class="n">r</span> <span class="o">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">f"{r['label']} ({r['score']:.1%})"</span><span class="p">)</span>
+<span class="c1"># POSITIVE (99.8%)</span>
+<span class="c1"># NEGATIVE (99.9%)</span>
+<span class="c1"># NEGATIVE (59.2%)</span></div>
+  </div>
+
+  <h2>Zero-Shot & Few-Shot with Modern LLMs</h2>
+  <div class="code-block">
+    <div class="code-header"><span class="code-lang">PYTHON — Zero-Shot Classification (no training data needed!)</span><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div></div>
+    <div class="code-body"><span class="kn">from</span> <span class="n">transformers</span> <span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="c1"># Zero-shot: classify without any training data!</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s">"zero-shot-classification"</span><span class="p">,</span>
+                       <span class="n">model</span><span class="o">=</span><span class="s">"facebook/bart-large-mnli"</span><span class="p">)</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="s">"The new iPhone has an amazing camera and battery life"</span>
+<span class="n">candidate_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s">"technology"</span><span class="p">,</span> <span class="s">"sports"</span><span class="p">,</span> <span class="s">"politics"</span><span class="p">,</span> <span class="s">"entertainment"</span><span class="p">]</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">candidate_labels</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">score</span> <span class="o">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s">'labels'</span><span class="p">],</span> <span class="n">result</span><span class="p">[</span><span class="s">'scores'</span><span class="p">]):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s">f"{label:15} {score:.1%}"</span><span class="p">)</span>
+<span class="c1"># technology      91.2%</span>
+<span class="c1"># entertainment    6.1%</span>
+<span class="c1"># sports           1.9%</span>
+<span class="c1"># politics         0.8%</span>
+
+<span class="c1"># ── Other HuggingFace Pipelines ──</span>
+<span class="c1"># Named Entity Recognition</span>
+<span class="n">ner</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s">"ner"</span><span class="p">,</span> <span class="n">aggregation_strategy</span><span class="o">=</span><span class="s">"simple"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ner</span><span class="p">(</span><span class="s">"Elon Musk founded SpaceX in California"</span><span class="p">))</span>
+
+<span class="c1"># Summarization</span>
+<span class="n">summarizer</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s">"summarization"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s">"t5-small"</span><span class="p">)</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">summarizer</span><span class="p">(</span><span class="n">long_article</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Question Answering</span>
+<span class="n">qa</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s">"question-answering"</span><span class="p">)</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">qa</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="s">"Who founded SpaceX?"</span><span class="p">,</span>
+             <span class="n">context</span><span class="o">=</span><span class="s">"Elon Musk founded SpaceX in 2002..."</span><span class="p">)</span>
+
+<span class="c1"># Translation</span>
+<span class="n">translator</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s">"translation_en_to_fr"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s">"Helsinki-NLP/opus-mt-en-fr"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">translator</span><span class="p">(</span><span class="s">"Hello, how are you?"</span><span class="p">))</span></div>
+  </div>
+
+  <!-- Performance comparison -->
+  <h2>Model Performance Comparison</h2>
+  <div class="card" style="margin-top:16px">
+    <h3 style="margin-bottom:16px;color:var(--text-muted);font-size:13px">Sentiment Analysis Accuracy on IMDB Dataset</h3>
+    <div class="progress-row"><span class="progress-label">BERT-base</span><div class="progress-bar"><div class="progress-fill" style="width:93%"></div></div><span class="progress-val">93%</span></div>
+    <div class="progress-row"><span class="progress-label">RoBERTa</span><div class="progress-bar"><div class="progress-fill" style="width:96%"></div></div><span class="progress-val">96%</span></div>
+    <div class="progress-row"><span class="progress-label">DistilBERT</span><div class="progress-bar"><div class="progress-fill" style="width:91%"></div></div><span class="progress-val">91%</span></div>
+    <div class="progress-row"><span class="progress-label">TF-IDF+LogReg</span><div class="progress-bar"><div class="progress-fill" style="width:88%"></div></div><span class="progress-val">88%</span></div>
+    <div class="progress-row"><span class="progress-label">Naive Bayes</span><div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div><span class="progress-val">82%</span></div>
+  </div>
+
+  <!-- Summary card -->
+  <div class="card card-accent-teal" style="margin-top:32px">
+    <h2 style="margin-top:0;color:var(--teal)">🎯 Quick Reference Cheat Sheet</h2>
+    <div class="card-grid card-grid-2" style="margin-top:16px">
+      <div>
+        <h3 style="color:var(--amber);font-size:14px">When to use TF-IDF + Traditional ML</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2">
+          <li>Small dataset (&lt;10k samples)</li>
+          <li>Fast training needed</li>
+          <li>Interpretability required</li>
+          <li>Low compute budget</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="color:var(--teal);font-size:14px">When to use Transformers (BERT)</h3>
+        <ul style="font-size:13px;color:var(--text-muted);padding-left:18px;line-height:2">
+          <li>Large dataset available</li>
+          <li>Context matters (ambiguous words)</li>
+          <li>State-of-the-art accuracy needed</li>
+          <li>Complex tasks (QA, NER, translation)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:40px 0 20px;color:var(--text-dim);font-size:13px">
+    Built with ❤️ for Interns · NLP Learning Session 2025
+  </div>
+</section>
+</main>
+
+<script>
+// ── Navigation ──
+function scrollTo(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Update active nav on scroll
+const sections = ['hero','nlp-pipeline','preprocessing','tfidf','embeddings','classification','transformers','attention','bert-practice'];
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 120) current = id;
+  });
+});
+
+// ── Tabs ──
+function switchTab(group, tabId) {
+  const tabSection = document.querySelector(`#${group}-tabs`);
+  tabSection.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  // Find all tab-content siblings
+  const parent = tabSection.parentElement;
+  parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  const target = document.getElementById(`${group}-${tabId}`);
+  if (target) target.classList.add('active');
+}
+
+// ── Preprocessing Demo ──
+const STOP_WORDS = new Set(['i','me','my','we','our','you','he','she','it','they','was','is','are','be','been','being','have','has','had','do','did','the','a','an','and','but','or','for','nor','so','yet','at','by','for','in','into','of','off','on','to','up','with','as','that','this','these','those','not','no','than','too','very','just','over','under','after','before','on','off','out','about','above','below','between']);
+
+function stem(word) {
+  word = word.toLowerCase();
+  if (word.endsWith('ing') && word.length > 5) return word.slice(0, -3);
+  if (word.endsWith('tion')) return word.slice(0, -4);
+  if (word.endsWith('ies')) return word.slice(0, -3) + 'y';
+  if (word.endsWith('es') && word.length > 4) return word.slice(0, -2);
+  if (word.endsWith('s') && word.length > 4 && !word.endsWith('ss')) return word.slice(0, -1);
+  if (word.endsWith('ed') && word.length > 4) return word.slice(0, -2);
+  if (word.endsWith('ly')) return word.slice(0, -2);
+  return word;
+}
+
+function runPreprocess() {
+  const text = document.getElementById('prepInput').value;
+  const doStop = document.getElementById('chkStopwords').checked;
+  const doStem = document.getElementById('chkStem').checked;
+  const doLower = document.getElementById('chkLower').checked;
+
+  let tokens = text.toLowerCase().replace(/[^a-zA-Z\s]/g, '').split(/\s+/).filter(Boolean);
+  if (doLower) tokens = tokens.map(t => t.toLowerCase());
+  if (doStop) tokens = tokens.filter(t => !STOP_WORDS.has(t));
+  if (doStem) tokens = tokens.map(t => stem(t));
+
+  const result = `Original tokens (${text.split(/\s+/).length}):\n[${text.toLowerCase().replace(/[^a-zA-Z\s]/g,'').split(/\s+/).filter(Boolean).map(t=>`"${t}"`).join(', ')}]\n\nAfter preprocessing (${tokens.length} tokens):\n[${tokens.map(t=>`"${t}"`).join(', ')}]\n\nReduction: ${Math.round((1 - tokens.length/text.split(/\s+/).length)*100)}% fewer tokens`;
+  document.getElementById('prepResult').textContent = result;
+}
+
+// ── TF-IDF Calculator ──
+function calcTFIDF() {
+  const docs = [
+    document.getElementById('d1').value,
+    document.getElementById('d2').value,
+    document.getElementById('d3').value
+  ];
+  const query = document.getElementById('queryWord').value.trim().toLowerCase();
+
+  if (!query) { document.getElementById('tfidfResult').textContent = 'Please enter a query word.'; return; }
+
+  let output = `TF-IDF scores for word: "${query}"\n${'─'.repeat(50)}\n`;
+
+  const N = docs.length;
+  const df = docs.filter(d => d.toLowerCase().split(/\s+/).includes(query)).length;
+  const idf = df > 0 ? Math.log(N / df) : 0;
+
+  output += `\nIDF("${query}") = log(${N}/${df}) = ${idf.toFixed(4)}\n\n`;
+
+  docs.forEach((doc, i) => {
+    const words = doc.toLowerCase().split(/\s+/);
+    const count = words.filter(w => w === query).length;
+    const tf = count / words.length;
+    const tfidf = tf * idf;
+    output += `Doc ${i+1}: "${doc}"\n`;
+    output += `  TF  = ${count}/${words.length} = ${tf.toFixed(4)}\n`;
+    output += `  TF-IDF = ${tf.toFixed(4)} × ${idf.toFixed(4)} = ${tfidf.toFixed(4)}\n\n`;
+  });
+
+  if (df === 0) output += `⚠️  Word "${query}" not found in any document.`;
+  document.getElementById('tfidfResult').textContent = output;
+}
+
+// ── Cosine Similarity ──
+function calcCosine() {
+  try {
+    const a = document.getElementById('vecA').value.split(',').map(Number);
+    const b = document.getElementById('vecB').value.split(',').map(Number);
+    if (a.length !== b.length) { document.getElementById('cosineResult').textContent = '⚠️ Vectors must have same length!'; return; }
+
+    const dot = a.reduce((s, v, i) => s + v * b[i], 0);
+    const magA = Math.sqrt(a.reduce((s, v) => s + v*v, 0));
+    const magB = Math.sqrt(b.reduce((s, v) => s + v*v, 0));
+    const sim = dot / (magA * magB);
+
+    const interp = sim > 0.9 ? 'Very Similar!' : sim > 0.7 ? 'Similar' : sim > 0.4 ? 'Somewhat similar' : sim > 0 ? 'Weakly related' : 'Different / Opposite';
+
+    document.getElementById('cosineResult').textContent =
+      `A · B   = ${dot.toFixed(4)}\n||A||   = ${magA.toFixed(4)}\n||B||   = ${magB.toFixed(4)}\n\ncosine_similarity = ${sim.toFixed(4)}\n\n→ Interpretation: ${interp}`;
+  } catch(e) {
+    document.getElementById('cosineResult').textContent = '⚠️ Invalid input. Use comma-separated numbers.';
+  }
+}
+
+// ── Spam Classifier ──
+const SPAM_WORDS = {win:3,free:3.5,prize:3.2,money:2.5,click:2,urgent:2.5,congratulations:3,cash:2.5,claim:2.5,selected:1.5,cheap:2,buy:1.5,earn:2,guaranteed:2,exclusive:1.5,offer:1.5,limited:1,act:0.8,now:1.2};
+const HAM_WORDS = {meeting:2,please:1.5,report:1.5,thanks:1.5,team:1.5,review:1.5,attached:1.5,project:1.5,tomorrow:1.5,schedule:2,document:1.5,discuss:1.5,colleague:2,lunch:1.5};
+
+function classifySpam() {
+  const text = document.getElementById('spamInput').value.toLowerCase();
+  const words = text.split(/\W+/);
+  let spamScore = 0, hamScore = 0;
+
+  words.forEach(w => {
+    spamScore += SPAM_WORDS[w] || 0;
+    hamScore += HAM_WORDS[w] || 0;
+  });
+
+  // Sigmoid-like normalization
+  const total = Math.max(spamScore + hamScore + 2, 2);
+  const spamProb = Math.min(0.99, Math.max(0.01, (spamScore + 0.5) / total));
+  const hamProb = 1 - spamProb;
+
+  const isSpam = spamProb > 0.5;
+  const container = document.getElementById('spamResult');
+  const verdict = document.getElementById('spamVerdict');
+  const bars = document.getElementById('spamBars');
+
+  container.style.display = 'block';
+  verdict.innerHTML = isSpam
+    ? `<span style="color:#f97583">🚨 SPAM</span> <span style="font-size:14px;color:#8b949e;font-weight:400">(${(spamProb*100).toFixed(1)}% probability)</span>`
+    : `<span style="color:#00d4aa">✅ HAM (Not Spam)</span> <span style="font-size:14px;color:#8b949e;font-weight:400">(${(hamProb*100).toFixed(1)}% probability)</span>`;
+
+  bars.innerHTML = `
+    <div class="progress-row"><span class="progress-label" style="color:#f97583">Spam</span><div class="progress-bar"><div class="progress-fill" style="width:${spamProb*100}%;background:linear-gradient(90deg,#f97583,#ff4444)"></div></div><span class="progress-val">${(spamProb*100).toFixed(0)}%</span></div>
+    <div class="progress-row"><span class="progress-label" style="color:#00d4aa">Ham</span><div class="progress-bar"><div class="progress-fill" style="width:${hamProb*100}%"></div></div><span class="progress-val">${(hamProb*100).toFixed(0)}%</span></div>
+  `;
+}
+
+// ── Word Embedding 2D Visualization ──
+const words = {
+  // Animals (teal)
+  cat:     [120, 180], dog: [145, 195], horse: [100, 210], fish: [160, 165], bird: [135, 155],
+  // Royalty (amber)
+  king:    [400, 120], queen: [440, 110], prince: [420, 150], royal: [380, 135], crown: [460, 100],
+  // Tech (purple)
+  python:  [550, 250], code: [575, 230], data:  [525, 265], model: [555, 280], ai: [600, 240],
+  // Food (coral)
+  apple:   [280, 340], banana: [310, 360], pizza: [255, 355], bread: [300, 325], cake: [330, 345]
+};
+
+const colors = { cat:'#00d4aa',dog:'#00d4aa',horse:'#00d4aa',fish:'#00d4aa',bird:'#00d4aa',
+  king:'#ffb830',queen:'#ffb830',prince:'#ffb830',royal:'#ffb830',crown:'#ffb830',
+  python:'#a78bfa',code:'#a78bfa',data:'#a78bfa',model:'#a78bfa',ai:'#a78bfa',
+  apple:'#f97583',banana:'#f97583',pizza:'#f97583',bread:'#f97583',cake:'#f97583' };
+
+const canvas = document.getElementById('embeddingCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = 700; canvas.height = 340;
+
+let hoveredWord = null;
+
+function drawEmbedding() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Grid
+  ctx.strokeStyle = '#21262d';
+  ctx.lineWidth = 0.5;
+  for(let x=0; x<canvas.width; x+=50) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+  for(let y=0; y<canvas.height; y+=50) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+
+  // Cluster halos
+  const clusterCenters = {
+    Animals:[130,185], Royalty:[420,120], Tech:[565,255], Food:[300,345]
+  };
+  Object.entries(clusterCenters).forEach(([name, [cx,cy]]) => {
+    const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,70);
+    const c = name==='Animals'?'#00d4aa':name==='Royalty'?'#ffb830':name==='Tech'?'#a78bfa':'#f97583';
+    grad.addColorStop(0, c+'18'); grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(cx,cy,70,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = c+'44';
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(name, cx, cy + 80);
+  });
+
+  // Draw connections for hovered
+  if (hoveredWord) {
+    const [hx, hy] = words[hoveredWord];
+    Object.entries(words).forEach(([w, [x, y]]) => {
+      if (w === hoveredWord) return;
+      if (colors[w] === colors[hoveredWord]) {
+        ctx.strokeStyle = colors[hoveredWord] + '55';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(x, y); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    });
+  }
+
+  // Draw words
+  Object.entries(words).forEach(([word, [x, y]]) => {
+    const isHovered = word === hoveredWord;
+    const color = colors[word];
+    const r = isHovered ? 6 : 4;
+
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2);
+    ctx.fillStyle = color + (isHovered ? 'ff' : 'cc');
+    ctx.fill();
+
+    if (isHovered) {
+      ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI*2);
+      ctx.strokeStyle = color + '44'; ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    ctx.font = `${isHovered ? '600 ' : ''}12px JetBrains Mono, monospace`;
+    ctx.fillStyle = isHovered ? color : color + 'cc';
+    ctx.textAlign = x > 600 ? 'right' : 'left';
+    ctx.fillText(word, x + (x > 600 ? -10 : 10), y + 4);
+  });
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+  const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+  let closest = null, minD = 30;
+  Object.entries(words).forEach(([w, [x, y]]) => {
+    const d = Math.hypot(mx-x, my-y);
+    if (d < minD) { minD = d; closest = w; }
+  });
+  hoveredWord = closest;
+  drawEmbedding();
+});
+canvas.addEventListener('mouseleave', () => { hoveredWord = null; drawEmbedding(); });
+drawEmbedding();
+
+// ── Attention Heatmap ──
+const tokens = ['The', 'cat', 'sat', 'on', 'mat'];
+const attnData = {
+  'The':  [0.5, 0.2, 0.1, 0.1, 0.1],
+  'cat':  [0.1, 0.5, 0.25, 0.05, 0.1],
+  'sat':  [0.05, 0.3, 0.4, 0.1, 0.15],
+  'on':   [0.1, 0.1, 0.25, 0.4, 0.15],
+  'mat':  [0.05, 0.15, 0.15, 0.2, 0.45]
+};
+let selectedToken = 'cat';
+
+function renderAttn() {
+  const viz = document.getElementById('attnViz');
+  const weights = attnData[selectedToken];
+
+  let html = `<div style="margin-bottom:12px;font-size:13px;color:var(--text-muted)">Selected query token: <strong style="color:var(--amber)">"${selectedToken}"</strong> — attention over all keys:</div>`;
+
+  // Token selector buttons
+  html += `<div style="display:flex;gap:8px;margin-bottom:20px">`;
+  tokens.forEach(t => {
+    html += `<button onclick="selectedToken='${t}';renderAttn()" style="padding:6px 14px;border-radius:6px;border:1px solid ${t===selectedToken?'var(--amber)':'var(--border)'};background:${t===selectedToken?'var(--amber-dim)':'var(--surface2)'};color:${t===selectedToken?'var(--amber)':'var(--text-muted)'};cursor:pointer;font-family:JetBrains Mono,monospace;font-size:13px">${t}</button>`;
+  });
+  html += `</div>`;
+
+  // Attention bars
+  tokens.forEach((tok, i) => {
+    const w = weights[i];
+    const intensity = Math.round(w * 255);
+    html += `
+      <div class="progress-row" style="margin:6px 0">
+        <span class="progress-label" style="color:${tok===selectedToken?'var(--amber)':'var(--text-muted)'}">${tok}</span>
+        <div class="progress-bar">
+          <div style="height:100%;width:${w*100}%;border-radius:4px;background:${tok===selectedToken?'linear-gradient(90deg,var(--amber),#ff8c00)':'linear-gradient(90deg,var(--teal),var(--purple))'};transition:width .4s"></div>
+        </div>
+        <span class="progress-val">${(w*100).toFixed(0)}%</span>
+      </div>`;
+  });
+
+  // Matrix view
+  html += `<div style="margin-top:20px;font-size:12px;color:var(--text-muted);margin-bottom:10px">Full attention matrix (all token pairs):</div>`;
+  html += `<div style="display:grid;grid-template-columns:80px repeat(${tokens.length},1fr);gap:3px">`;
+  html += `<div></div>`;
+  tokens.forEach(t => { html += `<div style="text-align:center;font-size:11px;color:var(--text-muted);font-family:JetBrains Mono,monospace;padding-bottom:4px">${t}</div>`; });
+  tokens.forEach((rowTok, r) => {
+    html += `<div style="display:flex;align-items:center;font-size:11px;color:var(--text-muted);font-family:JetBrains Mono,monospace">${rowTok}</div>`;
+    attnData[rowTok].forEach((w, c) => {
+      const alpha = Math.round(w * 240 + 15);
+      const col = rowTok === selectedToken ? `rgba(255,184,48,${w*0.9+0.1})` : `rgba(0,212,170,${w*0.8+0.05})`;
+      html += `<div style="background:${col};border-radius:4px;height:32px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:JetBrains Mono,monospace;color:${w>0.3?'#0d1117':'var(--text-muted)'}">${(w*100).toFixed(0)}%</div>`;
+    });
+  });
+  html += `</div>`;
+
+  viz.innerHTML = html;
+}
+renderAttn();
+</script>
+</body>
+</html>
